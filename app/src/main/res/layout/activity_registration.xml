@@ -8,6 +8,14 @@
     tools:context=".RegisterActivity">
 
     <EditText
+        android:id="@+id/etRegisterUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Username"
+        android:inputType="textPersonName"
+        android:layout_marginTop="16dp"/>
+
+    <EditText
         android:id="@+id/etRegisterEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,6 +44,7 @@
         android:text="Already have an account? Login"
         android:textColor="@android:color/holo_blue_dark"
         android:layout_marginTop="16dp"
-        android:clickable="true" />
+        android:clickable="true"
+        android:focusable="true" />
 
 </LinearLayout>
