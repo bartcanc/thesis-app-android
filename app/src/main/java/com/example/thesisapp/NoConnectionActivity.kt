@@ -12,19 +12,22 @@ class NoConnectionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_no_connection)
-
-        findViewById<Button>(R.id.btnRetry).setOnClickListener {
-            if (isNetworkAvailable(this)) {
-                // Powrót do głównej aktywności lub odświeżenie
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
-            } else {
-                Toast.makeText(this, "Nadal brak połączenia", Toast.LENGTH_SHORT).show()
+        if (isNetworkAvailable(this)) {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        } else {
+            findViewById<Button>(R.id.btnRetry).setOnClickListener {
+                if (isNetworkAvailable(this)) {
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                } else {
+                    Toast.makeText(this, "Nadal brak połączenia", Toast.LENGTH_SHORT).show()
+                }
             }
-        }
 
-        findViewById<Button>(R.id.btnSettings).setOnClickListener {
-            startActivity(Intent(Settings.ACTION_WIFI_SETTINGS)) // Przekierowanie do ustawień Wi-Fi
+            findViewById<Button>(R.id.btnSettings).setOnClickListener {
+                startActivity(Intent(Settings.ACTION_WIFI_SETTINGS)) // Przekierowanie do ustawień Wi-Fi
+            }
         }
     }
 }

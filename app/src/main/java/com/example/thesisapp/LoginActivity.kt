@@ -26,33 +26,56 @@ class LoginActivity : AppCompatActivity() {
         btnLogin = findViewById(R.id.btnLogin)
 
         btnLogin.setOnClickListener {
-            val username = etUsername.text.toString()
-            val password = etPassword.text.toString()
-
-            if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show()
+            if (!NetworkUtils.isNetworkAvailable(this)) {
+                startActivity(Intent(this, NoConnectionActivity::class.java))
+                finish()
             } else {
-                val loginRequest = LoginRequest(username, password)
-                ApiClient.apiService.login(loginRequest).enqueue(object : Callback<LoginResponse> {
-                    override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                        if (response.isSuccessful) {  // Kod HTTP 200
-                            Toast.makeText(this@LoginActivity, "Login successful", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                            intent.putExtra("message", "Successfully Logged In!")
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            val errorMessage = response.errorBody()?.string() ?: "Unknown error"
-                            Toast.makeText(this@LoginActivity, "Login failed: $errorMessage", Toast.LENGTH_SHORT).show()
-                        }
-                    }
+                val username = etUsername.text.toString()
+                val password = etPassword.text.toString()
 
-                    override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                        Toast.makeText(this@LoginActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
-                    }
-                })
+                if (username.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    val loginRequest = LoginRequest(username, password)
+                    ApiClient.apiService.login(loginRequest)
+                        .enqueue(object : Callback<LoginResponse> {
+                            override fun onResponse(
+                                call: Call<LoginResponse>,
+                                response: Response<LoginResponse>
+                            ) {
+                                if (response.isSuccessful) {  // Kod HTTP 200
+                                    Toast.makeText(
+                                        this@LoginActivity,
+                                        "Login successful",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    val intent =
+                                        Intent(this@LoginActivity, MainActivity::class.java)
+                                    intent.putExtra("message", "Successfully Logged In!")
+                                    startActivity(intent)
+                                    finish()
+                                } else {
+                                    val errorMessage =
+                                        response.errorBody()?.string() ?: "Unknown error"
+                                    Toast.makeText(
+                                        this@LoginActivity,
+                                        "Login failed: $errorMessage",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+
+                            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                                Toast.makeText(
+                                    this@LoginActivity,
+                                    "Network error: ${t.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        })
+                }
             }
-
         }
 
         findViewById<TextView>(R.id.tvRegister).setOnClickListener {

@@ -13,21 +13,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+            tvMessage = findViewById(R.id.tvMessage)
+            btnLogout = findViewById(R.id.btnLogout)
 
-        tvMessage = findViewById(R.id.tvMessage)
-        btnLogout = findViewById(R.id.btnLogout)
+            // Retrieve the login message if available
+            val message = intent.getStringExtra("message")
+            if (message != null) {
+                tvMessage.text = message
+            }
 
-        // Retrieve the login message if available
-
-        val message = intent.getStringExtra("message")
-        if (message != null) {
-            tvMessage.text = message
-        }
-
-        btnLogout.setOnClickListener {
-            // Log out the user and return to the login screen
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
+            btnLogout.setOnClickListener {
+                if (!NetworkUtils.isNetworkAvailable(this)) {
+                    startActivity(Intent(this, NoConnectionActivity::class.java))
+                    finish()
+                } else {
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
         }
     }
 }
