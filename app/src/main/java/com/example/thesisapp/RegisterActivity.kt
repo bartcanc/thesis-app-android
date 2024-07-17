@@ -86,9 +86,9 @@ class RegisterActivity : AppCompatActivity() {
                         })
                 }
             }
-            findViewById<TextView>(R.id.tvLogin).setOnClickListener {
-                startActivity(Intent(this, LoginActivity::class.java))
-            }
+        }
+        findViewById<TextView>(R.id.tvLogin).setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
         }
     }
 }
