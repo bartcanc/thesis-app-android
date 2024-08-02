@@ -71,8 +71,7 @@ class LoginActivity : AppCompatActivity() {
                                         "Login successful",
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                    val intent =
-                                        Intent(this@LoginActivity, MainActivity::class.java)
+                                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
                                     intent.putExtra("message", "Successfully Logged In!")
                                     startActivity(intent)
                                     finish()
