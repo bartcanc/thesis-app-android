@@ -1,5 +1,6 @@
 package com.example.thesisapp
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -27,6 +28,14 @@ class MainActivity : AppCompatActivity() {
                     startActivity(Intent(this, NoConnectionActivity::class.java))
                     finish()
                 } else {
+                val sharedPref = getSharedPreferences("ThesisApp", Context.MODE_PRIVATE)
+
+                with(sharedPref.edit()) {
+                    remove("USERNAME")
+                    remove("PASSWORD")
+                    putBoolean("REMEMBER_ME", false)
+                    apply()
+                }
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
             }
