@@ -14,7 +14,6 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class RegisterActivity : AppCompatActivity() {
-
     private lateinit var etUsername: EditText
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
@@ -58,7 +57,7 @@ class RegisterActivity : AppCompatActivity() {
                                         startActivity(
                                             Intent(
                                                 this@RegisterActivity,
-                                                MainActivity::class.java
+                                                LoginActivity::class.java
                                             )
                                         )
                                         finish()
