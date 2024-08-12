@@ -5,6 +5,7 @@ import RegisterRequest
 import RegisterResponse
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -14,21 +15,34 @@ import androidx.appcompat.app.AppCompatActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.Locale
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var etUsername: EditText
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
     private lateinit var btnRegister: Button
+    private lateinit var btnChangeLanguage: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registration)
 
+        val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
+        val selectedLanguage = sharedPref.getString("selected_language", "pl") // Domyślnie polski
+
+        // Ustawienie wybranego języka
+        val locale = Locale(selectedLanguage ?: "pl")
+        Locale.setDefault(locale)
+        val config = Configuration(resources.configuration)
+        config.setLocale(locale)
+        resources.updateConfiguration(config, resources.displayMetrics)
+
         etUsername = findViewById(R.id.etRegisterUsername)
         etEmail = findViewById(R.id.etRegisterEmail)
         etPassword = findViewById(R.id.etRegisterPassword)
         btnRegister = findViewById(R.id.btnRegister)
+        btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
 
         btnRegister.setOnClickListener {
             if (!NetworkUtils.isNetworkAvailable(this)) {
@@ -94,8 +108,36 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
+        btnChangeLanguage.setOnClickListener {
+            changeLanguage()  // Wywołanie zmiany języka
+        }
+
         findViewById<TextView>(R.id.tvLogin).setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }
     }
+
+    private fun changeLanguage() {
+        val currentLanguage = Locale.getDefault().language
+        val newLocale = if (currentLanguage == "pl") Locale("en") else Locale("pl")
+
+        // Ustawienie nowego języka
+        val config = Configuration(resources.configuration)
+        config.setLocale(newLocale)
+        Locale.setDefault(newLocale)
+        resources.updateConfiguration(config, resources.displayMetrics)
+
+        // Zapisanie wybranego języka w SharedPreferences (opcjonalnie)
+        val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString("selected_language", newLocale.language)
+            apply()
+        }
+
+        // Restart Activity to apply changes
+        val intent = intent
+        finish()
+        startActivity(intent)
+    }
+
 }

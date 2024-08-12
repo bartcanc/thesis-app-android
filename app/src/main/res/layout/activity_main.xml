@@ -8,7 +8,7 @@
         android:id="@+id/tvMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Logged in successfully!"
+        android:text="@string/logged_in_successfully"
         android:textSize="18sp"
         android:layout_centerInParent="true"
         android:layout_above="@id/btnLogout"
@@ -18,8 +18,15 @@
         android:id="@+id/btnLogout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Logout"
+        android:text="@string/logout"
         android:layout_centerInParent="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="40dp"/>
+    <Button
+        android:id="@+id/btnChangeLanguage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:text="@string/change_language"
+        android:layout_marginTop="16dp" />
 </RelativeLayout>

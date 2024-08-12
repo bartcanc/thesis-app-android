@@ -5,46 +5,62 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
+    android:background="@drawable/test_bg"
     tools:context=".LoginActivity">
 
-    <EditText
-        android:id="@+id/etLoginUsername"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Username"
-        android:inputType="textPersonName"
-        android:layout_marginTop="16dp"/>
+<EditText
+android:id="@+id/etLoginUsername"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="@string/username"
+android:inputType="textPersonName"
+android:layout_marginTop="16dp"/>
 
-    <EditText
-        android:id="@+id/etLoginPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:layout_marginTop="16dp" />
+<EditText
+android:id="@+id/etLoginPassword"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="@string/password"
+android:inputType="textPassword"
+android:layout_marginTop="16dp" />
 
-    <CheckBox
-        android:id="@+id/cbRemember"
-        android:layout_width="match_parent"
-        android:layout_height="23dp"
-        android:clickable="true"
-        android:text="Remember me?" />
+<CheckBox
+android:id="@+id/cbRemember"
+android:layout_width="match_parent"
+android:layout_height="23dp"
+android:clickable="true"
+android:text="@string/remember_me" />
 
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Login" />
+<Button
+android:id="@+id/btnLogin"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_marginTop="16dp"
+android:text="@string/login" />
 
-    <TextView
-        android:id="@+id/tvRegister"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:text="Don't have an account? Register"
-        android:textColor="@android:color/holo_blue_dark" />
+<TextView
+android:id="@+id/tvRegister"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:layout_marginTop="16dp"
+android:clickable="true"
+android:focusable="true"
+android:text="@string/don_t_have_an_account_register"
+android:textColor="@android:color/holo_blue_dark" />
 
+<ImageView
+android:id="@+id/loginStatusImage"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:layout_gravity="center"
+android:layout_marginTop="16dp"
+android:visibility="gone"/>
+
+<Button
+android:id="@+id/btnChangeLanguage"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:layout_gravity="end"
+android:text="@string/change_language"
+android:layout_marginTop="16dp" />
 </LinearLayout>
