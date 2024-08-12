@@ -1,14 +1,16 @@
 package com.example.thesisapp
 
+import ApiClient
 import RegisterRequest
 import RegisterResponse
+import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -41,7 +43,12 @@ class RegisterActivity : AppCompatActivity() {
                     Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 } else {
                     val registerRequest = RegisterRequest(username, email, password)
-                    ApiClient.apiService.register(registerRequest)
+
+                    // Utwórz instancję ApiClient i wywołaj metodę getApiService()
+                    val apiClient = ApiClient(this)
+                    val apiService = apiClient.getApiService()
+
+                    apiService.register(registerRequest)
                         .enqueue(object : Callback<RegisterResponse> {
                             override fun onResponse(
                                 call: Call<RegisterResponse>,
@@ -86,6 +93,7 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
         }
+
         findViewById<TextView>(R.id.tvLogin).setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }

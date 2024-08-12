@@ -1,13 +1,35 @@
+
+import android.content.Context
+import android.content.SharedPreferences
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object ApiClient {
-    private const val BASE_URL = "http://192.168.1.5:8000/"
+class ApiClient(context: Context) {
+
+    private val sharedPref: SharedPreferences =
+        context.getSharedPreferences("ThesisAppPreferences", Context.MODE_PRIVATE)
+
+    private val client = OkHttpClient.Builder()
+        .addInterceptor { chain ->
+            val requestBuilder = chain.request().newBuilder()
+
+            val sessionId = sharedPref.getString("session_id", null)
+            if (sessionId != null) {
+                requestBuilder.addHeader("session_id", sessionId)
+            }
+
+            chain.proceed(requestBuilder.build())
+        }
+        .build()
 
     private val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
+        .baseUrl("http://192.168.1.5:8000/")
+        .client(client)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val apiService: ApiService = retrofit.create(ApiService::class.java)
+    fun getApiService(): ApiService {
+        return retrofit.create(ApiService::class.java)
+    }
 }
