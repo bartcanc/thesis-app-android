@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">ThesisApp</string>
     <string name="password">Password</string>
     <string name="remember_me">Remember me?</string>
     <string name="login">Login</string>
@@ -14,4 +13,5 @@
     <string name="try_again">Try again</string>
     <string name="wifi_settings">WiFi settings</string>
     <string name="change_language">Language change</string>
+    <string name="select_language">Select language</string>
 </resources>

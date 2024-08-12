@@ -46,31 +46,11 @@ class NoConnectionActivity : AppCompatActivity() {
         }
 
         btnChangeLanguage.setOnClickListener {
-            changeLanguage()  // Wywołanie zmiany języka
-        }
-    }
-
-    private fun changeLanguage() {
-        val currentLanguage = Locale.getDefault().language
-        val newLocale = if (currentLanguage == "pl") Locale("en") else Locale("pl")
-
-        // Ustawienie nowego języka
-        val config = Configuration(resources.configuration)
-        config.setLocale(newLocale)
-        Locale.setDefault(newLocale)
-        resources.updateConfiguration(config, resources.displayMetrics)
-
-        // Zapisanie wybranego języka w SharedPreferences (opcjonalnie)
-        val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            putString("selected_language", newLocale.language)
-            apply()
+            val intent = Intent(this, LanguageSelectionActivity::class.java)
+            intent.putExtra("previous_activity", "NoConnectionActivity")
+            startActivity(intent)
         }
 
-        // Restart Activity to apply changes
-        val intent = intent
-        finish()
-        startActivity(intent)
     }
 
 }

@@ -75,8 +75,11 @@ class LoginActivity : AppCompatActivity() {
         }
 
         btnChangeLanguage.setOnClickListener {
-            changeLanguage()
+            val intent = Intent(this, LanguageSelectionActivity::class.java)
+            intent.putExtra("previous_activity", "LoginActivity")
+            startActivity(intent)
         }
+
     }
 
     private fun performLogin(username: String, password: String) {
@@ -140,24 +143,5 @@ class LoginActivity : AppCompatActivity() {
             remove("remember_me")
             apply()
         }
-    }
-
-    private fun changeLanguage() {
-        val currentLanguage = Locale.getDefault().language
-        val newLocale = if (currentLanguage == "pl") Locale("en") else Locale("pl")
-
-        val config = Configuration(resources.configuration)
-        config.setLocale(newLocale)
-        Locale.setDefault(newLocale)
-        resources.updateConfiguration(config, resources.displayMetrics)
-
-        with(sharedPref.edit()) {
-            putString("selected_language", newLocale.language)
-            apply()
-        }
-
-        val intent = intent
-        finish()
-        startActivity(intent)
     }
 }

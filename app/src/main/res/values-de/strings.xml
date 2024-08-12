@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">ThesisApp</string>
+    <string name="password">Passwort</string>
+    <string name="remember_me">Mich erinnern?</string>
+    <string name="login">Anmelden</string>
+    <string name="don_t_have_an_account_register">Du hast kein Konto? Registriere dich!</string>
+    <string name="username">Benutzername</string>
+    <string name="logged_in_successfully">Erfolgreich eingeloggt!</string>
+    <string name="logout">Abmelden</string>
+    <string name="email">E-Mail-Adresse</string>
+    <string name="register">Registrieren</string>
+    <string name="already_have_an_account_login">Hast du bereits ein Konto? Melde dich an!</string>
+    <string name="no_connection">Keine Internetverbindung.</string>
+    <string name="try_again">Erneut versuchen</string>
+    <string name="wifi_settings">Wi-Fi-Einstellungen</string>
+    <string name="change_language">Sprache ändern</string>
+    <string name="select_language">Sprache auswählen</string>
+    <string name="polish" translatable="false">Polski</string>
+    <string name="english" translatable="false">English</string>
+    <string name="german" translatable="false">Deutsch</string>
+    <string name="spanish" translatable="false">Español</string>
+</resources>
