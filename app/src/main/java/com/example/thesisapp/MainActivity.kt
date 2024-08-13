@@ -16,10 +16,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
-        val selectedLanguage = sharedPref.getString("selected_language", "pl") // Domyślnie polski
 
-        // Ustawienie wybranego języka
+        val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
+        val selectedLanguage = sharedPref.getString("selected_language", "pl")
+
         val locale = Locale(selectedLanguage ?: "pl")
         Locale.setDefault(locale)
         val config = Configuration(resources.configuration)
@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
 
             tvMessage = findViewById(R.id.tvMessage)
             btnLogout = findViewById(R.id.btnLogout)
-        btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
+            btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
 
             // Retrieve the login message if available
             val message = intent.getStringExtra("message")
@@ -41,8 +41,6 @@ class MainActivity : AppCompatActivity() {
                     startActivity(Intent(this, NoConnectionActivity::class.java))
                     finish()
                 } else {
-                val sharedPref = getSharedPreferences("ThesisApp", Context.MODE_PRIVATE)
-
                 with(sharedPref.edit()) {
                     remove("USERNAME")
                     remove("PASSWORD")

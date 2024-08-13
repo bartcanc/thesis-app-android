@@ -29,9 +29,8 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_registration)
 
         val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
-        val selectedLanguage = sharedPref.getString("selected_language", "pl") // Domyślnie polski
+        val selectedLanguage = sharedPref.getString("selected_language", "pl")
 
-        // Ustawienie wybranego języka
         val locale = Locale(selectedLanguage ?: "pl")
         Locale.setDefault(locale)
         val config = Configuration(resources.configuration)
@@ -58,7 +57,6 @@ class RegisterActivity : AppCompatActivity() {
                 } else {
                     val registerRequest = RegisterRequest(username, email, password)
 
-                    // Utwórz instancję ApiClient i wywołaj metodę getApiService()
                     val apiClient = ApiClient(this)
                     val apiService = apiClient.getApiService()
 

@@ -13,14 +13,13 @@ import java.util.Locale
 class NoConnectionActivity : AppCompatActivity() {
     private lateinit var btnChangeLanguage: Button
     override fun onCreate(savedInstanceState: Bundle?) {
-        btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_no_connection)
 
+        btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
         val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
-        val selectedLanguage = sharedPref.getString("selected_language", "pl") // Domyślnie polski
+        val selectedLanguage = sharedPref.getString("selected_language", "pl")
 
-        // Ustawienie wybranego języka
         val locale = Locale(selectedLanguage ?: "pl")
         Locale.setDefault(locale)
         val config = Configuration(resources.configuration)

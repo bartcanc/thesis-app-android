@@ -32,8 +32,9 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_login)
 
-        sharedPref = getSharedPreferences("MyAppPreferences", MODE_PRIVATE)
+        sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
         val selectedLanguage = sharedPref.getString("selected_language", "pl")
 
         val locale = Locale(selectedLanguage ?: "pl")
@@ -41,8 +42,6 @@ class LoginActivity : AppCompatActivity() {
         val config = Configuration(resources.configuration)
         config.setLocale(locale)
         resources.updateConfiguration(config, resources.displayMetrics)
-
-        setContentView(R.layout.activity_login)
 
         etUsername = findViewById(R.id.etLoginUsername)
         etPassword = findViewById(R.id.etLoginPassword)
@@ -55,18 +54,23 @@ class LoginActivity : AppCompatActivity() {
         loadLoginData()
 
         btnLogin.setOnClickListener {
-            val username = etUsername.text.toString()
-            val password = etPassword.text.toString()
-
-            if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            if (!NetworkUtils.isNetworkAvailable(this)) {
+                startActivity(Intent(this, NoConnectionActivity::class.java))
+                finish()
             } else {
-                if (cbRememberMe.isChecked) {
-                    saveLoginData(username, password)
+                val username = etUsername.text.toString()
+                val password = etPassword.text.toString()
+
+                if (username.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 } else {
-                    clearLoginData()
+                    if (cbRememberMe.isChecked) {
+                        saveLoginData(username, password)
+                    } else {
+                        clearLoginData()
+                    }
+                    performLogin(username, password)
                 }
-                performLogin(username, password)
             }
         }
 
@@ -133,6 +137,7 @@ class LoginActivity : AppCompatActivity() {
             etUsername.setText(sharedPref.getString("username", ""))
             etPassword.setText(sharedPref.getString("password", ""))
             cbRememberMe.isChecked = true
+            btnLogin.performClick()
         }
     }
 
