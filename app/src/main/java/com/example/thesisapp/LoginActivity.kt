@@ -64,11 +64,6 @@ class LoginActivity : AppCompatActivity() {
                 if (username.isEmpty() || password.isEmpty()) {
                     Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 } else {
-                    if (cbRememberMe.isChecked) {
-                        saveLoginData(username, password)
-                    } else {
-                        clearLoginData()
-                    }
                     performLogin(username, password)
                 }
             }
@@ -95,6 +90,11 @@ class LoginActivity : AppCompatActivity() {
         apiService.login(loginRequest).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
+                    if (cbRememberMe.isChecked) {
+                        saveLoginData(username, password)
+                    } else {
+                        clearLoginData()
+                    }
                     val sessionId = response.headers().get("session_id")
                     if (sessionId != null) {
                         with(sharedPref.edit()) {
@@ -102,21 +102,15 @@ class LoginActivity : AppCompatActivity() {
                             apply()
                         }
                     }
-//                    loginStatusImage.setImageResource(R.drawable.smile)
-//                    loginStatusImage.visibility = ImageView.VISIBLE
                     Toast.makeText(this@LoginActivity, "Login successful! 🎉", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                     finish()
                 } else {
-//                    loginStatusImage.setImageResource(R.drawable.sad)
-//                    loginStatusImage.visibility = ImageView.VISIBLE
                     Toast.makeText(this@LoginActivity, "Login failed 😔: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-//                loginStatusImage.setImageResource(R.drawable.sad)
-//                loginStatusImage.visibility = ImageView.VISIBLE
                 Toast.makeText(this@LoginActivity, "Error: ${t.message} 😢", Toast.LENGTH_SHORT).show()
             }
         })
@@ -137,7 +131,6 @@ class LoginActivity : AppCompatActivity() {
             etUsername.setText(sharedPref.getString("username", ""))
             etPassword.setText(sharedPref.getString("password", ""))
             cbRememberMe.isChecked = true
-            btnLogin.performClick()
         }
     }
 
