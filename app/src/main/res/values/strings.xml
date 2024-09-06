@@ -19,4 +19,12 @@
     <string name="english" translatable="false">English</string>
     <string name="german" translatable="false">Deutsch</string>
     <string name="spanish" translatable="false">Español</string>
+    <string name="password_repeat">Powtórz hasło</string>
+    <string name="password_change">Zmiana hasła</string>
+    <string name="password_reset_code">Kod resetowania hasła</string>
+    <string name="new_password">Nowe hasło</string>
+    <string name="reset_password">Zresetuj hasło</string>
+    <string name="go_to_login">Przejdź do logowania</string>
+    <string name="placeholder" translatable="false">placeholder</string>
+    <string name="password_change_info">Oto twój kod zmiany hasła! Zapisz go w bezpiecznym miejscu.</string>
 </resources>

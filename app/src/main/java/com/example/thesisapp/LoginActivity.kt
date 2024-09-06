@@ -5,7 +5,9 @@ import LoginRequest
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
@@ -14,12 +16,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import okhttp3.ResponseBody
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : BaseActivity() {
     private lateinit var etUsername: EditText
     private lateinit var etPassword: EditText
     private lateinit var btnLogin: Button
@@ -28,11 +31,11 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var btnChangeLanguage: Button
     private lateinit var cbRememberMe: CheckBox
 
-    private lateinit var sharedPref: SharedPreferences
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        checkSessionValidity()
 
         sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
         val selectedLanguage = sharedPref.getString("selected_language", "pl")
@@ -96,9 +99,12 @@ class LoginActivity : AppCompatActivity() {
                         clearLoginData()
                     }
                     val sessionId = response.headers().get("session_id")
+                    val sessionExpirationDate = response.body()?.string()?.let { JSONObject(it).getString("expiration_date") }
+//                    Log.i("essa", sessionExpirationDate.toString())
                     if (sessionId != null) {
                         with(sharedPref.edit()) {
                             putString("session_id", sessionId)
+                            putString("expiration_date", sessionExpirationDate)
                             apply()
                         }
                     }
@@ -131,15 +137,6 @@ class LoginActivity : AppCompatActivity() {
             etUsername.setText(sharedPref.getString("username", ""))
             etPassword.setText(sharedPref.getString("password", ""))
             cbRememberMe.isChecked = true
-        }
-    }
-
-    private fun clearLoginData() {
-        with(sharedPref.edit()) {
-            remove("username")
-            remove("password")
-            remove("remember_me")
-            apply()
         }
     }
 }

@@ -6,16 +6,18 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import java.util.Locale
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
     private lateinit var tvMessage: TextView
     private lateinit var btnLogout: Button
     private lateinit var btnChangeLanguage: Button
+    private lateinit var btnPasswordReset: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        checkSessionValidity()
 
         val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
         val selectedLanguage = sharedPref.getString("selected_language", "pl")
@@ -29,6 +31,7 @@ class MainActivity : AppCompatActivity() {
             tvMessage = findViewById(R.id.tvMessage)
             btnLogout = findViewById(R.id.btnLogout)
             btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
+            btnPasswordReset = findViewById(R.id.btnPasswordReset)
 
             // Retrieve the login message if available
             val message = intent.getStringExtra("message")
@@ -42,9 +45,9 @@ class MainActivity : AppCompatActivity() {
                     finish()
                 } else {
                 with(sharedPref.edit()) {
-                    remove("USERNAME")
-                    remove("PASSWORD")
-                    putBoolean("REMEMBER_ME", false)
+                    remove("username")
+                    remove("password")
+                    putBoolean("remember_me", false)
                     apply()
                 }
                 startActivity(Intent(this, LoginActivity::class.java))
@@ -58,6 +61,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        btnPasswordReset.setOnClickListener {
+            startActivity(Intent(this, PasswordResetActivity::class.java))
+            finish()
+        }
+
     }
+
+
 
 }

@@ -14,4 +14,11 @@
     <string name="wifi_settings">WiFi settings</string>
     <string name="change_language">Language change</string>
     <string name="select_language">Select language</string>
+    <string name="password_repeat">Repeat password</string>
+    <string name="password_change">Password change</string>
+    <string name="password_reset_code">Password reset code</string>
+    <string name="new_password">New password</string>
+    <string name="reset_password">Reset password</string>
+    <string name="go_to_login">Go to login</string>
+    <string name="password_change_info">Here is your password reset code! Keep it somewhere safe.</string>
 </resources>

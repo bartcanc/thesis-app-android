@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">ThesisApp</string>
     <string name="password">Contraseña</string>
     <string name="remember_me">¿Recordarme?</string>
     <string name="login">Iniciar sesión</string>
@@ -15,8 +14,4 @@
     <string name="wifi_settings">Configuración de Wi-Fi</string>
     <string name="change_language">Cambiar idioma</string>
     <string name="select_language">Seleccionar idioma</string>
-    <string name="polish" translatable="false">Polski</string>
-    <string name="english" translatable="false">English</string>
-    <string name="german" translatable="false">Deutsch</string>
-    <string name="spanish" translatable="false">Español</string>
 </resources>
