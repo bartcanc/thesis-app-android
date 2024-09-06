@@ -14,4 +14,11 @@
     <string name="wifi_settings">Configuración de Wi-Fi</string>
     <string name="change_language">Cambiar idioma</string>
     <string name="select_language">Seleccionar idioma</string>
+    <string name="password_repeat">Repetir contraseña</string>
+    <string name="password_change">Cambio de contraseña</string>
+    <string name="password_reset_code">Código de restablecimiento de contraseña</string>
+    <string name="new_password">Nueva contraseña</string>
+    <string name="reset_password">Restablecer contraseña</string>
+    <string name="go_to_login">Ir a iniciar sesión</string>
+    <string name="password_change_info">Aquí tienes tu código de cambio de contraseña. Guárdalo en un lugar seguro.</string>
 </resources>

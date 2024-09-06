@@ -11,8 +11,8 @@ data class RegisterResponse(val success: Boolean, val message: String)
 data class LoginRequest(val username: String, val password: String)
 data class LoginResponse(val success: Boolean, val message: String)
 
-//data class LogoutRequest(val session_id: String)
-//data class LogoutResponse(val success: Boolean, val message: String)
+//data class LogoutRequest()
+//data class LogoutResponse()
 
 data class PasswordResetRequest(val username: String, val password_reset_code: String, val new_password: String)
 data class PasswordResetResponse(val success: Boolean, val message: String)
