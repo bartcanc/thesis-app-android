@@ -42,6 +42,7 @@ class CodeActivity: BaseActivity() {
         nextButton.setOnClickListener {
             with(sharedPref.edit()){
                 putString("passResetCode","")
+                apply()
             }
             startActivity(Intent(this@CodeActivity, LoginActivity::class.java))
             finish()

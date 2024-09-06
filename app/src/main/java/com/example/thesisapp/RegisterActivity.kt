@@ -82,6 +82,7 @@ class RegisterActivity : AppCompatActivity() {
 //                                        Log.i("essa", passCode.toString())
                                         with(sharedPref.edit()){
                                             putString("passResetCode", passCode)
+                                            apply()
                                         }
                                         startActivity(
                                             Intent(this@RegisterActivity, CodeActivity::class.java)
