@@ -49,9 +49,15 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnPasswordReset" />
 
-    <!-- Nowy przycisk do łączenia z urządzeniem BLE -->
+    <Button
+        android:id="@+id/btnSyncTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sync time"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnChangeLanguage" />
 
-    <!-- Nowy przycisk do odczytu danych z BLE -->
     <Button
         android:id="@+id/btnConnect"
         android:layout_width="wrap_content"

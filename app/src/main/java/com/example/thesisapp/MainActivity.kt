@@ -40,16 +40,16 @@ class MainActivity : BaseActivity() {
         btnPasswordReset = findViewById(R.id.btnPasswordReset)
         btnConnect = findViewById(R.id.btnConnect)
         btnReadData = findViewById(R.id.btnReadData)
-        //btnSyncTime = findViewById(R.id.btnSyncTime)
+        btnSyncTime = findViewById(R.id.btnSyncTime)
 
         // Po kliknięciu otwieramy ustawienia Bluetooth
         btnConnect.setOnClickListener {
             openBluetoothSettings()
         }
 
-//        btnSyncTime.setOnClickListener{
-//            sendUnixTime()
-//        }
+        btnSyncTime.setOnClickListener{
+            sendUnixTime()
+        }
         // Rozpoczynamy odczytywanie danych po kliknięciu
         btnReadData.setOnClickListener {
             sendUnixTime()
