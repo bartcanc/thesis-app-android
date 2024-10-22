@@ -1,5 +1,6 @@
 package com.example.thesisapp
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -13,6 +14,11 @@ class MainActivity : BaseActivity() {
     private lateinit var btnLogout: Button
     private lateinit var btnChangeLanguage: Button
     private lateinit var btnPasswordReset: Button
+    private lateinit var btnConnect: Button
+    private lateinit var btnReadData: Button
+    private lateinit var btnSyncTime: Button
+
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -28,22 +34,38 @@ class MainActivity : BaseActivity() {
         config.setLocale(locale)
         resources.updateConfiguration(config, resources.displayMetrics)
 
-            tvMessage = findViewById(R.id.tvMessage)
-            btnLogout = findViewById(R.id.btnLogout)
-            btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
-            btnPasswordReset = findViewById(R.id.btnPasswordReset)
+        tvMessage = findViewById(R.id.tvMessage)
+        btnLogout = findViewById(R.id.btnLogout)
+        btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
+        btnPasswordReset = findViewById(R.id.btnPasswordReset)
+        btnConnect = findViewById(R.id.btnConnect)
+        btnReadData = findViewById(R.id.btnReadData)
+        //btnSyncTime = findViewById(R.id.btnSyncTime)
 
-            // Retrieve the login message if available
-            val message = intent.getStringExtra("message")
-            if (message != null) {
-                tvMessage.text = message
-            }
+        // Po kliknięciu otwieramy ustawienia Bluetooth
+        btnConnect.setOnClickListener {
+            openBluetoothSettings()
+        }
 
-            btnLogout.setOnClickListener {
-                if (!NetworkUtils.isNetworkAvailable(this)) {
-                    startActivity(Intent(this, NoConnectionActivity::class.java))
-                    finish()
-                } else {
+//        btnSyncTime.setOnClickListener{
+//            sendUnixTime()
+//        }
+        // Rozpoczynamy odczytywanie danych po kliknięciu
+        btnReadData.setOnClickListener {
+            sendUnixTime()
+            startReadingLoop() // Funkcja z BaseActivity
+        }
+        // Retrieve the login message if available
+        val message = intent.getStringExtra("message")
+        if (message != null) {
+            tvMessage.text = message
+        }
+
+        btnLogout.setOnClickListener {
+            if (!NetworkUtils.isNetworkAvailable(this)) {
+                startActivity(Intent(this, NoConnectionActivity::class.java))
+                finish()
+            } else {
                 with(sharedPref.edit()) {
                     remove("username")
                     remove("password")
