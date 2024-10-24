@@ -22,6 +22,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.IOException
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -40,8 +42,6 @@ open class BaseActivity : AppCompatActivity() {
     private val confirmationUUID = UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130006")
     private val timeSyncUUID = UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130007")
 
-    private val fullMessage = StringBuilder()
-    private var completeMessage: String = ""
     private var readLoopActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -175,23 +175,20 @@ open class BaseActivity : AppCompatActivity() {
         }
 
         override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
-            val receivedData = characteristic.getStringValue(0)
-            Log.d("BLE", "Otrzymano dane: $receivedData")
-
-            fullMessage.append(receivedData)
-            completeMessage = fullMessage.toString()
-
-            if (receivedData == "END") {
+            val receivedData = characteristic.value
+            Log.d("BLE", "Otrzymano dane binarne: ${receivedData.size} bajtów")
+            if (receivedData.all { it == 0.toByte() }) {
+                Log.d("BLE", "Otrzymano 16 zer pod rząd, zakończenie transmisji.")
                 readLoopActive = false
-                saveCsvFile(completeMessage)
-                completeMessage = ""
-                fullMessage.clear()
-                Log.d("BLE", "Otrzymano 'END', zatrzymanie pętli odczytu")
+            }
+            else{
+                saveBinFile(receivedData)
             }
         }
 
+
         override fun onCharacteristicRead(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
-            if ((status == BluetoothGatt.GATT_SUCCESS) and (completeMessage == "")) {
+            if ((status == BluetoothGatt.GATT_SUCCESS) and (!readLoopActive)) {
                 sendMessageOK()
             }
         }
@@ -244,7 +241,6 @@ open class BaseActivity : AppCompatActivity() {
 
         if (characteristic != null && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
             == PackageManager.PERMISSION_GRANTED) {
-
             val unixTime = System.currentTimeMillis() / 1000
 
             val unixTimeBytes = ByteArray(4)
@@ -263,25 +259,27 @@ open class BaseActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveCsvFile(data: String) {
-        val csvFileName = "received_file.csv"
-        val filePath = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), csvFileName)
+    private fun saveBinFile(data: ByteArray) {
+        val binFileName = "received_data.bin"
+        val filePath = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), binFileName)
 
         try {
-            FileOutputStream(filePath).use { outputStream ->
-                outputStream.write(data.toByteArray())
-                Log.d("BLE", "CSV file saved at: ${filePath.absolutePath}")
+            FileOutputStream(filePath, true).use { outputStream ->
+                outputStream.write(data)
+
+                Log.d("BLE", "Plik binarny zapisany w: ${filePath.absolutePath}")
                 runOnUiThread {
-                    Toast.makeText(this, "Plik CSV zapisany", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Plik binarny zapisany", Toast.LENGTH_SHORT).show()
                 }
             }
         } catch (e: IOException) {
-            Log.e("BLE", "Error saving CSV file", e)
+            Log.e("BLE", "Błąd podczas zapisywania pliku binarnego", e)
             runOnUiThread {
-                Toast.makeText(this, "Błąd zapisu pliku CSV", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Błąd zapisu pliku binarnego", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
     fun createJSONFile() {
        TODO("dodac baze danych i z niej stworzyc plik json")
