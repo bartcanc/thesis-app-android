@@ -5,7 +5,6 @@ import LoginRequest
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -15,6 +14,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.Call
@@ -35,7 +37,7 @@ class LoginActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        checkSessionValidity()
+        //checkSessionValidity()
 
         sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
         val selectedLanguage = sharedPref.getString("selected_language", "pl")
@@ -86,9 +88,8 @@ class LoginActivity : BaseActivity() {
 
     private fun performLogin(username: String, password: String) {
         val loginRequest = LoginRequest(username, password)
-
         val apiClient = ApiClient(this)
-        val apiService = apiClient.getApiService()
+        val apiService = apiClient.getApiService8000()
 
         apiService.login(loginRequest).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
@@ -98,19 +99,42 @@ class LoginActivity : BaseActivity() {
                     } else {
                         clearLoginData()
                     }
-                    val sessionId = response.headers().get("session_id")
-                    val sessionExpirationDate = response.body()?.string()?.let { JSONObject(it).getString("expiration_date") }
-//                    Log.i("essa", sessionExpirationDate.toString())
+
+                    response.body()?.let { body ->
+                        val jsonResponse = JSONObject(body.string())
+                        val userId = jsonResponse.optString("user_id", "")  // Pobieramy `user_id` z JSON
+                        if (userId.isNotEmpty()) {
+                            Log.d("USERID", "USTAWIONO USERID")
+                            setUserID(userId)
+                        }
+                    }
+
+                    // Pobranie `session-id` z nagłówków odpowiedzi
+                    val sessionId = response.headers()["session_id"]
+                    Log.d("performLogin", "session-id from response header: $sessionId")  // Logujemy `session-id` z odpowiedzi
+
                     if (sessionId != null) {
                         with(sharedPref.edit()) {
                             putString("session_id", sessionId)
-                            putString("expiration_date", sessionExpirationDate)
                             apply()
                         }
+                        Log.d("performLogin", "session-id saved in SharedPreferences: $sessionId")
+                    } else {
+                        Log.e("performLogin", "session-id not found in response headers!")
                     }
-                    Toast.makeText(this@LoginActivity, "Login successful! 🎉", Toast.LENGTH_SHORT).show()
+
+                  // Sprawdzenie, czy użytkownik istnieje w bazie danych dopiero po zapisaniu userId i session-id
+            checkUserExistsInDatabase(
+                getUserID()!!,
+                onSuccess = {
                     startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                     finish()
+                },
+                onFailure = {
+                    startActivity(Intent(this@LoginActivity, HealthDataActivity::class.java))
+                    finish()
+                }
+            )
                 } else {
                     Toast.makeText(this@LoginActivity, "Login failed 😔: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                 }
@@ -121,6 +145,8 @@ class LoginActivity : BaseActivity() {
             }
         })
     }
+
+
 
     private fun saveLoginData(username: String, password: String) {
         with(sharedPref.edit()) {
@@ -139,4 +165,44 @@ class LoginActivity : BaseActivity() {
             cbRememberMe.isChecked = true
         }
     }
+
+    // Funkcja do sprawdzania istnienia użytkownika w bazie danych
+    private fun checkUserExistsInDatabase(userId: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        val apiClient = ApiClient(this)
+        val apiService = apiClient.getApiService8000()
+
+        // Pobierz session-id z SharedPreferences
+        val sessionId = sharedPref.getString("session_id", null)
+
+        if (sessionId.isNullOrEmpty()) {
+            Log.e("LoginActivity", "Session ID is missing in SharedPreferences.")
+            onFailure()
+            return
+        }
+
+        // Wywołanie API z nagłówkiem session-id i parametrem userId
+        apiService.getUserHealthById(userId, sessionId).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                when (response.code()) {
+                    200 -> {
+                        // Kod 200: użytkownik istnieje
+                        Log.d("checkUserExistsInDatabase", "User exists in database.")
+                        onSuccess()
+                    }
+                    else -> {
+                        // Inne kody: użytkownik nie istnieje
+                        Log.d("checkUserExistsInDatabase", "User does not exist in database. Response code: ${response.code()}")
+                        onFailure()
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("LoginActivity", "Error checking user existence: ${t.message}")
+                onFailure()
+            }
+        })
+    }
+
+
 }

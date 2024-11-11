@@ -28,7 +28,7 @@ class PasswordResetActivity: BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_password_reset)
 
-        checkSessionValidity()
+        //checkSessionValidity()
 
         val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
         val selectedLanguage = sharedPref.getString("selected_language", "pl")
@@ -66,7 +66,7 @@ class PasswordResetActivity: BaseActivity() {
         val passwordResetRequest = PasswordResetRequest(username.text.toString(), passwordResetCode.text.toString(), newPassword.text.toString())
 
         val apiClient = ApiClient(this)
-        val apiService = apiClient.getApiService()
+        val apiService = apiClient.getApiService8000()
 
         apiService.password_change(passwordResetRequest).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(

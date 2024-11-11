@@ -1,12 +1,23 @@
 package com.example.thesisapp
 
+import ApiClient
+import ApiService
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.Locale
 
 class MainActivity : BaseActivity() {
@@ -17,13 +28,20 @@ class MainActivity : BaseActivity() {
     private lateinit var btnConnect: Button
     private lateinit var btnReadData: Button
     private lateinit var btnSyncTime: Button
+    private lateinit var btnSaveData: Button
+    private lateinit var btnSendData: Button
+    private lateinit var btnSendWifiData: Button
+
+    private lateinit var apiService: ApiService
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        checkSessionValidity()
+        val apiClient = ApiClient(this)
+        apiService = apiClient.getApiService8000()
+        //checkSessionValidity()
 
         val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
         val selectedLanguage = sharedPref.getString("selected_language", "pl")
@@ -41,6 +59,9 @@ class MainActivity : BaseActivity() {
         btnConnect = findViewById(R.id.btnConnect)
         btnReadData = findViewById(R.id.btnReadData)
         btnSyncTime = findViewById(R.id.btnSyncTime)
+        btnSaveData = findViewById(R.id.btnSaveData)
+        btnSendData = findViewById(R.id.btnSendData)
+        btnSendWifiData = findViewById(R.id.btnSendWifiData)
 
         // Po kliknięciu otwieramy ustawienia Bluetooth
         btnConnect.setOnClickListener {
@@ -55,6 +76,13 @@ class MainActivity : BaseActivity() {
             sendUnixTime()
             startReadingLoop() // Funkcja z BaseActivity
         }
+        btnSaveData.setOnClickListener {
+            createJSONFile()
+        }
+
+        btnSendData.setOnClickListener {
+            sendSensorData()
+        }
         // Retrieve the login message if available
         val message = intent.getStringExtra("message")
         if (message != null) {
@@ -62,19 +90,7 @@ class MainActivity : BaseActivity() {
         }
 
         btnLogout.setOnClickListener {
-            if (!NetworkUtils.isNetworkAvailable(this)) {
-                startActivity(Intent(this, NoConnectionActivity::class.java))
-                finish()
-            } else {
-                with(sharedPref.edit()) {
-                    remove("username")
-                    remove("password")
-                    putBoolean("remember_me", false)
-                    apply()
-                }
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
-            }
+            performLogout(sharedPref)
         }
 
         btnChangeLanguage.setOnClickListener {
@@ -88,8 +104,48 @@ class MainActivity : BaseActivity() {
             finish()
         }
 
+        btnSendWifiData.setOnClickListener {
+            sendWifiCredentials()
+        }
+    }
+
+    private fun performLogout(sharedPref: SharedPreferences) {
+        apiService.logout().enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                // Loguj kod odpowiedzi i wiadomość
+                Log.d("performLogout", "Response code: ${response.code()}")
+                Log.d("performLogout", "Response message: ${response.message()}")
+
+                if (response.isSuccessful && response.code() == 204) {
+                    Log.d("performLogout", "Wylogowanie powiodło się.")
+                    logoutUserLocally(sharedPref)
+                } else {
+                    // Loguj przypadki, gdy wylogowanie się nie powiodło mimo odpowiedzi z serwera
+                    Log.e("performLogout", "Nieudane wylogowanie, kod odpowiedzi: ${response.code()}")
+                    Log.e("performLogout", "Błąd podczas wylogowania: ${response.errorBody()?.string()}")
+                    Toast.makeText(this@MainActivity, "Błąd podczas wylogowania", Toast.LENGTH_SHORT).show()
+                    logoutUserLocally(sharedPref)
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                // Loguj błędy połączenia
+                Log.e("performLogout", "Błąd połączenia z serwerem", t)
+                Toast.makeText(this@MainActivity, "Błąd połączenia z serwerem", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
 
-
+    private fun logoutUserLocally(sharedPref: SharedPreferences) {
+        with(sharedPref.edit()) {
+            remove("username")
+            remove("password")
+            remove("session_id")
+            putBoolean("remember_me", false)
+            apply()
+        }
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
+    }
 }

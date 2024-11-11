@@ -2,9 +2,7 @@ package com.example.thesisapp
 
 import ApiClient
 import RegisterRequest
-import RegisterResponse
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -57,16 +55,14 @@ class RegisterActivity : AppCompatActivity() {
                 val password = etPassword.text.toString()
                 val passwordRepeat = etPasswordRepeat.text.toString()
 
-                if (username.isEmpty() ||  password.isEmpty()) {
+                if (username.isEmpty() || password.isEmpty()) {
                     Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                } else if(password != passwordRepeat) {
-                    Toast.makeText(this, "Both passwords must be identical",Toast.LENGTH_SHORT ).show()
-                }
-                else
-                {
+                } else if (password != passwordRepeat) {
+                    Toast.makeText(this, "Both passwords must be identical", Toast.LENGTH_SHORT).show()
+                } else {
                     val registerRequest = RegisterRequest(username, password)
                     val apiClient = ApiClient(this)
-                    val apiService = apiClient.getApiService()
+                    val apiService = apiClient.getApiService8000()
 
                     apiService.register(registerRequest)
                         .enqueue(object : Callback<ResponseBody> {
@@ -75,28 +71,59 @@ class RegisterActivity : AppCompatActivity() {
                                 response: Response<ResponseBody>
                             ) {
                                 if (response.isSuccessful) {
-
                                     response.body()?.let {
-                                        Toast.makeText(this@RegisterActivity, "Registration successful", Toast.LENGTH_SHORT).show()
-                                        val passCode = response.body()?.string()?.let { JSONObject(it).getString("password_reset_code") }
-//                                        Log.i("essa", passCode.toString())
-                                        with(sharedPref.edit()){
-                                            putString("passResetCode", passCode)
-                                            apply()
+                                        val responseString = it.string()
+                                        val jsonResponse = JSONObject(responseString)
+
+                                        // Pobieranie userId i password_reset_code z odpowiedzi JSON
+                                        val userId = jsonResponse.optString("user_id", "")
+                                        val passCode = jsonResponse.optString("password_reset_code", "")
+                                        val sessionId = response.headers()["session-id"]
+
+                                        if (userId.isNotEmpty()) {
+                                            // Zapis userId i passCode w SharedPreferences
+                                            with(sharedPref.edit()) {
+                                                putString("user_id", userId)
+                                                putString("passResetCode", passCode)
+                                                putString("session_id", sessionId)
+                                                apply()
+                                            }
+                                            Toast.makeText(
+                                                this@RegisterActivity,
+                                                "Registration successful",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            startActivity(
+                                                Intent(this@RegisterActivity, CodeActivity::class.java)
+                                            )
+                                            finish()
+                                        } else {
+                                            Toast.makeText(
+                                                this@RegisterActivity,
+                                                "Registration failed: Missing user ID",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
-                                        startActivity(
-                                            Intent(this@RegisterActivity, CodeActivity::class.java)
-                                        )
-                                        finish()
-                                    } ?: Toast.makeText(this@RegisterActivity, "Registration failed: Empty response", Toast.LENGTH_SHORT).show()
+                                    } ?: Toast.makeText(
+                                        this@RegisterActivity,
+                                        "Registration failed: Empty response",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 } else {
-                                    Toast.makeText(this@RegisterActivity, "Registration failed: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT
+                                    Toast.makeText(
+                                        this@RegisterActivity,
+                                        "Registration failed: ${response.errorBody()?.string()}",
+                                        Toast.LENGTH_SHORT
                                     ).show()
                                 }
                             }
 
                             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                                Toast.makeText(this@RegisterActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this@RegisterActivity,
+                                    "Error: ${t.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         })
                 }
@@ -109,10 +136,8 @@ class RegisterActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-
         findViewById<TextView>(R.id.tvLogin).setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }
     }
-
 }

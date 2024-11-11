@@ -20,7 +20,7 @@ class CodeActivity: BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_code)
 
-        checkSessionValidity()
+        //checkSessionValidity()
 
         sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
         val selectedLanguage = sharedPref.getString("selected_language", "pl")
