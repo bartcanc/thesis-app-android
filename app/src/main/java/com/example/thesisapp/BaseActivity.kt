@@ -46,8 +46,8 @@ open class BaseActivity : AppCompatActivity() {
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothGatt: BluetoothGatt? = null
 
-    private val serviceUUID: UUID = UUID.fromString("12345678-1234-1234-1234-123456789113")
-    private val messageTransferUUID: UUID = UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130013")
+    private val serviceUUID: UUID = UUID.fromString("12345678-1234-1234-1234-123456789012")
+    private val messageTransferUUID: UUID = UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130005")
     private val confirmationUUID = UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130006")
     private val timeSyncUUID = UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130007")
     private val batteryLevelUUID = UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130021")
@@ -79,6 +79,8 @@ open class BaseActivity : AppCompatActivity() {
     protected var userId: String? = "."
 
     private var provisioningComplete = false
+    private var isConnecting = false
+
 
     // Inicjalizacja bazy danych
     lateinit var dbHelper: SensorDataDatabaseHelper
@@ -150,9 +152,12 @@ open class BaseActivity : AppCompatActivity() {
         return !sessionId.isNullOrEmpty()
     }
 
+    @SuppressLint("MissingPermission")
     override fun onDestroy() {
         super.onDestroy()
-        // Zamknięcie połączenia WebSocket przy zamykaniu aktywności
+        bluetoothGatt?.disconnect()
+        bluetoothGatt?.close()
+        bluetoothGatt = null
         webSocketHelper.stopConnection()
     }
 
@@ -210,12 +215,19 @@ open class BaseActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun connectToDevice(device: BluetoothDevice) {
+        if (isConnecting || bluetoothGatt != null) {
+            Log.d("Bluetooth", "Połączenie już aktywne lub w trakcie łączenia.")
+            return
+        }
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+            isConnecting = true
             bluetoothGatt = device.connectGatt(this, false, gattCallback)
         } else {
             Toast.makeText(this, "Brak uprawnień do połączenia Bluetooth.", Toast.LENGTH_SHORT).show()
         }
     }
+
     fun deleteDatabase() {
         val deleted = this.deleteDatabase(SensorDataDatabaseHelper.DATABASE_NAME)
         if (deleted) {
@@ -224,13 +236,19 @@ open class BaseActivity : AppCompatActivity() {
             Log.e("DB", "Nie udało się usunąć bazy danych.")
         }
     }
+
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
 
+        if (bluetoothGatt != null) {
+            Log.d("Bluetooth", "Połączenie Bluetooth już jest aktywne.")
+            return
+        }
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
             val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
-            val targetDeviceName = "ESP32_Smartband_mini"
+            val targetDeviceName = "ESP32 D3K"
 
             if (!pairedDevices.isNullOrEmpty()) {
                 val device = pairedDevices.firstOrNull { it.name == targetDeviceName }
@@ -244,6 +262,8 @@ open class BaseActivity : AppCompatActivity() {
             }
         }
     }
+
+
 
     protected fun startSequentialRead() {
         currentCharacteristicIndex = 0
@@ -283,20 +303,23 @@ open class BaseActivity : AppCompatActivity() {
 
     private val gattCallback = object : BluetoothGattCallback() {
 
-        @SuppressLint("MissingPermission")
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+            isConnecting = false
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.d("BLE", "Connected to GATT server.")
 
                 if (ContextCompat.checkSelfPermission(this@BaseActivity, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
                     gatt.requestMtu(256)
+                    gatt.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH)
                 } else {
                     Toast.makeText(this@BaseActivity, "Brak uprawnień Bluetooth.", Toast.LENGTH_SHORT).show()
                 }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.d("BLE", "Disconnected from GATT server.")
+                bluetoothGatt = null // Ustawienie na null, aby umożliwić ponowne połączenie
             }
         }
+
 
         @SuppressLint("MissingPermission")
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
@@ -313,9 +336,23 @@ open class BaseActivity : AppCompatActivity() {
             }
         }
 
+        @SuppressLint("MissingPermission")
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 sendPrivateKeyToBand()
+                // Włącz powiadomienia dla messageTransferUUID
+                val characteristic = gatt.getService(serviceUUID)?.getCharacteristic(messageTransferUUID)
+                if (characteristic != null) {
+                    gatt.setCharacteristicNotification(characteristic, true)
+                    val descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
+                    if (descriptor != null) {
+                        descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                        gatt.writeDescriptor(descriptor)
+                        Log.d("BLE", "Notifications enabled for messageTransferUUID")
+                    } else {
+                        Log.w("BLE", "Descriptor for enabling notifications not found")
+                    }
+                }
                 Handler(Looper.getMainLooper()).postDelayed({
                     startSequentialRead()
                 }, 100)
@@ -473,7 +510,7 @@ open class BaseActivity : AppCompatActivity() {
             override fun run() {
                 if (readLoopActive) {
                     readCharacteristic()
-                    handler.postDelayed(this, 100)
+                    handler.postDelayed(this, 1)
                 }
             }
         })
