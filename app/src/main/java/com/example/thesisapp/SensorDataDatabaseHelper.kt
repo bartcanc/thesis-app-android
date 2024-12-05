@@ -4,21 +4,16 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-
 class SensorDataDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
         const val DATABASE_NAME = "sensor_data.db"
-        private const val DATABASE_VERSION = 2
+        private const val DATABASE_VERSION = 3 // Zwiększ wersję bazy, aby wymusić migrację
 
         const val TABLE_NAME = "sensor_data"
         const val COLUMN_ID = "id"
         const val COLUMN_TIMESTAMP = "timestamp"
-        const val COLUMN_IR = "ir"
-        const val COLUMN_RED = "red"
-        const val COLUMN_ACC_X = "acc_x"
-        const val COLUMN_ACC_Y = "acc_y"
-        const val COLUMN_ACC_Z = "acc_z"
+        const val COLUMN_RAW_DATA = "raw_data" // Dodana kolumna na surowe dane
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -26,32 +21,26 @@ class SensorDataDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DAT
             CREATE TABLE $TABLE_NAME (
                 $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 $COLUMN_TIMESTAMP INTEGER,
-                $COLUMN_IR REAL,
-                $COLUMN_RED REAL,
-                $COLUMN_ACC_X REAL,
-                $COLUMN_ACC_Y REAL,
-                $COLUMN_ACC_Z REAL
+                $COLUMN_RAW_DATA BLOB
             )
         """
         db?.execSQL(createTableQuery)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        if (oldVersion < 2) {
-            db?.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $COLUMN_TIMESTAMP INTEGER")
+        if (oldVersion < 3) {
+            // Jeśli migrujemy z wersji 2 do 3, dodajemy kolumnę `raw_data`
+            db?.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $COLUMN_RAW_DATA BLOB")
         }
     }
 
-    fun insertSensorData(timestamp: Long, ir: Long, red: Long, accX: Double, accY: Double, accZ: Double): Long {
+    fun insertRawSensorData(timestamp: Long, rawData: ByteArray): Long {
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put(COLUMN_TIMESTAMP, timestamp)
-            put(COLUMN_IR, ir)
-            put(COLUMN_RED, red)
-            put(COLUMN_ACC_X, accX)
-            put(COLUMN_ACC_Y, accY)
-            put(COLUMN_ACC_Z, accZ)
+            put(COLUMN_RAW_DATA, rawData) // Zapisuje dane jako BLOB
         }
         return db.insert(TABLE_NAME, null, values)
     }
+
 }

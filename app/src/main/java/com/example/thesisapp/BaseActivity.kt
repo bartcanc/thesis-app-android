@@ -4,6 +4,7 @@ import ApiClient
 import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.*
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -35,16 +36,24 @@ import java.nio.ByteOrder
 import java.text.SimpleDateFormat
 import java.util.*
 import android.net.wifi.WifiManager
+import android.os.Build
+import android.os.HandlerThread
 import android.view.LayoutInflater
 import android.widget.EditText
+import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentLinkedQueue
 
 
 open class BaseActivity : AppCompatActivity() {
 
     lateinit var sharedPref: SharedPreferences
     private var bluetoothAdapter: BluetoothAdapter? = null
-    private var bluetoothGatt: BluetoothGatt? = null
+    protected var bluetoothGatt: BluetoothGatt? = null
 
     private val serviceUUID: UUID = UUID.fromString("12345678-1234-1234-1234-123456789012")
     private val messageTransferUUID: UUID = UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130005")
@@ -66,7 +75,7 @@ open class BaseActivity : AppCompatActivity() {
     private var howManyFiles: Int? = null
 
     private var bufferSize = 14
-    private var dataBuffer = ByteArray(bufferSize)
+    //private var dataBuffer = ByteArray(bufferSize)
     private var bufferIndex = 0
     private var unixTimestamp: Long = 0L
     private var isTimestampReceived = false
@@ -81,13 +90,23 @@ open class BaseActivity : AppCompatActivity() {
     private var provisioningComplete = false
     private var isConnecting = false
 
-
+    private var counter = 0
     // Inicjalizacja bazy danych
     lateinit var dbHelper: SensorDataDatabaseHelper
 
     private lateinit var webSocketHelper: WebSocketHelper
 
     protected lateinit var permissionManager: PermissionManager
+
+    private val dbWriteScope = CoroutineScope(Dispatchers.IO)
+
+    private var totalReceivedBytes: Int = 0
+    private var isEndOfTransmission: Boolean = false
+    private val dataBuffer: Queue<ByteArray> = LinkedList()
+
+    private val handlerThread = HandlerThread("BLEHandler").apply { start() }
+    private val bleHandler = Handler(handlerThread.looper)
+
 
     protected fun setUserID(userId: String?) {
         userId?.let {
@@ -228,7 +247,7 @@ open class BaseActivity : AppCompatActivity() {
         }
     }
 
-    fun deleteDatabase() {
+    protected fun deleteDatabase() {
         val deleted = this.deleteDatabase(SensorDataDatabaseHelper.DATABASE_NAME)
         if (deleted) {
             Log.d("DB", "Baza danych została usunięta.")
@@ -242,6 +261,7 @@ open class BaseActivity : AppCompatActivity() {
         super.onResume()
 
         if (bluetoothGatt != null) {
+            sendPrivateKeyToBand()
             Log.d("Bluetooth", "Połączenie Bluetooth już jest aktywne.")
             return
         }
@@ -263,14 +283,10 @@ open class BaseActivity : AppCompatActivity() {
         }
     }
 
-
-
     protected fun startSequentialRead() {
         currentCharacteristicIndex = 0
         readNextCharacteristic()
     }
-
-
 
     // Funkcja odczytująca kolejną charakterystykę z listy
     @SuppressLint("MissingPermission")
@@ -286,31 +302,19 @@ open class BaseActivity : AppCompatActivity() {
                 currentCharacteristicIndex++
                 readNextCharacteristic()  // Przejdź do następnej, jeśli nie można odczytać tej
             }
-        } else {
-            Log.d("BLE", "Odczyt wszystkich charakterystyk zakończony.")
-            val characteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(messageTransferUUID)
-            if (characteristic != null && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-                bluetoothGatt?.setCharacteristicNotification(characteristic, true)
-                val descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
-                descriptor?.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                bluetoothGatt?.writeDescriptor(descriptor)
-                Log.d("BLE", "Notifications enabled for messageTransferUUID")
-            } else {
-                Log.w("BLE", "Unable to enable notifications for messageTransferUUID")
-            }
         }
     }
 
     private val gattCallback = object : BluetoothGattCallback() {
 
+        @RequiresApi(Build.VERSION_CODES.O)
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             isConnecting = false
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.d("BLE", "Connected to GATT server.")
-
                 if (ContextCompat.checkSelfPermission(this@BaseActivity, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-                    gatt.requestMtu(256)
                     gatt.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH)
+                    gatt.requestMtu(512)
                 } else {
                     Toast.makeText(this@BaseActivity, "Brak uprawnień Bluetooth.", Toast.LENGTH_SHORT).show()
                 }
@@ -320,12 +324,18 @@ open class BaseActivity : AppCompatActivity() {
             }
         }
 
+        override fun onDescriptorWrite(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.d("BLE", "Descriptor write successful. Subscribed to notifications.")
+            } else {
+                Log.e("BLE", "Failed to write descriptor: $status")
+            }
+        }
 
         @SuppressLint("MissingPermission")
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 Log.d("BLE", "MTU size changed to $mtu")
-
                 if (ContextCompat.checkSelfPermission(this@BaseActivity, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
                     gatt.discoverServices()
                 } else {
@@ -340,105 +350,32 @@ open class BaseActivity : AppCompatActivity() {
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 sendPrivateKeyToBand()
-                // Włącz powiadomienia dla messageTransferUUID
-                val characteristic = gatt.getService(serviceUUID)?.getCharacteristic(messageTransferUUID)
-                if (characteristic != null) {
-                    gatt.setCharacteristicNotification(characteristic, true)
-                    val descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
-                    if (descriptor != null) {
-                        descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                        gatt.writeDescriptor(descriptor)
-                        Log.d("BLE", "Notifications enabled for messageTransferUUID")
-                    } else {
-                        Log.w("BLE", "Descriptor for enabling notifications not found")
-                    }
-                }
                 Handler(Looper.getMainLooper()).postDelayed({
                     startSequentialRead()
                 }, 100)
             }
         }
 
-        override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
-            if ((characteristic.uuid == messageTransferUUID) and provisioningComplete) {
-                var receivedData = characteristic.value
-                Log.d("BLE", "Data received on messageTransferUUID: ${receivedData.joinToString(" ") { String.format("%02X", it) }}")
-                // Sprawdzenie, czy rozmiar pliku został już odczytany
-                if (!isFileSizeRead && receivedData.size >= 4) {
-                    val byteBuffer = ByteBuffer.wrap(receivedData.copyOfRange(0, 4))
-                    byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
-                    fileSize = byteBuffer.int
-                    isFileSizeRead = true  // Ustawienie flagi na true po odczytaniu rozmiaru pliku
-                    Log.d("BLE", "Rozmiar pliku: $fileSize bajtów")
-
-                    // Usunięcie pierwszych 4 bajtów po odczytaniu rozmiaru pliku
-                    receivedData = receivedData.copyOfRange(4, receivedData.size)
-                }
-
-                // Sprawdzamy, czy timestamp został już odebrany
-                if (!isTimestampReceived && receivedData.size >= 4) {
-                    val byteBuffer = ByteBuffer.wrap(receivedData.copyOfRange(0, 4))
-                    byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
-                    unixTimestamp = byteBuffer.int.toLong()
-                    isTimestampReceived = true
-                    currentByteCount += 4
-                    Log.d("BLE", "Otrzymano Unix timestamp: $unixTimestamp")
-                    receivedData = receivedData.copyOfRange(4, receivedData.size)  // Usunięcie pierwszych 4 bajtów
-                }
-
-                // Sprawdzenie, czy ostatnie 16 bajtów to same zera, co oznacza koniec transmisji
-                if (receivedData.size >= 16 && receivedData.copyOfRange(receivedData.size - 16, receivedData.size).all { it == 0.toByte() }) {
-                    Log.d("BLE", "Koniec transmisji - odebrano 16 zer na końcu pakietu.")
-                    receivedData = receivedData.copyOfRange(0, receivedData.size - 16)  // Usuń końcowe zera
-                    zeroFlag = true
-                }
-
-                // Dodajemy dane do bufora
-                addToBuffer(receivedData)
-
-                // Jeśli odbiór danych został zakończony, resetujemy flagi i wywołujemy `sendMessageOK`
-                if (zeroFlag) {
-                    if(currentByteCount == fileSize){
-                        Log.d("BLE", "wszytko odebrano :) rozmiar = $currentByteCount")
-                    }
-                    else{
-                        Log.d("BLE", "cos nie pyklo, trzeba jeszcze raz pobrac rozmiar = $currentByteCount")
-                        deleteDatabase() //tu powinien usuwac sie tylko trening, ktory zostal zle odczytany
-                    }
-                    currentByteCount = 0
-                    bufferIndex = 0
-                    isTimestampReceived = false
-                    isFileSizeRead = false
-                    zeroFlag = false
-                    readLoopActive = false
-                    Log.d("BLE", "Wszystkie dane odebrane, wywołanie sendMessageOK.")
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        sendMessageOK()
-                    }, 100)
-                    return
-                }
-            }
-        }
-
-
         override fun onCharacteristicRead(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 when (characteristic.uuid) {
                     batteryLevelUUID -> {
-                        batteryLevel = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0)
+                        batteryLevel =
+                            characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0)
                         Log.d("BLE", "Battery Level: $batteryLevel%")
                     }
+
                     firmwareVersionUUID -> {
                         firmwareVersion = characteristic.getStringValue(0)
                         Log.d("BLE", "Firmware Version: $firmwareVersion")
                     }
+
                     howManyFilesUUID -> {
-                        howManyFiles = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0)
+                        howManyFiles =
+                            characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0)
                         Log.d("BLE", "Number of Files: $howManyFiles")
                     }
-                    messageTransferUUID -> {
-                        Log.w("BLE", "Do wiadomosci")
-                    }
+
                     else -> Log.w("BLE", "Nieznana charakterystyka odczytana")
                 }
                 currentCharacteristicIndex++  // Przejdź do kolejnej charakterystyki
@@ -448,84 +385,178 @@ open class BaseActivity : AppCompatActivity() {
             }
         }
 
-    }
+        override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
+            if (characteristic.uuid == messageTransferUUID) {
+                var receivedData = characteristic.value
+                Log.d("BLE", "Received chunk: ${receivedData.joinToString(" ") { String.format("%02X", it) }}")
+                Log.d("BLE", "Received chunk size: ${receivedData.size} bytes")
 
-    private fun addToBuffer(data: ByteArray) {
-        var dataIndex = 0
+                if (!isFileSizeRead && receivedData.size >= 4) {
+                    val byteBuffer = ByteBuffer.wrap(receivedData.copyOfRange(0, 4))
+                    byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
+                    fileSize = byteBuffer.int
+                    isFileSizeRead = true
+                    Log.d("BLE", "Rozmiar pliku: $fileSize bajtów")
 
-        while (dataIndex < data.size) {
-            val spaceLeftInBuffer = bufferSize - bufferIndex
-            val bytesToCopy = Math.min(spaceLeftInBuffer, data.size - dataIndex)
+                    // Usunięcie pierwszych 4 bajtów po odczytaniu rozmiaru pliku
+                    receivedData = receivedData.copyOfRange(4, receivedData.size)
+                }
 
-            // Logowanie danych do sprawdzenia
-            Log.d("BUFFER", "Kopiowanie $bytesToCopy bajtów do bufora. Indeks bufora: $bufferIndex")
+                // Sprawdzanie, czy timestamp został już odebrany
+                if (!isTimestampReceived && receivedData.size >= 4) {
+                    val byteBuffer = ByteBuffer.wrap(receivedData.copyOfRange(0, 4))
+                    byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
+                    unixTimestamp = byteBuffer.int.toLong()
+                    isTimestampReceived = true
+                    Log.d("BLE", "Otrzymano Unix timestamp: $unixTimestamp")
+                    receivedData = receivedData.copyOfRange(4, receivedData.size) // Usunięcie pierwszych 4 bajtów
+                }
 
-            // Kopiujemy tyle danych, ile się zmieści w buforze
-            System.arraycopy(data, dataIndex, dataBuffer, bufferIndex, bytesToCopy)
-            bufferIndex += bytesToCopy
-            dataIndex += bytesToCopy
-            currentByteCount += bytesToCopy
-            // Sprawdzamy, czy bufor jest pełny
-            if (bufferIndex == bufferSize) {
-                saveBufferToDatabase()  // Zapisujemy dane do bazy
-                bufferIndex = 0         // Resetujemy indeks bufora
-            }
-        }
-    }
+                // Sprawdzanie końca transmisji (16 bajtów zerowych)
+                if (receivedData.size >= 16 && receivedData.takeLast(16).all { it == 0.toByte() }) {
+                    Log.d("BLE", "Transmission complete. All data received.")
+                    // Walidacja liczby odebranych danych
+                    if (totalReceivedBytes == fileSize - 4) {
+                        Log.d("BLE", "Odebrana ilość danych zgadza się z oczekiwanym rozmiarem pliku.")
+                        resetFlags()
+                        return
+                    } else {
+                        Log.e("BLE", "Odebrana ilość danych ($totalReceivedBytes bajtów) NIE zgadza się z oczekiwanym rozmiarem pliku ($fileSize bajtów).")
+                        resetFlags()
+                        return
+                    }
+                }
 
-    private fun saveBufferToDatabase() {
-        if (bufferIndex < bufferSize) {
-            Log.e("BUFFER", "Bufor nie jest pełny, nie zapisujemy danych.")
-            return
-        }
-
-        val byteBuffer = ByteBuffer.wrap(dataBuffer)
-        byteBuffer.order(ByteOrder.LITTLE_ENDIAN)
-
-        // Odczytujemy dane w pętlach po 12 bajtów na jeden zestaw (IR, Red, accX, accY, accZ)
-        while (byteBuffer.remaining() >= 12) {
-            val ir = byteBuffer.int.toLong()
-            val red = byteBuffer.int.toLong()
-            val accX = byteBuffer.short.toDouble()
-            val accY = byteBuffer.short.toDouble()
-            val accZ = byteBuffer.short.toDouble()
-
-            // Logowanie dekodowanych wartości przed zapisem
-            Log.d("DATA", "Dekodowane dane - IR: $ir, Red: $red, accX: $accX, accY: $accY, accZ: $accZ")
-
-            // Zapisz dane do bazy, używając zapisanego wcześniej timestampu
-            val id = dbHelper.insertSensorData(unixTimestamp, ir, red, accX, accY, accZ)
-            if (id > 0) {
-                Log.d("DB", "Dane zapisane w bazie z ID: $id, Unix timestamp: $unixTimestamp")
-            } else {
-                Log.e("DB", "Błąd zapisu danych w bazie")
-            }
-        }
-    }
-
-    protected fun startReadingLoop() {
-        readLoopActive = true
-        val handler = Handler(Looper.getMainLooper())
-        handler.post(object : Runnable {
-            override fun run() {
-                if (readLoopActive) {
-                    readCharacteristic()
-                    handler.postDelayed(this, 1)
+                if (receivedData.isNotEmpty()) {
+                    processDataChunk(receivedData)
                 }
             }
-        })
+        }
+    }
+
+    private fun processDataChunk(data: ByteArray) {
+        synchronized(dataBuffer) {
+            dataBuffer.add(data) // Dodaj dane do bufora
+        }
+        totalReceivedBytes += data.size
+
+        // Przetwarzanie w tle
+        bleHandler.post {
+            processBufferedData()
+        }
+    }
+
+    private fun processBufferedData() {
+        synchronized(dataBuffer) {
+            while (dataBuffer.isNotEmpty()) {
+                val packet = dataBuffer.poll() // Pobierz dane z bufora
+                if (packet != null) {
+                    saveRawDataToDatabaseAsync(packet)
+                }
+            }
+        }
+    }
+
+
+    private val dataQueue = ConcurrentLinkedQueue<ByteArray>()
+
+    private fun saveRawDataToDatabaseAsync(data: ByteArray) {
+        dataQueue.add(data)
+        dbWriteScope.launch {
+            while (dataQueue.isNotEmpty()) {
+                val packet = dataQueue.poll()
+                if (packet != null) {
+                    saveRawDataToDatabase(packet)
+                }
+            }
+        }
+    }
+
+    private fun saveRawDataToDatabase(data: ByteArray) {
+        // Zapis danych do bazy
+        val db = dbHelper.writableDatabase
+        val values = ContentValues().apply {
+            put(SensorDataDatabaseHelper.COLUMN_TIMESTAMP, unixTimestamp)
+            put(SensorDataDatabaseHelper.COLUMN_RAW_DATA, data)
+        }
+        db.insert(SensorDataDatabaseHelper.TABLE_NAME, null, values)
+    }
+
+    private fun flushBatchData() {
+        if (dataQueue.isNotEmpty()) {
+            val db = dbHelper.writableDatabase
+            db.beginTransaction()
+            try {
+                for (packet in dataQueue) {
+                    val values = ContentValues().apply {
+                        put(SensorDataDatabaseHelper.COLUMN_TIMESTAMP, unixTimestamp)
+                        put(SensorDataDatabaseHelper.COLUMN_RAW_DATA, packet)
+                    }
+                    db.insert(SensorDataDatabaseHelper.TABLE_NAME, null, values)
+                }
+                db.setTransactionSuccessful()
+            } finally {
+                db.endTransaction()
+            }
+            dataQueue.clear()
+            Log.d("DB", "Zapisano pozostałe pakiety wsadowo")
+        }
+    }
+
+    private fun resetFlags() {
+        currentByteCount = 0
+        bufferIndex = 0
+        isTimestampReceived = false
+        isFileSizeRead = false
+        zeroFlag = false
+        readLoopActive = false
+        totalReceivedBytes = 0
+        flushBatchData()
+        sendMessageOK()
+        sendUnixTime()
+        dataBuffer.clear()
+        //Handler(Looper.getMainLooper()).postDelayed({
+            unsubscribeFromCharacteristic()
+        //},100)
     }
 
     @SuppressLint("MissingPermission")
-    private fun readCharacteristic() {
-        if (!readLoopActive) return
-
+    protected fun subscribeToCharacteristic() {
         val characteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(messageTransferUUID)
-        if (characteristic != null && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-            == PackageManager.PERMISSION_GRANTED) {
-            bluetoothGatt?.readCharacteristic(characteristic)
+
+        if (characteristic != null) {
+            bluetoothGatt?.setCharacteristicNotification(characteristic, true)
+            val descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
+            if (descriptor != null) {
+                descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                val success = bluetoothGatt?.writeDescriptor(descriptor) == true
+                if (success) {
+                    Log.d("BLE", "Subscription to characteristic started successfully.")
+                } else {
+                    Log.e("BLE", "Failed to write descriptor for subscription.")
+                }
+            } else {
+                Log.e("BLE", "Descriptor for notifications not found.")
+            }
         } else {
-            Log.w("BLE", "Characteristic not found or permission denied!")
+            Log.e("BLE", "Characteristic not found for subscription.")
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    protected fun unsubscribeFromCharacteristic() {
+        val characteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(messageTransferUUID)
+
+        if (characteristic != null) {
+            bluetoothGatt?.setCharacteristicNotification(characteristic, false)
+            val descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
+            descriptor?.value = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
+            bluetoothGatt?.writeDescriptor(descriptor)
+            Log.d("BLE", "Subscription to characteristic stopped.")
+            Toast.makeText(this, "Unsubscribed from notifications.", Toast.LENGTH_SHORT).show()
+        } else {
+            Log.e("BLE", "Characteristic not found for unsubscription.")
+            Toast.makeText(this, "Characteristic not found for unsubscription.", Toast.LENGTH_SHORT).show()
         }
     }
 

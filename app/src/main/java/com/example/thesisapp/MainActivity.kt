@@ -72,9 +72,14 @@ class MainActivity : BaseActivity() {
             sendUnixTime()
         }
         // Rozpoczynamy odczytywanie danych po kliknięciu
+
         btnReadData.setOnClickListener {
-            sendUnixTime()
-            startReadingLoop() // Funkcja z BaseActivity
+            if (bluetoothGatt != null) {
+                Log.d("BLE", "Attempting to subscribe to characteristic.")
+                subscribeToCharacteristic()
+            } else {
+                Toast.makeText(this, "Device not connected. Please connect first.", Toast.LENGTH_SHORT).show()
+            }
         }
         btnSaveData.setOnClickListener {
             createJSONFile()
