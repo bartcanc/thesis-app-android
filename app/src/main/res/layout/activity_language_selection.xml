@@ -1,123 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center">
+    android:background="@drawable/gradient_background">
 
+    <!-- ImageView z grafiką "Running Man" -->
+    <ImageView
+        android:id="@+id/imgRunningMan"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/running_man"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Nagłówek -->
+
+    <!-- Przycisk powrotu -->
     <TextView
-        android:id="@+id/tvChooseLanguage"
+        android:id="@+id/tvSelectLanguage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="116dp"
         android:text="@string/select_language"
-        android:textSize="20sp"
-        android:layout_marginBottom="24dp"
-        android:textStyle="bold"/>
+        android:textColor="#FFFFFF"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-
-    <LinearLayout
+    <ImageButton
+        android:id="@+id/btnBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:src="@drawable/ic_back_arrow"
+        android:background="@null"
+        android:contentDescription="Back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="16dp" />
 
+    <!-- Kontener z językami -->
+    <LinearLayout
+        android:id="@+id/languageContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvSelectLanguage"
+        app:layout_constraintVertical_bias="0.244">
+
+        <!-- Polski -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/btnPolish"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="16dp">
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/rounded_corner_background"
+            android:orientation="horizontal"
+            android:padding="12dp">
 
-            <ImageButton
-                android:id="@+id/btnPolish"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/ic_flag_poland"
-                android:contentDescription="@string/polish"
-                android:background="?android:selectableItemBackground"
-                android:scaleType="centerCrop"/>
+            <ImageView
+                android:id="@+id/imgPolishFlag"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_flag_poland" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/tvPolish"
+                android:layout_width="241dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:gravity="center_vertical|center_horizontal"
                 android:text="@string/polish"
-                android:layout_gravity="center"/>
+                android:textColor="#2C2C2C"
+                android:textSize="16sp" />
         </LinearLayout>
 
+        <!-- English -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/btnEnglish"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="16dp">
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/rounded_corner_background"
+            android:orientation="horizontal"
+            android:padding="12dp">
 
-            <ImageButton
-                android:id="@+id/btnEnglish"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/ic_flag_uk"
-                android:contentDescription="@string/english"
-                android:background="?android:selectableItemBackground"
-                android:scaleType="centerCrop"/>
+            <ImageView
+                android:id="@+id/imgEnglishFlag"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_flag_uk" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/tvEnglish"
+                android:layout_width="237dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:gravity="center_vertical|center_horizontal"
                 android:text="@string/english"
-                android:layout_gravity="center"/>
+                android:textColor="#2C2C2C"
+                android:textSize="16sp" />
         </LinearLayout>
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-
+        <!-- Deutsch -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/btnGerman"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="16dp">
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/rounded_corner_background"
+            android:orientation="horizontal"
+            android:padding="12dp">
 
-            <ImageButton
-                android:id="@+id/btnGerman"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/ic_flag_germany"
-                android:contentDescription="@string/german"
-                android:background="?android:selectableItemBackground"
-                android:scaleType="centerCrop"/>
+            <ImageView
+                android:id="@+id/imgGermanFlag"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_flag_germany" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/tvGerman"
+                android:layout_width="237dp"
                 android:layout_height="wrap_content"
+                android:gravity="center_vertical|center_horizontal"
+                android:layout_marginStart="12dp"
                 android:text="@string/german"
-                android:layout_gravity="center"/>
+                android:textColor="#2C2C2C"
+                android:textSize="16sp" />
         </LinearLayout>
 
+        <!-- Español -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/btnSpanish"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="16dp">
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/rounded_corner_background"
+            android:orientation="horizontal"
+            android:padding="12dp">
 
-            <ImageButton
-                android:id="@+id/btnSpanish"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/ic_flag_spain"
-                android:contentDescription="@string/spanish"
-                android:background="?android:selectableItemBackground"
-                android:scaleType="centerCrop"/>
+            <ImageView
+                android:id="@+id/imgSpanishFlag"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_flag_spain" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/tvSpanish"
+                android:layout_width="237dp"
                 android:layout_height="wrap_content"
+                android:gravity="center_vertical|center_horizontal"
+                android:layout_marginStart="12dp"
                 android:text="@string/spanish"
-                android:layout_gravity="center"/>
+                android:textColor="#2C2C2C"
+                android:textSize="16sp" />
         </LinearLayout>
-
     </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

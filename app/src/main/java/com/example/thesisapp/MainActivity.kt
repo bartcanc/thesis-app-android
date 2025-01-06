@@ -8,16 +8,19 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.IOException
 import java.util.Locale
 
 class MainActivity : BaseActivity() {
@@ -31,10 +34,14 @@ class MainActivity : BaseActivity() {
     private lateinit var btnSaveData: Button
     private lateinit var btnSendData: Button
     private lateinit var btnSendWifiData: Button
+    private lateinit var btnDisconnect: Button
+    private lateinit var btnShowInfo: Button
+    private lateinit var btnSettings: ImageButton
 
     private lateinit var apiService: ApiService
 
-    @SuppressLint("MissingInflatedId")
+
+    @SuppressLint("MissingInflatedId", "MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -52,24 +59,38 @@ class MainActivity : BaseActivity() {
         config.setLocale(locale)
         resources.updateConfiguration(config, resources.displayMetrics)
 
-        tvMessage = findViewById(R.id.tvMessage)
-        btnLogout = findViewById(R.id.btnLogout)
-        btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
-        btnPasswordReset = findViewById(R.id.btnPasswordReset)
+        //tvMessage = findViewById(R.id.tvMessage)
+        //btnLogout = findViewById(R.id.btnLogout)
+        //btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
+        //btnPasswordReset = findViewById(R.id.btnPasswordReset)
         btnConnect = findViewById(R.id.btnConnect)
+        btnDisconnect = findViewById(R.id.btnDisconnect)
         btnReadData = findViewById(R.id.btnReadData)
         btnSyncTime = findViewById(R.id.btnSyncTime)
-        btnSaveData = findViewById(R.id.btnSaveData)
-        btnSendData = findViewById(R.id.btnSendData)
+        //btnSaveData = findViewById(R.id.btnSaveData)
+        //btnSendData = findViewById(R.id.btnSendData)
         btnSendWifiData = findViewById(R.id.btnSendWifiData)
+        btnShowInfo = findViewById(R.id.btnBandInfo)
+        btnSettings = findViewById(R.id.btnSettings)
 
         // Po kliknięciu otwieramy ustawienia Bluetooth
         btnConnect.setOnClickListener {
             openBluetoothSettings()
         }
 
+        btnDisconnect.setOnClickListener{
+            bluetoothGatt?.disconnect()
+            bluetoothGatt?.close()
+            bluetoothGatt = null
+        }
+
         btnSyncTime.setOnClickListener{
             sendUnixTime()
+        }
+
+        btnSettings.setOnClickListener{
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
         }
         // Rozpoczynamy odczytywanie danych po kliknięciu
 
@@ -81,36 +102,40 @@ class MainActivity : BaseActivity() {
                 Toast.makeText(this, "Device not connected. Please connect first.", Toast.LENGTH_SHORT).show()
             }
         }
-        btnSaveData.setOnClickListener {
-            createJSONFile()
-        }
-
-        btnSendData.setOnClickListener {
-            sendSensorData()
-        }
+//        btnSaveData.setOnClickListener {
+//            createJSONFile()
+//        }
+//
+//        btnSendData.setOnClickListener {
+//            sendSensorData()
+//        }
         // Retrieve the login message if available
         val message = intent.getStringExtra("message")
         if (message != null) {
             tvMessage.text = message
         }
 
-        btnLogout.setOnClickListener {
-            performLogout(sharedPref)
-        }
-
-        btnChangeLanguage.setOnClickListener {
-            val intent = Intent(this, LanguageSelectionActivity::class.java)
-            intent.putExtra("previous_activity", "MainActivity")
-            startActivity(intent)
-        }
-
-        btnPasswordReset.setOnClickListener {
-            startActivity(Intent(this, PasswordResetActivity::class.java))
-            finish()
-        }
+//        btnLogout.setOnClickListener {
+//            performLogout(sharedPref)
+//        }
+//
+//        btnChangeLanguage.setOnClickListener {
+//            val intent = Intent(this, LanguageSelectionActivity::class.java)
+//            intent.putExtra("previous_activity", "MainActivity")
+//            startActivity(intent)
+//        }
+//
+//        btnPasswordReset.setOnClickListener {
+//            startActivity(Intent(this, PasswordResetActivity::class.java))
+//            finish()
+//        }
 
         btnSendWifiData.setOnClickListener {
             sendWifiCredentials()
+        }
+
+        btnShowInfo.setOnClickListener {
+
         }
     }
 

@@ -1,66 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@drawable/test_bg"
-    tools:context=".LoginActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/gradient_background">
 
-<EditText
-android:id="@+id/etLoginUsername"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:hint="@string/username"
-android:inputType="textPersonName"
-android:layout_marginTop="16dp"/>
+    <!-- ImageView z grafiką "Running Man", nieograniczony przez padding -->
+    <ImageView
+        android:id="@+id/imgRunningMan"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/running_man"
+        />
 
-<EditText
-android:id="@+id/etLoginPassword"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:hint="@string/password"
-android:inputType="textPassword"
-android:layout_marginTop="16dp" />
+    <!-- Układ reszty komponentów -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+    <LinearLayout
+        android:id="@+id/containerLogin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corner_background"
+        android:orientation="vertical"
+        android:padding="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-<CheckBox
-android:id="@+id/cbRemember"
-android:layout_width="match_parent"
-android:layout_height="23dp"
-android:clickable="true"
-android:text="@string/remember_me" />
+        <!-- Nagłówek -->
+        <TextView
+            android:id="@+id/tvLoginTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:text="@string/login"
+            android:textColor="#2C2C2C"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-<Button
-android:id="@+id/btnLogin"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:layout_marginTop="16dp"
-android:text="@string/login" />
+        <!-- Pole username -->
+        <EditText
+            android:id="@+id/etLoginUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/edit_text_background"
+            android:hint="@string/username"
+            android:padding="12dp"
+            android:textColor="#858585"
+            android:textColorHint="#858585"
+            android:textSize="16sp" />
 
-<TextView
-android:id="@+id/tvRegister"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:layout_marginTop="16dp"
-android:clickable="true"
-android:focusable="true"
-android:text="@string/don_t_have_an_account_register"
-android:textColor="@android:color/holo_blue_dark" />
+        <!-- Pole password -->
 
-<ImageView
-android:id="@+id/loginStatusImage"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:layout_gravity="center"
-android:layout_marginTop="16dp"
-android:visibility="gone"/>
+        <EditText
+            android:id="@+id/etLoginPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/edit_text_background"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            android:padding="12dp"
+            android:textColor="#858585"
+            android:textColorHint="#858585"
+            android:textSize="16sp" />
 
-<Button
-android:id="@+id/btnChangeLanguage"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:layout_gravity="end"
-android:text="@string/change_language"
-android:layout_marginTop="16dp" />
-</LinearLayout>
+        <!-- Switch remember me -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/remember_me"
+                android:textColor="#2C2C2C"
+                android:textSize="14sp" />
+
+            <Switch
+                android:id="@+id/switchRememberMe"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
+        </LinearLayout>
+
+        <!-- Przycisk Login -->
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/gradient_button"
+            android:text="@string/login"
+            android:textColor="#FFFFFF" />
+
+        <!-- Przycisk Register -->
+        <Button
+            android:id="@+id/btnRegister"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/gradient_button"
+            android:text="@string/register"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+
+    <!-- Przycisk zmiany języka -->
+    <Button
+        android:id="@+id/btnChangeLanguage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="@null"
+        android:drawableStart="@drawable/ic_language_icon"
+        android:drawablePadding="8dp"
+        android:text="@string/change_language"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>

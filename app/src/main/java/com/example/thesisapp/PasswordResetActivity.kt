@@ -18,11 +18,11 @@ import retrofit2.Response
 import java.util.Locale
 
 class PasswordResetActivity: BaseActivity() {
-    private lateinit var username: EditText
+    private lateinit var username: String
     private lateinit var resetCode: EditText
     private lateinit var newPassword: EditText
     private lateinit var btnResetPassword: Button
-    private lateinit var btnChangeLanguage: Button
+    //private lateinit var btnChangeLanguage: Button
 
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
@@ -39,11 +39,11 @@ class PasswordResetActivity: BaseActivity() {
         config.setLocale(locale)
         resources.updateConfiguration(config, resources.displayMetrics)
 
-        username = findViewById(R.id.etUsername)
+        username = sharedPref.getString("username", "null").toString()
         resetCode = findViewById(R.id.etResetPasswordCode)
         newPassword = findViewById(R.id.etNewPassword)
         btnResetPassword = findViewById(R.id.btnResetPassword)
-        btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
+        //btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
 
         btnResetPassword.setOnClickListener {
             if (!NetworkUtils.isNetworkAvailable(this)) {
@@ -54,16 +54,16 @@ class PasswordResetActivity: BaseActivity() {
             }
         }
 
-        btnChangeLanguage.setOnClickListener {
-            val intent = Intent(this, LanguageSelectionActivity::class.java)
-            intent.putExtra("previous_activity", "MainActivity")
-            startActivity(intent)
-        }
+//        btnChangeLanguage.setOnClickListener {
+//            val intent = Intent(this, LanguageSelectionActivity::class.java)
+//            intent.putExtra("previous_activity", "MainActivity")
+//            startActivity(intent)
+//        }
 
     }
 
-    private fun performReset(username: EditText, passwordResetCode: EditText, password: EditText) {
-        val passwordResetRequest = PasswordResetRequest(username.text.toString(), passwordResetCode.text.toString(), newPassword.text.toString())
+    private fun performReset(username: String, passwordResetCode: EditText, password: EditText) {
+        val passwordResetRequest = PasswordResetRequest(username, passwordResetCode.text.toString(), newPassword.text.toString())
 
         val apiClient = ApiClient(this)
         val apiService = apiClient.getApiService8000()
@@ -80,7 +80,7 @@ class PasswordResetActivity: BaseActivity() {
                         putString("passResetCode", passCode)
                     }
                     Toast.makeText(this@PasswordResetActivity, "Password reset successful! 🎉", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this@PasswordResetActivity, MainActivity::class.java))
+                    startActivity(Intent(this@PasswordResetActivity, SettingsActivity::class.java))
                     finish()
                 } else {
                     Toast.makeText(this@PasswordResetActivity, "Password reset failed 😔: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()

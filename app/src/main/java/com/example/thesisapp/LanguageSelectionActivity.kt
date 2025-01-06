@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
@@ -21,19 +22,19 @@ class LanguageSelectionActivity : AppCompatActivity() {
         sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
         previousActivity = intent.getStringExtra("previous_activity")
 
-        val tvChooseLanguage = findViewById<TextView>(R.id.tvChooseLanguage)
+        val tvChooseLanguage = findViewById<TextView>(R.id.tvSelectLanguage)
         tvChooseLanguage.text = getString(R.string.select_language)
 
-        findViewById<ImageButton>(R.id.btnPolish).setOnClickListener {
+        findViewById<LinearLayout>(R.id.btnPolish).setOnClickListener {
             setLocale("pl")
         }
-        findViewById<ImageButton>(R.id.btnEnglish).setOnClickListener {
+        findViewById<LinearLayout>(R.id.btnEnglish).setOnClickListener {
             setLocale("en")
         }
-        findViewById<ImageButton>(R.id.btnGerman).setOnClickListener {
+        findViewById<LinearLayout>(R.id.btnGerman).setOnClickListener {
             setLocale("de")
         }
-        findViewById<ImageButton>(R.id.btnSpanish).setOnClickListener {
+        findViewById<LinearLayout>(R.id.btnSpanish).setOnClickListener {
             setLocale("es")
         }
     }

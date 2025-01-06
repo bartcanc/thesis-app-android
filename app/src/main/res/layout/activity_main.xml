@@ -1,126 +1,202 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/relativeLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context=".MainActivity">
+    android:background="@color/white"
+    >
 
-    <TextView
-        android:id="@+id/tvMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:text="@string/logged_in_successfully"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@id/btnLogout"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+    <!-- Ikona smartbanda -->
+    <ImageView
+        android:id="@+id/imgSmartband"
+        android:layout_width="215dp"
+        android:layout_height="208dp"
+        android:layout_marginTop="24dp"
+        android:src="@drawable/ic_smartband"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/btnLogout"
+    <!-- Nagłówek: Nazwa urządzenia -->
+    <TextView
+        android:id="@+id/tvDeviceName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:text="@string/logout"
-        app:layout_constraintBottom_toTopOf="@id/btnPasswordReset"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvMessage" />
+        android:text="Smartband D3K"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#446fb1"
+        app:layout_constraintTop_toBottomOf="@id/imgSmartband"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
 
-    <Button
-        android:id="@+id/btnPasswordReset"
+    <!-- Status połączenia -->
+    <TextView
+        android:id="@+id/tvConnectionStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/password_change"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnLogout" />
-
-    <Button
-        android:id="@+id/btnChangeLanguage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/change_language"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnPasswordReset" />
-
-    <Button
-        android:id="@+id/btnSyncTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sync time"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnChangeLanguage" />
-
-    <Button
-        android:id="@+id/btnConnect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="76dp"
-        android:text="Connect to BLE Device"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnChangeLanguage" />
-
-    <Button
-        android:id="@+id/btnSaveData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
-        android:text="Save Data"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnConnect" />
-
-    <Button
-        android:id="@+id/btnReadData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Read Data"
-        app:layout_constraintHorizontal_bias="0.513"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnSaveData" />
-
-    <Button
-        android:id="@+id/btnSendData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Send Data"
-        app:layout_constraintHorizontal_bias="0.513"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnReadData" />
-
-    <Button
-        android:id="@+id/btnSendWifiData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Send WiFi"
-        app:layout_constraintHorizontal_bias="0.513"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnSendData" />
+        android:text="Status:"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@id/tvDeviceName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
 
     <TextView
-        android:id="@+id/dataView"
+        android:id="@+id/tvConnectionState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="160dp"
-        android:layout_marginTop="28dp"
-        android:text="TextView"
+        android:text="CONNECTED"
+        android:textSize="18sp"
+        android:textColor="#00FF00"
+        app:layout_constraintTop_toBottomOf="@id/tvConnectionStatus"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnConnect" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="4dp" />
 
+    <!-- Przyciski akcji -->
+    <LinearLayout
+        android:id="@+id/actionButtonsContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/tvConnectionState"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Connect -->
+        <Button
+            android:id="@+id/btnConnect"
+            android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="@string/connect"
+        android:background="@drawable/gradient_button"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="center_horizontal" />
+
+        <!-- Disconnect -->
+        <Button
+            android:id="@+id/btnDisconnect"
+            android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="@string/disconnect"
+        android:background="@drawable/gradient_button"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="center_horizontal" />
+
+        <!-- Receive Data -->
+        <Button
+            android:id="@+id/btnReadData"
+            android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="@string/receive_data"
+        android:background="@drawable/gradient_button"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="center_horizontal" />
+
+        <!-- Send WiFi -->
+        <Button
+            android:id="@+id/btnSendWifiData"
+            android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="@string/send_wifi"
+        android:background="@drawable/gradient_button"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="center_horizontal" />
+
+        <!-- Sync Time -->
+        <Button
+            android:id="@+id/btnSyncTime"
+            android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="@string/sync_time"
+        android:background="@drawable/gradient_button"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="center_horizontal" />
+
+        <!-- Band Info -->
+        <Button
+            android:id="@+id/btnBandInfo"
+            android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="@string/band_info"
+        android:background="@drawable/gradient_button"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="center_horizontal" />
+    </LinearLayout>
+
+    <!-- Pasek nawigacyjny -->
+    <LinearLayout
+        android:id="@+id/navBar"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        android:background="@drawable/gradient_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Ikona Home -->
+        <ImageButton
+            android:id="@+id/btnHome"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_home"
+            android:background="@null"
+            android:contentDescription="Home"
+            android:layout_weight="1" />
+
+        <!-- Ikona Stats -->
+        <ImageButton
+            android:id="@+id/btnForum"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_forum"
+            android:background="@null"
+            android:contentDescription="Forum"
+            android:layout_weight="1" />
+
+        <!-- Ikona Band -->
+        <ImageButton
+            android:id="@+id/btnBand"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_band"
+            android:background="@null"
+            android:contentDescription="Band"
+            android:layout_weight="1" />
+
+        <!-- Ikona Profile -->
+        <ImageButton
+            android:id="@+id/btnProfile"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_profile"
+            android:scaleType="centerInside"
+            android:layout_margin="8dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:contentDescription="Profile" />
+
+        <!-- Ikona Settings -->
+        <ImageButton
+            android:id="@+id/btnSettings"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_settings"
+            android:background="@null"
+            android:contentDescription="Settings"
+            android:layout_weight="1" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

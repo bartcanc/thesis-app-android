@@ -27,4 +27,10 @@
     <string name="go_to_login">Przejdź do logowania</string>
     <string name="placeholder" translatable="false">placeholder</string>
     <string name="password_change_info">Oto twój kod zmiany hasła! Zapisz go w bezpiecznym miejscu.</string>
+    <string name="connect">Połącz</string>
+    <string name="disconnect">Rozłącz</string>
+    <string name="receive_data">Odbierz dane</string>
+    <string name="send_wifi">Wyślij WiFi</string>
+    <string name="sync_time">Synchronizacja czasu</string>
+    <string name="band_info">Informacje o urządzeniu</string>
 </resources>

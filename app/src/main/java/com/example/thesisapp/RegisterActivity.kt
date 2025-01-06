@@ -9,9 +9,10 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatImageButton
 import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.Call
@@ -24,7 +25,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var etPassword: EditText
     private lateinit var etPasswordRepeat: EditText
     private lateinit var btnRegister: Button
-    private lateinit var btnChangeLanguage: Button
+    private lateinit var btnReturn: AppCompatImageButton
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,12 +45,11 @@ class RegisterActivity : AppCompatActivity() {
         etPassword = findViewById(R.id.etRegisterPassword)
         etPasswordRepeat = findViewById(R.id.etRegisterPasswordRepeat)
         btnRegister = findViewById(R.id.btnRegister)
-        btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
+        btnReturn = findViewById(R.id.btnBack)
 
         btnRegister.setOnClickListener {
             if (!NetworkUtils.isNetworkAvailable(this)) {
-                startActivity(Intent(this, NoConnectionActivity::class.java))
-                finish()
+                Toast.makeText(this, "No network connection", Toast.LENGTH_SHORT).show()
             } else {
                 val username = etUsername.text.toString()
                 val password = etPassword.text.toString()
@@ -78,25 +78,10 @@ class RegisterActivity : AppCompatActivity() {
                                         // Pobieranie userId i password_reset_code z odpowiedzi JSON
                                         val userId = jsonResponse.optString("user_id", "")
                                         val passCode = jsonResponse.optString("password_reset_code", "")
-                                        val sessionId = response.headers()["session-id"]
 
                                         if (userId.isNotEmpty()) {
-                                            // Zapis userId i passCode w SharedPreferences
-                                            with(sharedPref.edit()) {
-                                                putString("user_id", userId)
-                                                putString("passResetCode", passCode)
-                                                putString("session_id", sessionId)
-                                                apply()
-                                            }
-                                            Toast.makeText(
-                                                this@RegisterActivity,
-                                                "Registration successful",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                            startActivity(
-                                                Intent(this@RegisterActivity, CodeActivity::class.java)
-                                            )
-                                            finish()
+                                            // Wyświetlenie kodu w oknie dialogowym
+                                            showPasscodeDialog(passCode)
                                         } else {
                                             Toast.makeText(
                                                 this@RegisterActivity,
@@ -130,14 +115,23 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
-        btnChangeLanguage.setOnClickListener {
-            val intent = Intent(this, LanguageSelectionActivity::class.java)
-            intent.putExtra("previous_activity", "RegisterActivity")
-            startActivity(intent)
+        btnReturn.setOnClickListener {
+            finish() // Powrót do poprzedniej aktywności
         }
+    }
 
-        findViewById<TextView>(R.id.tvLogin).setOnClickListener {
-            startActivity(Intent(this, LoginActivity::class.java))
-        }
+    // Funkcja wyświetlająca okno dialogowe z kodem resetu
+    private fun showPasscodeDialog(passCode: String) {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Password Reset Code")
+            .setMessage("Your password reset code is:\n$passCode")
+            .setPositiveButton("OK") { dialogInterface, _ ->
+                dialogInterface.dismiss()
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
+            .create()
+
+        dialog.show()
     }
 }

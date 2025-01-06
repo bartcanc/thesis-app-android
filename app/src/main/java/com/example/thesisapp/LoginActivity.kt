@@ -2,6 +2,7 @@ package com.example.thesisapp
 
 import ApiClient
 import LoginRequest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
@@ -11,6 +12,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -28,11 +30,11 @@ class LoginActivity : BaseActivity() {
     private lateinit var etUsername: EditText
     private lateinit var etPassword: EditText
     private lateinit var btnLogin: Button
-    private lateinit var tvRegister: TextView
-    private lateinit var loginStatusImage: ImageView
+    private lateinit var btnRegister: Button
     private lateinit var btnChangeLanguage: Button
-    private lateinit var cbRememberMe: CheckBox
+    private lateinit var switchRememberMe: Switch
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -51,10 +53,9 @@ class LoginActivity : BaseActivity() {
         etUsername = findViewById(R.id.etLoginUsername)
         etPassword = findViewById(R.id.etLoginPassword)
         btnLogin = findViewById(R.id.btnLogin)
-        tvRegister = findViewById(R.id.tvRegister)
-        loginStatusImage = findViewById(R.id.loginStatusImage)
+        btnRegister = findViewById(R.id.btnRegister)
         btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
-        cbRememberMe = findViewById(R.id.cbRemember)
+        switchRememberMe = findViewById(R.id.switchRememberMe)
 
         loadLoginData()
 
@@ -74,7 +75,7 @@ class LoginActivity : BaseActivity() {
             }
         }
 
-        tvRegister.setOnClickListener {
+        btnRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
@@ -94,7 +95,8 @@ class LoginActivity : BaseActivity() {
         apiService.login(loginRequest).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
-                    if (cbRememberMe.isChecked) {
+                    val rememberMe = sharedPref.getBoolean("remember_me", false)
+                    if (rememberMe) {
                         saveLoginData(username, password)
                     } else {
                         clearLoginData()
@@ -162,7 +164,7 @@ class LoginActivity : BaseActivity() {
         if (rememberMe) {
             etUsername.setText(sharedPref.getString("username", ""))
             etPassword.setText(sharedPref.getString("password", ""))
-            cbRememberMe.isChecked = true
+            switchRememberMe.isChecked = true
         }
     }
 
