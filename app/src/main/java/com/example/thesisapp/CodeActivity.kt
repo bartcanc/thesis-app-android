@@ -15,37 +15,66 @@ class CodeActivity: BaseActivity() {
     private lateinit var codeInfo: TextView
     private lateinit var nextButton: Button
 
-    @SuppressLint("MissingInflatedId")
+    @SuppressLint("SetTextI18n", "MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_code)
 
-        //checkSessionValidity()
-
-        sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
+        // Ustawienie języka aplikacji
+        val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
         val selectedLanguage = sharedPref.getString("selected_language", "pl")
+        setAppLocale(selectedLanguage ?: "pl")
 
-        val locale = Locale(selectedLanguage ?: "pl")
+        // Inicjalizacja widoków
+        codeDisplay = findViewById(R.id.tvResetCode)
+        codeInfo = findViewById(R.id.tvCustomMessage)
+        nextButton = findViewById(R.id.btnOk)
+
+        // Pobieranie kodu resetu
+        val passCode = sharedPref.getString("passResetCode", "")
+        Log.i("CodeActivity", "Pass reset code: $passCode")
+
+        // Wyświetlenie kodu resetu lub komunikatu, jeśli brak kodu
+        if (!passCode.isNullOrEmpty()) {
+            codeDisplay.text = passCode
+        } else {
+            codeDisplay.text = "skibidi"
+        }
+
+        // Obsługa przycisku "Next"
+        nextButton.setOnClickListener {
+            clearPassResetCode()
+            navigateToLogin()
+        }
+    }
+
+    /**
+     * Ustawienie lokalizacji aplikacji na wybrany język.
+     */
+    private fun setAppLocale(language: String) {
+        val locale = Locale(language)
         Locale.setDefault(locale)
         val config = Configuration(resources.configuration)
         config.setLocale(locale)
         resources.updateConfiguration(config, resources.displayMetrics)
+    }
 
-        codeDisplay = findViewById(R.id.etCodeDisplay)
-        nextButton = findViewById(R.id.nextButton)
-
-        val passCode = sharedPref.getString("passResetCode", "")
-        Log.i("essa", passCode.toString())
-
-        codeDisplay.setText(passCode)
-
-        nextButton.setOnClickListener {
-            with(sharedPref.edit()){
-                putString("passResetCode","")
-                apply()
-            }
-            startActivity(Intent(this@CodeActivity, LoginActivity::class.java))
-            finish()
+    /**
+     * Czyszczenie kodu resetu w pamięci współdzielonej.
+     */
+    private fun clearPassResetCode() {
+        val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString("passResetCode", "")
+            apply()
         }
+    }
+
+    /**
+     * Nawigacja do ekranu logowania.
+     */
+    private fun navigateToLogin() {
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
     }
 }

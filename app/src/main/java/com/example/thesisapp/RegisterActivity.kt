@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -45,93 +46,109 @@ class RegisterActivity : AppCompatActivity() {
         etPassword = findViewById(R.id.etRegisterPassword)
         etPasswordRepeat = findViewById(R.id.etRegisterPasswordRepeat)
         btnRegister = findViewById(R.id.btnRegister)
-        btnReturn = findViewById(R.id.btnBack)
+        btnReturn = findViewById(R.id.btnReturn)
 
         btnRegister.setOnClickListener {
-            if (!NetworkUtils.isNetworkAvailable(this)) {
-                Toast.makeText(this, "No network connection", Toast.LENGTH_SHORT).show()
+            val username = etUsername.text.toString()
+            val password = etPassword.text.toString()
+            val passwordRepeat = etPasswordRepeat.text.toString()
+
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            } else if (password != passwordRepeat) {
+                Toast.makeText(this, "Both passwords must be identical", Toast.LENGTH_SHORT).show()
             } else {
-                val username = etUsername.text.toString()
-                val password = etPassword.text.toString()
-                val passwordRepeat = etPasswordRepeat.text.toString()
-
-                if (username.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                } else if (password != passwordRepeat) {
-                    Toast.makeText(this, "Both passwords must be identical", Toast.LENGTH_SHORT).show()
-                } else {
-                    val registerRequest = RegisterRequest(username, password)
-                    val apiClient = ApiClient(this)
-                    val apiService = apiClient.getApiService8000()
-
-                    apiService.register(registerRequest)
-                        .enqueue(object : Callback<ResponseBody> {
-                            override fun onResponse(
-                                call: Call<ResponseBody>,
-                                response: Response<ResponseBody>
-                            ) {
-                                if (response.isSuccessful) {
-                                    response.body()?.let {
-                                        val responseString = it.string()
-                                        val jsonResponse = JSONObject(responseString)
-
-                                        // Pobieranie userId i password_reset_code z odpowiedzi JSON
-                                        val userId = jsonResponse.optString("user_id", "")
-                                        val passCode = jsonResponse.optString("password_reset_code", "")
-
-                                        if (userId.isNotEmpty()) {
-                                            // Wyświetlenie kodu w oknie dialogowym
-                                            showPasscodeDialog(passCode)
-                                        } else {
-                                            Toast.makeText(
-                                                this@RegisterActivity,
-                                                "Registration failed: Missing user ID",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                    } ?: Toast.makeText(
-                                        this@RegisterActivity,
-                                        "Registration failed: Empty response",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    Toast.makeText(
-                                        this@RegisterActivity,
-                                        "Registration failed: ${response.errorBody()?.string()}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-
-                            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                                Toast.makeText(
-                                    this@RegisterActivity,
-                                    "Error: ${t.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        })
-                }
+                performRegister(username, password)
             }
         }
 
         btnReturn.setOnClickListener {
-            finish() // Powrót do poprzedniej aktywności
+            finish()
         }
     }
 
-    // Funkcja wyświetlająca okno dialogowe z kodem resetu
+    private fun performRegister(username: String, password: String){
+        val registerRequest = RegisterRequest(username, password)
+        val apiClient = ApiClient(this)
+        val apiService = apiClient.getApiService8000()
+
+        apiService.register(registerRequest)
+            .enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(
+                    call: Call<ResponseBody>,
+                    response: Response<ResponseBody>
+                ) {
+                    if (response.isSuccessful) {
+                        response.body()?.let {
+                            val responseString = it.string()
+                            val jsonResponse = JSONObject(responseString)
+
+                            val userId = jsonResponse.optString("user_id", "null")
+                            val passCode = jsonResponse.optString("password_reset_code", "null")
+
+                            if (userId.isNotEmpty()) {
+                                showPasscodeDialog(passCode)    //wyswietlenie okna z kodem reset
+                            } else {
+                                Toast.makeText(
+                                    this@RegisterActivity,
+                                    "Registration failed: Missing user ID",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        } ?: Toast.makeText(
+                            this@RegisterActivity,
+                            "Registration failed: Empty response",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            this@RegisterActivity,
+                            "Registration failed: ${response.errorBody()?.string()}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    Toast.makeText(
+                        this@RegisterActivity,
+                        "Error: ${t.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            })
+    }
+
     private fun showPasscodeDialog(passCode: String) {
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Password Reset Code")
-            .setMessage("Your password reset code is:\n$passCode")
-            .setPositiveButton("OK") { dialogInterface, _ ->
-                dialogInterface.dismiss()
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
-            }
+        // Inflate the custom dialog layout
+        val dialogView = layoutInflater.inflate(R.layout.dialog_reset_code, null)
+
+        // Find and set the views in the dialog layout
+        val tvResetCode = dialogView.findViewById<TextView>(R.id.tvResetCode)
+        val tvCustomMessage = dialogView.findViewById<TextView>(R.id.tvCustomMessage)
+        val btnOk = dialogView.findViewById<Button>(R.id.btnOk)
+
+        // Set the reset code and message dynamically
+        tvResetCode.text = passCode
+        tvCustomMessage.text = getString(R.string.reset_code_message)
+
+        // Create and configure the AlertDialog
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
             .create()
 
-        dialog.show()
+        // Set the background to be transparent
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        // Handle the OK button click
+        btnOk.setOnClickListener {
+            alertDialog.dismiss()
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
+
+        // Show the dialog
+        alertDialog.show()
     }
+
 }

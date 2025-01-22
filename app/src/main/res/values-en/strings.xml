@@ -2,7 +2,7 @@
     <string name="password">Password</string>
     <string name="remember_me">Remember me?</string>
     <string name="login">Login</string>
-    <string name="don_t_have_an_account_register">Don\'t have an account? Register!</string>
+    <string name="don_t_have_an_account_register">Register</string>
     <string name="username">Username</string>
     <string name="logged_in_successfully">Logged in successfully!</string>
     <string name="logout">Logout</string>
@@ -27,4 +27,10 @@
     <string name="send_wifi">Send WiFi</string>
     <string name="sync_time">Sync time</string>
     <string name="band_info">Band info</string>
+    <string name="no_code_available">no code available</string>
+    <string name="activity_v_low">Very low (0-1 trainings/week)</string>
+    <string name="activity_low">Low (2-3 trainings/week)</string>
+    <string name="activity_medium">Medium (4-5 trainings/week)</string>
+    <string name="activity_high">High (6-7 trainings/week)</string>
+    <string name="activity_v_high">Very high (8+ trainings/week)</string>
 </resources>

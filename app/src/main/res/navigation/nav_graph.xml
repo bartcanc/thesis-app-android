@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.thesisapp.HomeFragment"
+        android:label="HOME"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_band"
+        android:name="com.example.thesisapp.BandFragment"
+        android:label="BAND"
+        tools:layout="@layout/fragment_band" />
+
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.example.thesisapp.ProfileFragment"
+        android:label="PROFILE"
+        tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.example.thesisapp.SettingsFragment"
+        android:label="SETTINGS"
+        tools:layout="@layout/fragment_settings" />
+</navigation>

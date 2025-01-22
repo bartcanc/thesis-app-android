@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="btnOk" type="id" />
+    <item name="tvCustomMessage" type="id" />
+    <item name="tvResetCode" type="id" />
+    <item name="tvBatteryLevel" type="id" />
+    <item name="tvBandInfoTitle" type="id" />
+    <item name="tvFirmwareVersion" type="id" />
+    <item name="tvFilesToSend" type="id" />
+    <item name="btnCloseBandInfo" type="id" />
+    <item name="tvWifiDialogTitle" type="id" />
+    <item name="etWifiSSID" type="id" />
+    <item name="etWifiPassword" type="id" />
+    <item name="btnCancelWifiData" type="id" />
+</resources>

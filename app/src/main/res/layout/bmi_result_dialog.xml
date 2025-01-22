@@ -1,0 +1,74 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/rounded_button">
+
+    <!-- Nagłówek -->
+    <TextView
+        android:id="@+id/tvDialogTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your BMI is:"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/robotomono_bold"
+        android:textColor="#456DB0"
+        android:layout_gravity="center" />
+
+    <!-- Wynik BMI lub KCAL -->
+    <TextView
+        android:id="@+id/tvResultValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="25.5"
+        android:textSize="72sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/robotomono_bold"
+        android:textColor="#456DB0"
+        android:layout_gravity="center" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <!-- Dodatkowe informacje -->
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status: "
+            android:textSize="16sp"
+            android:fontFamily="@font/robotomono_regular"
+            android:textColor="#666666"
+            android:layout_marginBottom="16dp"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/tvAdditionalInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/placeholder"
+            android:textSize="16sp"
+            android:fontFamily="@font/robotomono_regular"
+            android:textColor="#666666"
+            android:layout_marginBottom="16dp"
+            android:gravity="center" />
+    </LinearLayout>
+
+
+    <!-- Przycisk Zamknij -->
+    <Button
+        android:id="@+id/btnCloseDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="OK"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/robotomono_bold"
+        android:background="@drawable/rounded_gradient_button"
+       />
+</LinearLayout>

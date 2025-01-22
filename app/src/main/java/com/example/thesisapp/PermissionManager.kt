@@ -8,8 +8,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-class PermissionManager(private val activity: Activity) {
-    private val permissionsQueue = mutableListOf<String>()
+open class PermissionManager(private val activity: Activity) {
+    protected val permissionsQueue = mutableListOf<String>()
     private var permissionsRequested = false
     private var currentPermissionRequestCode = 0
 
@@ -17,7 +17,7 @@ class PermissionManager(private val activity: Activity) {
         const val REQUEST_CODE_BASE = 100
     }
 
-    fun requestAllPermissions() {
+    open fun requestAllPermissions() {
         if (!permissionsRequested) {
             permissionsRequested = true
 
@@ -36,40 +36,29 @@ class PermissionManager(private val activity: Activity) {
 
     private fun checkBluetoothPermissions() {
         addPermissionToQueue(
-            Manifest.permission.BLUETOOTH_SCAN,
-            "Aplikacja potrzebuje dostępu do Bluetooth, aby połączyć się z urządzeniami."
+            Manifest.permission.BLUETOOTH_SCAN
         )
     }
 
     private fun checkWifiPermissions() {
         addPermissionToQueue(
-            Manifest.permission.ACCESS_WIFI_STATE,
-            "Aplikacja potrzebuje dostępu do stanu WiFi, aby uzyskać informacje o sieci."
+            Manifest.permission.ACCESS_WIFI_STATE
         )
     }
 
     private fun checkLocationPermissions() {
         addPermissionToQueue(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            "Aplikacja potrzebuje dostępu do lokalizacji, aby działać poprawnie."
-        )
-    }
-
-    private fun checkStoragePermissions() {
-        addPermissionToQueue(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            "Aplikacja potrzebuje dostępu do pamięci, aby zapisywać pliki."
+            Manifest.permission.ACCESS_FINE_LOCATION
         )
     }
 
     private fun checkAndRequestMtuPermissions() {
         addPermissionToQueue(
-            Manifest.permission.BLUETOOTH_CONNECT,
-            "Aplikacja potrzebuje dostępu do Bluetooth, aby negocjować MTU z urządzeniem."
+            Manifest.permission.BLUETOOTH_CONNECT
         )
     }
 
-    private fun addPermissionToQueue(permission: String, message: String) {
+    private fun addPermissionToQueue(permission: String) {
         if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
             permissionsQueue.add(permission)
             Log.d("PermissionManager", "Added permission to queue: $permission")
@@ -84,7 +73,7 @@ class PermissionManager(private val activity: Activity) {
         }
     }
 
-    fun handlePermissionsResult(requestCode: Int, grantResults: IntArray) {
+    fun handlePermissionsResult(grantResults: IntArray) {
         if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Log.d("PermissionManager", "Permission granted")
             if (permissionsQueue.isNotEmpty()) {
@@ -105,7 +94,8 @@ class PermissionManager(private val activity: Activity) {
                 .show()
         }
     }
-    fun allPermissionsGranted(): Boolean {
+
+    open fun allPermissionsGranted(): Boolean {
         val permissions = listOf(
             Manifest.permission.BLUETOOTH,
             Manifest.permission.BLUETOOTH_ADMIN,

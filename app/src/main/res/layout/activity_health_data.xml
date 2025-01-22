@@ -1,146 +1,145 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background">
-
-    <!-- Tło: Running Man -->
+    <!-- Running Man Image -->
     <ImageView
-        android:id="@+id/imgRunningMan"
+        android:id="@+id/running_man"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/running_man" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/running_man"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Główna zawartość -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+
+    <!-- Nagłówek -->
+    <TextView
+        android:id="@+id/tvHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/enter_your_data"
+        android:fontFamily="@font/robotomono_bold"
+        android:textSize="32sp"
+        android:textColor="@android:color/white"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="180dp"
+        android:shadowColor="#000000"
+        android:shadowDx="0"
+        android:shadowDy="2"
+        android:shadowRadius="5" />
+
+    <!-- Pola tekstowe -->
+    <LinearLayout
+        android:id="@+id/inputFieldsLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/tvHeader"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Nagłówek -->
-        <TextView
-            android:id="@+id/tvTitle"
+        <!-- Pole Gender -->
+        <EditText
+            android:id="@+id/etGender"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="@string/gender_placeholder"
+            android:fontFamily="@font/robotomono_regular"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            android:background="@drawable/rounded_edit_health_text"
+            android:padding="16dp"
+            android:paddingStart="25dp"
+            android:inputType="text" />
+
+        <!-- Pole Age -->
+        <EditText
+            android:id="@+id/etAge"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="@string/age_placeholder"
+            android:fontFamily="@font/robotomono_regular"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            android:background="@drawable/rounded_edit_health_text"
+            android:padding="16dp"
+            android:paddingStart="25dp"
+            android:layout_marginTop="16dp"
+            android:inputType="number" />
+
+        <!-- Pole Weight -->
+        <EditText
+            android:id="@+id/etWeight"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="@string/weight_placeholder"
+            android:fontFamily="@font/robotomono_regular"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            android:background="@drawable/rounded_edit_health_text"
+            android:padding="16dp"
+            android:paddingStart="25dp"
+            android:layout_marginTop="16dp"
+            android:inputType="number" />
+
+        <!-- Pole Height -->
+        <EditText
+            android:id="@+id/etHeight"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="@string/height_placeholder"
+            android:fontFamily="@font/robotomono_regular"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            android:background="@drawable/rounded_edit_health_text"
+            android:padding="16dp"
+            android:paddingStart="25dp"
+            android:layout_marginTop="16dp"
+            android:inputType="number" />
+
+        <!-- Spinner (rozwijane menu) -->
+        <Spinner
+            android:id="@+id/spActivityLevel"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Enter your data"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="32dp" />
+            android:layout_height="60dp"
+            android:background="@drawable/rounded_spinner_background"
+            android:padding="8dp"
+            android:dropDownWidth="match_parent"
+            android:spinnerMode="dropdown"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"/>
 
-        <!-- Pole: Gender -->
-        <EditText
-            android:id="@+id/genderInput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="Gender"
-            android:inputType="text"
-            android:background="@drawable/rounded_edittext_background"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#B0B0B0"
-            android:padding="16dp"
-            app:layout_constraintTop_toBottomOf="@id/tvTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp" />
 
-        <!-- Pole: Age -->
-        <EditText
-            android:id="@+id/ageInput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="Age"
-            android:inputType="number"
-            android:background="@drawable/rounded_edittext_background"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#B0B0B0"
-            android:padding="16dp"
-            app:layout_constraintTop_toBottomOf="@id/genderInput"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="12dp" />
+    </LinearLayout>
 
-        <!-- Pole: Weight -->
-        <EditText
-            android:id="@+id/weightInput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="Weight"
-            android:inputType="numberDecimal"
-            android:background="@drawable/rounded_edittext_background"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#B0B0B0"
-            android:padding="16dp"
-            app:layout_constraintTop_toBottomOf="@id/ageInput"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="12dp" />
+    <!-- Przycisk Potwierdzenia -->
+    <Button
+        android:id="@+id/btnConfirmData"
+        android:layout_width="231dp"
+        android:layout_height="58dp"
+        android:background="@drawable/rounded_gradient_button"
+        android:text="@string/confirm_data"
+        android:fontFamily="@font/robotomono_bold"
+        android:textSize="17sp"
+        android:textColor="#FFFFFF"
+        android:gravity="center"
+        style="@style/GradientButtonStyle"
+        app:layout_constraintTop_toBottomOf="@id/inputFieldsLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp" />
 
-        <!-- Pole: Height -->
-        <EditText
-            android:id="@+id/heightInput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="Height"
-            android:inputType="numberDecimal"
-            android:background="@drawable/rounded_edittext_background"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#B0B0B0"
-            android:padding="16dp"
-            app:layout_constraintTop_toBottomOf="@id/weightInput"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="12dp" />
 
-        <!-- Pole: BMR -->
-        <EditText
-            android:id="@+id/bmrInput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="BMR"
-            android:inputType="numberDecimal"
-            android:background="@drawable/rounded_edittext_background"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#B0B0B0"
-            android:padding="16dp"
-            app:layout_constraintTop_toBottomOf="@id/heightInput"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="12dp" />
-
-        <!-- Pole: TDEE -->
-        <EditText
-            android:id="@+id/tdeeInput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="TDEE"
-            android:inputType="numberDecimal"
-            android:background="@drawable/rounded_edittext_background"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#B0B0B0"
-            android:padding="16dp"
-            app:layout_constraintTop_toBottomOf="@id/bmrInput"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="12dp" />
-
-        <!-- Przycisk potwierdzenia -->
-        <Button
-            android:id="@+id/submitButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Confirm data"
-            android:textColor="#FFFFFF"
-            android:background="@drawable/rounded_button_background"
-            android:padding="12dp"
-            app:layout_constraintTop_toBottomOf="@id/tdeeInput"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="24dp" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

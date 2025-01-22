@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="activity_v_low">Bardzo niska (0-1 treningów tygodniowo)</string>
+    <string name="activity_low">Niska (2-3 treningi tygodniowo)</string>
+    <string name="activity_medium">Średnia (4-5 treningów tygodniowo)</string>
+    <string name="activity_high">Wysoka (6-7 treningów tygodniowo)</string>
+    <string name="activity_v_high">Bardzo wysoka (8+ treningów tygodniowo)</string>
+
+    <string-array name="activity_levels">
+        <item>@string/activity_v_low</item>
+        <item>@string/activity_low</item>
+        <item>@string/activity_medium</item>
+        <item>@string/activity_high</item>
+        <item>@string/activity_v_high</item>
+    </string-array>
+</resources>

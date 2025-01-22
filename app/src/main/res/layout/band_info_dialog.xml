@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="@drawable/rounded_corner_background"
+    >
+
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+
+    >
+    <!-- Nagłówek -->
+    <TextView
+        android:id="@+id/tvBandInfoTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Informacje o opasce"
+        android:textSize="24sp"
+        android:fontFamily="@font/robotomono_bold"
+        android:textColor="#456DB0"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp"
+        android:layout_gravity="center"/>
+
+    <!-- Informacja o poziomie baterii -->
+    <TextView
+        android:id="@+id/tvBatteryLevel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Poziom baterii: 75%"
+        android:textSize="18sp"
+        android:fontFamily="@font/robotomono_regular"
+        android:textColor="#456DB0"
+        android:background="@drawable/rounded_edit_text"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/tvBandInfoTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="center"/>
+
+    <!-- Informacja o wersji firmware -->
+    <TextView
+        android:id="@+id/tvFirmwareVersion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wersja firmware: 1.0.2"
+        android:textSize="18sp"
+        android:fontFamily="@font/robotomono_regular"
+        android:textColor="#456DB0"
+        android:background="@drawable/rounded_edit_text"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/tvBatteryLevel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="center"/>
+
+    <!-- Informacja o liczbie plików -->
+    <TextView
+        android:id="@+id/tvFilesToSend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Liczba plików do przesłania: 5"
+        android:textSize="18sp"
+        android:fontFamily="@font/robotomono_regular"
+        android:textColor="#456DB0"
+        android:background="@drawable/rounded_edit_text"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/tvFirmwareVersion"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="center"/>
+
+    <!-- Przycisk Zamknij -->
+    <Button
+        android:id="@+id/btnCloseBandInfo"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="Zamknij"
+        android:background="@drawable/rounded_gradient_button"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/robotomono_bold"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/tvFilesToSend"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center"/>
+</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

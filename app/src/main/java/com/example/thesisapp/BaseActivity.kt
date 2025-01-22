@@ -1,17 +1,16 @@
     package com.example.thesisapp
     
     import ApiClient
+    import ApiService
     import android.Manifest
     import android.annotation.SuppressLint
+    import android.app.Dialog
     import android.bluetooth.*
     import android.content.ContentValues
     import android.content.Context
     import android.content.Intent
     import android.content.SharedPreferences
     import android.content.pm.PackageManager
-    import android.database.Cursor
-    import android.database.sqlite.SQLiteDatabase
-    import android.location.LocationManager
     import android.os.Bundle
     import android.os.Environment
     import android.os.Handler
@@ -20,7 +19,6 @@
     import android.util.Log
     import android.widget.Toast
     import androidx.appcompat.app.AppCompatActivity
-    import androidx.core.app.ActivityCompat
     import androidx.core.content.ContextCompat
     import okhttp3.MediaType.Companion.toMediaTypeOrNull
     import okhttp3.RequestBody
@@ -28,31 +26,33 @@
     import org.json.JSONArray
     import org.json.JSONObject
     import retrofit2.Call
-    import java.io.BufferedReader
     import java.io.File
     import java.io.FileOutputStream
-    import java.io.FileReader
     import java.io.IOException
     import java.nio.ByteBuffer
     import java.nio.ByteOrder
     import java.text.SimpleDateFormat
     import java.util.*
-    import android.net.wifi.WifiManager
     import android.os.Build
     import android.os.HandlerThread
     import android.view.LayoutInflater
+    import android.widget.ArrayAdapter
+    import android.widget.Button
     import android.widget.EditText
+    import android.widget.Spinner
     import android.widget.TextView
     import androidx.annotation.RequiresApi
     import androidx.appcompat.app.AlertDialog
     import kotlinx.coroutines.CoroutineScope
     import kotlinx.coroutines.Dispatchers
     import kotlinx.coroutines.launch
+    import retrofit2.Callback
     import java.util.concurrent.ConcurrentLinkedQueue
     
     
     open class BaseActivity : AppCompatActivity() {
-    
+        lateinit var apiClient: ApiClient
+        lateinit var apiService: ApiService
         lateinit var sharedPref: SharedPreferences
         private var bluetoothAdapter: BluetoothAdapter? = null
         protected var bluetoothGatt: BluetoothGatt? = null
@@ -64,7 +64,6 @@
         private val batteryLevelUUID = UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130021")
         private val firmwareVersionUUID = UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130022")
         private val howManyFilesUUID = UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130023")
-        // UUID dla charakterystyki klucza prywatnego w aplikacji Android
         private val privateKeyUUID = UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130025")
     
         private var readLoopActive = false
@@ -75,9 +74,7 @@
         private var batteryLevel: Int? = null
         private var firmwareVersion: String? = null
         private var howManyFiles: Int? = null
-    
-        private var bufferSize = 14
-        //private var dataBuffer = ByteArray(bufferSize)
+
         private var bufferIndex = 0
         private var unixTimestamp: Long = 0L
         private var isTimestampReceived = false
@@ -88,20 +85,19 @@
         private var currentByteCount = 0
     
         protected var userId: String? = "."
+        protected var sessionId: String? = "."
     
         private var provisioningComplete = false
         private var isConnecting = false
     
-        private var counter = 0
-        // Inicjalizacja bazy danych
-        lateinit var dbHelper: SensorDataDatabaseHelper
-    
-        private lateinit var webSocketHelper: WebSocketHelper
-    
-        protected lateinit var permissionManager: PermissionManager
-    
+        protected var webSocketHelper = WebSocketHelper(this , "","")
+
+        lateinit var permissionManager: PermissionManager
+
+        private lateinit var dbHelper: SensorDataDatabaseHelper
+        private val dataQueue = ConcurrentLinkedQueue<ByteArray>()
         private val dbWriteScope = CoroutineScope(Dispatchers.IO)
-    
+
         private var totalReceivedBytes: Int = 0
         private val dataBuffer: Queue<ByteArray> = LinkedList()
     
@@ -111,8 +107,7 @@
         private var startTime: Long = 0L
         private var endTime: Long = 0L
 
-        private var incompleteData = ByteArray(0) // Przechowuje pozostałości danych z poprzedniego bloba
-
+        private var incompleteData = ByteArray(0)
 
         protected fun setUserID(userId: String?) {
             userId?.let {
@@ -122,13 +117,20 @@
                 }
             }
         }
+
+        private fun setSessionID(sessionId: String?) {
+            sessionId?.let {
+                with(sharedPref.edit()) {
+                    putString("session_id", it)
+                    apply()
+                }
+            }
+        }
     
         protected fun getUserID(): String? {
-            // Sprawdź, czy `user_id` jest zapisane jako `Int`, a jeśli tak, przekonwertuj na `String`
             return try {
-                sharedPref.getString("user_id", null) // Spróbuj pobrać jako String
+                sharedPref.getString("user_id", null)
             } catch (e: ClassCastException) {
-                // Jeśli nie uda się rzutować, to znaczy, że `user_id` jest przechowywane jako `Int`
                 val userIdInt = sharedPref.getInt("user_id", -1)
                 if (userIdInt != -1) {
                     val userIdString = userIdInt.toString()
@@ -139,45 +141,71 @@
                 }
             }
         }
-    
+
+        protected fun getSessionID(): String? {
+            return try {
+                sharedPref.getString("session_id", null)
+            } catch (e: ClassCastException) {
+                val sessionIdInt = sharedPref.getInt("session_id", -1)
+                if (sessionIdInt != -1) {
+                    val sessionIdString = sessionIdInt.toString()
+                    setSessionID(sessionIdString)
+                    sessionIdString
+                } else {
+                    null
+                }
+            }
+        }
+
+        fun isRunningInTestMode(): Boolean {
+            return try {
+                Class.forName("androidx.test.espresso.Espresso")
+                true
+            } catch (e: ClassNotFoundException) {
+                false
+            }
+        }
+
+
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
-    
-            savePrivateKey("nuvijridkvinorj")
+
+            apiClient = ApiClient(this)
+            apiService = apiClient.getApiService8000()
+
+            setPrivateKey("nuvijridkvinorj")
+
             getUserID()?.let {
                 userId = it
                 Log.d("BaseActivity", "Pobrano userId z SharedPreferences: $userId")
             } ?: run {
                 Log.d("BaseActivity", "userId jest pusty lub nie ustawiony w SharedPreferences")
             }
-    
+
+            getSessionID()?.let {
+                sessionId = it
+                Log.d("BaseActivity", "Pobrano sessionId z SharedPreferences: ${sessionId}")
+            } ?: run {
+                Log.d("BaseActivity", "SessionId jest pusty lub nie ustawiony w SharedPreferences")
+            }
+
             permissionManager = PermissionManager(this)
-            if(!permissionManager.allPermissionsGranted()) permissionManager.requestAllPermissions()
+            if(!permissionManager.allPermissionsGranted() && !isRunningInTestMode()) permissionManager.requestAllPermissions()
     
             val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
             bluetoothAdapter = bluetoothManager.adapter
 
             dbHelper = SensorDataDatabaseHelper(this)
-            deleteDatabase()
-    
+            deleteAllDatabaseData()
 
-
-            // Inicjalizacja WebSocket
-            webSocketHelper = WebSocketHelper("ws://192.168.1.5:8010/connect")  // Podaj odpowiedni adres WebSocket
-    
-            // Sprawdzenie ważności sesji i ewentualne rozpoczęcie połączenia WebSocket
-            if (isUserLoggedIn()) {
-                webSocketHelper.startConnection()
+            if((userId != ".") and (sessionId != ".")) {
+                WebSocketHelper(this, userId, sessionId).apply {
+                    startConnection()
+                }
             }
         }
-    
-        // Funkcja sprawdzająca, czy użytkownik jest zalogowany
-        private fun isUserLoggedIn(): Boolean {
-            val sessionId = sharedPref.getString("session_id", null)
-            return !sessionId.isNullOrEmpty()
-        }
-    
+
         @SuppressLint("MissingPermission")
         override fun onDestroy() {
             super.onDestroy()
@@ -186,34 +214,33 @@
             bluetoothGatt = null
             webSocketHelper.stopConnection()
         }
-    
-        protected fun checkSessionValidity() {
-            val expirationDateStr = sharedPref.getString("expiration_date", null)
-            if (expirationDateStr != null) {
-                try {
-                    val sessionDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS", Locale.getDefault())
-                    val expirationDate = sessionDateFormat.parse(expirationDateStr)
-                    val currentDate = Date()
-    
-                    if (expirationDate != null && currentDate.after(expirationDate)) {
-                        Toast.makeText(this, "Session expired. Please log in again.", Toast.LENGTH_SHORT).show()
-                        clearLoginData()
-                        with(sharedPref.edit()) {
-                            remove("session_id")
-                            remove("expiration_date")
-                            apply()
-                        }
-                        startActivity(Intent(this, LoginActivity::class.java))
-                        finish()
+
+        @SuppressLint("MissingPermission")
+        override fun onResume() {
+            super.onResume()
+            if (bluetoothGatt != null) {
+                sendPrivateKeyToBand()
+                Log.d("Bluetooth", "Połączenie Bluetooth już jest aktywne.")
+                return
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+                val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
+                val targetDeviceName = "ESP32 D3K"
+
+                if (!pairedDevices.isNullOrEmpty()) {
+                    val device = pairedDevices.firstOrNull { it.name == targetDeviceName }
+                    if (device != null) {
+                        connectToDevice(device)
+                    } else {
+                        Toast.makeText(this, "Nie znaleziono urządzenia o nazwie $targetDeviceName", Toast.LENGTH_SHORT).show()
                     }
-                } catch (e: java.text.ParseException) {
-                    e.printStackTrace()
-                    Toast.makeText(this, "Error parsing session expiration date.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Brak sparowanych urządzeń", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     
-        private fun savePrivateKey(privateKey: String) {
+        private fun setPrivateKey(privateKey: String) {
             with(sharedPref.edit()) {
                 putString("private_key", privateKey)
                 apply()
@@ -224,8 +251,7 @@
             return sharedPref.getString("private_key", null)
         }
     
-    
-        fun clearLoginData() {
+        protected fun clearLoginData() {
             with(sharedPref.edit()) {
                 remove("username")
                 remove("password")
@@ -254,48 +280,11 @@
             }
         }
     
-        protected fun deleteDatabase() {
-            val deleted = this.deleteDatabase(SensorDataDatabaseHelper.DATABASE_NAME)
-            if (deleted) {
-                Log.d("DB", "Baza danych została usunięta.")
-            } else {
-                Log.e("DB", "Nie udało się usunąć bazy danych.")
-            }
-        }
-    
-        @SuppressLint("MissingPermission")
-        override fun onResume() {
-            super.onResume()
-    
-            if (bluetoothGatt != null) {
-                sendPrivateKeyToBand()
-                Log.d("Bluetooth", "Połączenie Bluetooth już jest aktywne.")
-                return
-            }
-    
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-                val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
-                val targetDeviceName = "ESP32 D3K"
-    
-                if (!pairedDevices.isNullOrEmpty()) {
-                    val device = pairedDevices.firstOrNull { it.name == targetDeviceName }
-                    if (device != null) {
-                        connectToDevice(device)
-                    } else {
-                        Toast.makeText(this, "Nie znaleziono urządzenia o nazwie $targetDeviceName", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Toast.makeText(this, "Brak sparowanych urządzeń", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    
         protected fun startSequentialRead() {
             currentCharacteristicIndex = 0
             readNextCharacteristic()
         }
-    
-        // Funkcja odczytująca kolejną charakterystykę z listy
+
         @SuppressLint("MissingPermission")
         private fun readNextCharacteristic() {
             if (currentCharacteristicIndex < characteristicsUUIDs.size) {
@@ -307,8 +296,47 @@
                 } else {
                     Log.w("BLE", "Brak uprawnień lub charakterystyka $uuid nieznaleziona!")
                     currentCharacteristicIndex++
-                    readNextCharacteristic()  // Przejdź do następnej, jeśli nie można odczytać tej
+                    readNextCharacteristic()
                 }
+            }
+        }
+
+        @SuppressLint("MissingPermission")
+        protected fun subscribeToCharacteristic() {
+            val characteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(messageTransferUUID)
+
+            if (characteristic != null) {
+                bluetoothGatt?.setCharacteristicNotification(characteristic, true)
+                val descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
+                if (descriptor != null) {
+                    descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                    val success = bluetoothGatt?.writeDescriptor(descriptor) == true
+                    if (success) {
+                        Log.d("BLE", "Subscription to characteristic started successfully.")
+                    } else {
+                        Log.e("BLE", "Failed to write descriptor for subscription.")
+                    }
+                } else {
+                    Log.e("BLE", "Descriptor for notifications not found.")
+                }
+            } else {
+                Log.e("BLE", "Characteristic not found for subscription.")
+            }
+        }
+
+        @SuppressLint("MissingPermission")
+        protected fun unsubscribeFromCharacteristic() {
+            val characteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(messageTransferUUID)
+            if (characteristic != null) {
+                bluetoothGatt?.setCharacteristicNotification(characteristic, false)
+                val descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
+                descriptor?.value = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
+                bluetoothGatt?.writeDescriptor(descriptor)
+                Log.d("BLE", "Subscription to characteristic stopped.")
+                Toast.makeText(this, "Unsubscribed from notifications.", Toast.LENGTH_SHORT).show()
+            } else {
+                Log.e("BLE", "Characteristic not found for unsubscription.")
+                Toast.makeText(this, "Characteristic not found for unsubscription.", Toast.LENGTH_SHORT).show()
             }
         }
     
@@ -371,18 +399,15 @@
                                 characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0)
                             Log.d("BLE", "Battery Level: $batteryLevel%")
                         }
-    
                         firmwareVersionUUID -> {
                             firmwareVersion = characteristic.getStringValue(0)
                             Log.d("BLE", "Firmware Version: $firmwareVersion")
                         }
-    
                         howManyFilesUUID -> {
                             howManyFiles =
                                 characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0)
                             Log.d("BLE", "Number of Files: $howManyFiles")
                         }
-    
                         else -> Log.w("BLE", "Nieznana charakterystyka odczytana")
                     }
                     currentCharacteristicIndex++  // Przejdź do kolejnej charakterystyki
@@ -452,11 +477,10 @@
     
         private fun processDataChunk(data: ByteArray) {
             synchronized(dataBuffer) {
-                dataBuffer.add(data) // Dodaj dane do bufora
+                dataBuffer.add(data)
             }
             totalReceivedBytes += data.size
-    
-            // Przetwarzanie w tle
+
             bleHandler.post {
                 processBufferedData()
             }
@@ -465,37 +489,12 @@
         private fun processBufferedData() {
             synchronized(dataBuffer) {
                 while (dataBuffer.isNotEmpty()) {
-                    val packet = dataBuffer.poll() // Pobierz dane z bufora
+                    val packet = dataBuffer.poll()
                     if (packet != null) {
-                        saveRawDataToDatabaseAsync(packet)
+                        saveRawDataToDatabaseAsync(unixTimestamp, packet)
                     }
                 }
             }
-        }
-    
-    
-        private val dataQueue = ConcurrentLinkedQueue<ByteArray>()
-    
-        private fun saveRawDataToDatabaseAsync(data: ByteArray) {
-            dataQueue.add(data)
-            dbWriteScope.launch {
-                while (dataQueue.isNotEmpty()) {
-                    val packet = dataQueue.poll()
-                    if (packet != null) {
-                        saveRawDataToDatabase(packet)
-                    }
-                }
-            }
-        }
-    
-        private fun saveRawDataToDatabase(data: ByteArray) {
-            // Zapis danych do bazy
-            val db = dbHelper.writableDatabase
-            val values = ContentValues().apply {
-                put(SensorDataDatabaseHelper.COLUMN_TIMESTAMP, unixTimestamp)
-                put(SensorDataDatabaseHelper.COLUMN_RAW_DATA, data)
-            }
-            db.insert(SensorDataDatabaseHelper.TABLE_NAME, null, values)
         }
     
         private fun flushBatchData() {
@@ -518,103 +517,21 @@
                 Log.d("DB", "Zapisano pozostałe pakiety wsadowo")
             }
         }
-    
-        private fun resetFlags() {
-            currentByteCount = 0
-            bufferIndex = 0
-            isTimestampReceived = false
-            isFileSizeRead = false
-            zeroFlag = false
-            readLoopActive = false
-            totalReceivedBytes = 0
-            flushBatchData()
-            sendMessageOK()
-            sendUnixTime()
-            dataBuffer.clear()
-            unsubscribeFromCharacteristic()
-        }
-    
-        @SuppressLint("MissingPermission")
-        protected fun subscribeToCharacteristic() {
-            val characteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(messageTransferUUID)
-    
-            if (characteristic != null) {
-                bluetoothGatt?.setCharacteristicNotification(characteristic, true)
-                val descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
-                if (descriptor != null) {
-                    descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                    val success = bluetoothGatt?.writeDescriptor(descriptor) == true
-                    if (success) {
-                        Log.d("BLE", "Subscription to characteristic started successfully.")
-                    } else {
-                        Log.e("BLE", "Failed to write descriptor for subscription.")
-                    }
-                } else {
-                    Log.e("BLE", "Descriptor for notifications not found.")
-                }
-            } else {
-                Log.e("BLE", "Characteristic not found for subscription.")
-            }
-        }
-    
-        @SuppressLint("MissingPermission")
-        protected fun unsubscribeFromCharacteristic() {
-            val characteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(messageTransferUUID)
-    
-            if (characteristic != null) {
-                bluetoothGatt?.setCharacteristicNotification(characteristic, false)
-                val descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
-                descriptor?.value = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
-                bluetoothGatt?.writeDescriptor(descriptor)
-                Log.d("BLE", "Subscription to characteristic stopped.")
-                Toast.makeText(this, "Unsubscribed from notifications.", Toast.LENGTH_SHORT).show()
-            } else {
-                Log.e("BLE", "Characteristic not found for unsubscription.")
-                Toast.makeText(this, "Characteristic not found for unsubscription.", Toast.LENGTH_SHORT).show()
-            }
-        }
-    
-        @SuppressLint("MissingPermission")
-        protected fun sendMessageOK() {
-            // Pobranie charakterystyki `confirmationUUID` z usługi `serviceUUID`
-            val characteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(confirmationUUID)
-    
-            // Sprawdzenie, czy charakterystyka istnieje i mamy wymagane uprawnienia
-            if (characteristic != null && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-                == PackageManager.PERMISSION_GRANTED) {
-                if (characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE == 0) {
-                    Log.e("BLE", "Characteristic $confirmationUUID is not writable.")
-                    return
-                }
-                // Przekształcenie wartości "OK" na tablicę bajtów i przypisanie jej do charakterystyki
-                characteristic.value = "OK".toByteArray(Charsets.UTF_8)
-    
-                // Próba zapisu charakterystyki, sprawdzenie czy zapis się powiódł
-                if (bluetoothGatt?.writeCharacteristic(characteristic) == true) {
-                    Log.d("BLE", "Wiadomość 'OK' została pomyślnie wysłana na characteristicUUID: $confirmationUUID")
-                } else {
-                    Log.e("BLE", "Nie udało się wysłać wiadomości 'OK' na characteristicUUID: $confirmationUUID")
-                }
-            } else {
-                Log.e("BLE", "Charakterystyka nie znaleziona lub brak uprawnień!")
-            }
-        }
-    
-    
+
         @SuppressLint("MissingPermission")
         fun sendUnixTime() {
             val characteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(timeSyncUUID)
-    
+
             if (characteristic != null && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 == PackageManager.PERMISSION_GRANTED) {
                 val unixTime = System.currentTimeMillis() / 1000
-    
+
                 val unixTimeBytes = ByteArray(4)
                 for (i in unixTimeBytes.indices) {
                     unixTimeBytes[i] = (unixTime shr (i * 8) and 0xFF).toByte()
                 }
                 characteristic.value = unixTimeBytes
-    
+
                 if (bluetoothGatt?.writeCharacteristic(characteristic) == true) {
                     Log.d("BLE", "Czas Unix ${unixTime} został wysłany w formacie little-endian")
                 } else {
@@ -625,39 +542,199 @@
             }
         }
 
-        fun getAllBlobsFromDatabase(): List<ByteArray> {
-            val db = dbHelper.readableDatabase
-            val tableName = SensorDataDatabaseHelper.TABLE_NAME
-            val blobColumn = SensorDataDatabaseHelper.COLUMN_RAW_DATA
+        @SuppressLint("MissingPermission")
+        protected fun sendMessageOK() {
+            // Pobranie charakterystyki `confirmationUUID` z usługi `serviceUUID`
+            val characteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(confirmationUUID)
 
-            val cursor = db.query(
-                tableName,
-                arrayOf(blobColumn),
-                null,
-                null,
-                null,
-                null,
-                null
-            )
+            // Sprawdzenie, czy charakterystyka istnieje i mamy wymagane uprawnienia
+            if (characteristic != null && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                == PackageManager.PERMISSION_GRANTED) {
+                if (characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE == 0) {
+                    Log.e("BLE", "Characteristic $confirmationUUID is not writable.")
+                    return
+                }
+                // Przekształcenie wartości "OK" na tablicę bajtów i przypisanie jej do charakterystyki
+                characteristic.value = "OK".toByteArray(Charsets.UTF_8)
 
-            val blobs = mutableListOf<ByteArray>()
-            if (cursor.moveToFirst()) {
-                do {
-                    val columnIndex = cursor.getColumnIndexOrThrow(blobColumn)
-                    blobs.add(cursor.getBlob(columnIndex))
-                } while (cursor.moveToNext())
+                // Próba zapisu charakterystyki, sprawdzenie czy zapis się powiódł
+                if (bluetoothGatt?.writeCharacteristic(characteristic) == true) {
+                    Log.d("BLE", "Wiadomość 'OK' została pomyślnie wysłana na characteristicUUID: $confirmationUUID")
+                } else {
+                    Log.e("BLE", "Nie udało się wysłać wiadomości 'OK' na characteristicUUID: $confirmationUUID")
+                }
+            } else {
+                Log.e("BLE", "Charakterystyka nie znaleziona lub brak uprawnień!")
+            }
+        }
+
+        @SuppressLint("MissingPermission")
+        private fun sendPrivateKeyToBand() {
+            val privateKey = getPrivateKey() ?: run {
+                Log.e("BLE", "Private key is null or not available.")
+                return
             }
 
-//            cursor.close()
-//            db.close()
+            // Pobierz serwis
+            val service = bluetoothGatt?.getService(serviceUUID)
+            if (service == null) {
+                Log.e("BLE", "Service not found for UUID: $serviceUUID")
+            }
 
-            return blobs
+            // Pobierz charakterystykę klucza prywatnego
+            val privateKeyCharacteristic = service?.getCharacteristic(privateKeyUUID)
+            if (privateKeyCharacteristic == null) {
+                Log.e("BLE", "Characteristic for private key not found for UUID: $privateKeyUUID")
+            }
+
+            // Sprawdź uprawnienia Bluetooth
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                Log.e("BLE", "Permission BLUETOOTH_CONNECT is not granted.")
+                return
+            }
+
+            // Ustaw wartość jako tekst UTF-8
+            privateKeyCharacteristic?.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+            privateKeyCharacteristic?.setValue(privateKey)  // Ustaw wartość bezpośrednio jako String
+
+            // Próbuj zapisać wartość charakterystyki
+            val success = bluetoothGatt?.writeCharacteristic(privateKeyCharacteristic) == true
+            if (success) {
+                Log.d("BLE", "Private key sent successfully to band as UTF-8 text.")
+                provisioningComplete = true
+            } else {
+                Log.e("BLE", "Failed to send private key to band.")
+            }
+        }
+
+        fun getCurrentWifiCredentials(context: Context, callback: (String, String) -> Unit) {
+            // Utwórz niestandardowy dialog na podstawie `wifi_data_dialog.xml`
+            val dialog = Dialog(context)
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+            dialog.setContentView(R.layout.wifi_data_dialog)
+
+            // Pobierz referencje do elementów w widoku dialogu
+            val ssidInput = dialog.findViewById<EditText>(R.id.etWifiSSID)
+            val passwordInput = dialog.findViewById<EditText>(R.id.etWifiPassword)
+            val btnSend = dialog.findViewById<Button>(R.id.btnSendWifiData)
+            val btnCancel = dialog.findViewById<Button>(R.id.btnCancelWifiData)
+
+            // Obsługa kliknięcia przycisku "Wyślij"
+            btnSend.setOnClickListener {
+                val enteredSsid = ssidInput.text.toString()
+                val enteredPassword = passwordInput.text.toString()
+
+                if (enteredSsid.isNotEmpty() && enteredPassword.isNotEmpty()) {
+                    // Zwróć dane przez callback
+                    callback(enteredSsid, enteredPassword)
+                    dialog.dismiss()
+                } else {
+                    Toast.makeText(context, "SSID i hasło nie mogą być puste.", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            // Obsługa kliknięcia przycisku "Anuluj"
+            btnCancel.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            // Wyświetl dialog
+            dialog.show()
+        }
+
+        @SuppressLint("MissingPermission")
+        fun sendWifiCredentials() {
+            getCurrentWifiCredentials(this) { ssid, password ->  // Bez destrukturyzacji
+                val ssidCharacteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130003"))
+                val passwordCharacteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130004"))
+
+                ssidCharacteristic?.let {
+                    it.value = ssid.toByteArray(Charsets.UTF_8)
+                    bluetoothGatt?.writeCharacteristic(it)
+                    Log.d("BLE", "SSID sent: $ssid")
+                }
+                Handler(Looper.getMainLooper()).postDelayed({
+                    passwordCharacteristic?.let {
+                        it.value = password.toByteArray(Charsets.UTF_8)
+                        bluetoothGatt?.writeCharacteristic(it)
+                        Log.d("BLE", "Password sent: $password")
+                    }
+                }, 100)
+            }
+        }
+
+        protected fun showBandInfoDialog() {
+            // Inflatuj widok
+            val dialogView = layoutInflater.inflate(R.layout.band_info_dialog, null)
+
+            // Tworzenie dialogu i ustawianie widoku
+            val dialog = AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create()
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+            // Pobierz referencje do widoków w dialogView
+            val tvBatteryLevel = dialogView.findViewById<TextView>(R.id.tvBatteryLevel)
+            val tvFirmwareVersion = dialogView.findViewById<TextView>(R.id.tvFirmwareVersion)
+            val tvFilesToSend = dialogView.findViewById<TextView>(R.id.tvFilesToSend)
+            val btnCloseBandInfo = dialogView.findViewById<Button>(R.id.btnCloseBandInfo)
+
+            // Obsługa przycisku Zamknij
+            btnCloseBandInfo?.setOnClickListener {
+                dialog.dismiss() // Zamknięcie dialogu
+            }
+
+            // Ustaw wartości lub domyślne "N/A" jeśli null
+            tvBatteryLevel?.text = "Poziom baterii: ${batteryLevel ?: "N/A"}%"
+            tvFirmwareVersion?.text = "Wersja firmware: ${firmwareVersion ?: "N/A"}"
+            tvFilesToSend?.text = "Liczba plików do przesłania: ${howManyFiles ?: "N/A"}"
+
+            // Pokaż dialog
+            dialog.show()
         }
 
 
 
+        private fun getAllDataFromDatabase(): List<ByteArray> {
+            return dbHelper.getAllRawData()
+        }
 
-        fun saveAllBlobsToSingleJsonUnified() {
+        private fun saveRawDataToDatabaseAsync(timestamp: Long, data: ByteArray) {
+            dataQueue.add(data)
+            dbWriteScope.launch {
+                while (dataQueue.isNotEmpty()) {
+                    val packet = dataQueue.poll()
+                    if (packet != null) {
+                        dbHelper.insertRawSensorData(timestamp, data)
+                    }
+                }
+            }
+        }
+
+        private fun deleteAllDatabaseData() {
+            dbHelper.deleteAllData()
+            Log.d("BaseActivity", "All data in the database has been deleted.")
+        }
+
+        fun processAllBlobsData() {
+            val blobs = getAllDataFromDatabase()
+            Log.d("test", "Liczba pobranych blobów: ${blobs.size}")
+
+            if (blobs.isEmpty()) {
+                Log.d("test", "Brak danych blob w bazie danych!")
+                return
+            }
+
+            blobs.forEachIndexed { index, blob ->
+                try {
+                    saveAllBlobsToSingleJsonUnified()
+                } catch (e: Exception) {
+                    //Log.e("test", "Błąd podczas zapisu bloba $index do JSON: ${e.message}", e)
+                }
+            }
+        }
+
+        private fun saveAllBlobsToSingleJsonUnified() {
             val db = dbHelper.readableDatabase
 
             val axArray = JSONArray()
@@ -666,7 +743,7 @@
             val irArray = JSONArray()
             val redArray = JSONArray()
 
-            var timestamp: Long? = null
+            val timestamp: Long? = null
             val cursor = db.query(
                 SensorDataDatabaseHelper.TABLE_NAME,
                 arrayOf(SensorDataDatabaseHelper.COLUMN_RAW_DATA),
@@ -690,12 +767,6 @@
 
                     var offset = 0
                     while (offset < combinedBlob.size) {
-                        // Pobierz timestamp tylko z pierwszego bloba
-//                        if (timestamp == null && offset + 4 <= combinedBlob.size) {
-//                            timestamp = ByteBuffer.wrap(combinedBlob, offset, 4).order(ByteOrder.LITTLE_ENDIAN).int.toLong()
-//                            offset += 4
-//                        }
-
                         // IR (4 bajty)
                         if (offset + 4 <= combinedBlob.size) {
                             val ir = ByteBuffer.wrap(combinedBlob, offset, 4).order(ByteOrder.LITTLE_ENDIAN).int
@@ -774,305 +845,121 @@
             }
         }
 
-
-
-
-
-
-
-        fun processAllBlobsData() {
-            val blobs = getAllBlobsFromDatabase()
-            Log.d("test", "Liczba pobranych blobów: ${blobs.size}")
-
-            if (blobs.isEmpty()) {
-                Log.d("test", "Brak danych blob w bazie danych!")
-                return
-            }
-
-            val userId = "exampleUserId"
-            val outputDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-
-            blobs.forEachIndexed { index, blob ->
-                try {
-                    val outputFile = File(outputDir, "sensor_data_$index.json")
-                    saveAllBlobsToSingleJsonUnified()
-                    //Log.d("test", "Dane zapisane do pliku JSON: ${outputFile.absolutePath}")
-                } catch (e: Exception) {
-                    //Log.e("test", "Błąd podczas zapisu bloba $index do JSON: ${e.message}", e)
-                }
-            }
+        private fun resetFlags() {
+            currentByteCount = 0
+            bufferIndex = 0
+            isTimestampReceived = false
+            isFileSizeRead = false
+            zeroFlag = false
+            readLoopActive = false
+            totalReceivedBytes = 0
+            flushBatchData()
+            sendMessageOK()
+            sendUnixTime()
+            dataBuffer.clear()
+            unsubscribeFromCharacteristic()
         }
 
-
-
-
-
-        fun createJSONFile() {
-            val db = dbHelper.readableDatabase
-            val jsonData = JSONObject()
-            val axArray = JSONArray()
-            val ayArray = JSONArray()
-            val azArray = JSONArray()
-            val irArray = JSONArray()
-            val redArray = JSONArray()
-    
-            // Pobierz ostatni `timestamp` z bazy, jako czas `recordedAt`
-            val cursor = db.query("sensor_data", null, null, null, null, null, null)
-            val recordedAt: Long
-            if (cursor.moveToFirst()) {
-                recordedAt = cursor.getLong(cursor.getColumnIndexOrThrow("timestamp"))
-            } else {
-                cursor.close()
-                Log.e("JSON", "Brak danych w bazie")
-                return
-            }
-            cursor.close()
-    
-            // Konwertuj timestamp na czytelną datę
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-            val formattedDate = dateFormat.format(Date(recordedAt * 1000))
-    
-            // Pobranie wszystkich danych i dodanie ich do odpowiednich tablic JSON
-            val dataCursor = db.query("sensor_data", null, null, null, null, null, null)
-            if (dataCursor.moveToFirst()) {
-                do {
-                    axArray.put(dataCursor.getDouble(dataCursor.getColumnIndexOrThrow("acc_x")))
-                    ayArray.put(dataCursor.getDouble(dataCursor.getColumnIndexOrThrow("acc_y")))
-                    azArray.put(dataCursor.getDouble(dataCursor.getColumnIndexOrThrow("acc_z")))
-                    irArray.put(dataCursor.getDouble(dataCursor.getColumnIndexOrThrow("ir")))
-                    redArray.put(dataCursor.getDouble(dataCursor.getColumnIndexOrThrow("red")))
-                } while (dataCursor.moveToNext())
-            }
-            dataCursor.close()
-    
-            // Ustawienie danych w obiekcie JSON
-            jsonData.put("ax", axArray)
-            jsonData.put("ay", ayArray)
-            jsonData.put("az", azArray)
-            jsonData.put("ir", irArray)
-            jsonData.put("red", redArray)
-            jsonData.put("userId", userId)
-            jsonData.put("recordedAt", formattedDate)
-    
-            // Zapis JSON do pliku
-            val fileName = "sensor_data.json"
-            val filePath = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), fileName)
-    
-            try {
-                FileOutputStream(filePath).use { outputStream ->
-                    outputStream.write(jsonData.toString().toByteArray(Charsets.UTF_8))
-                    Log.d("JSON", "Plik JSON zapisany w: ${filePath.absolutePath}")
-                    runOnUiThread {
-                        Toast.makeText(this, "Plik JSON zapisany", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } catch (e: IOException) {
-                Log.e("JSON", "Błąd podczas zapisywania pliku JSON", e)
-                runOnUiThread {
-                    Toast.makeText(this, "Błąd zapisu pliku JSON", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    
         override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-            permissionManager.handlePermissionsResult(requestCode, grantResults)
+            permissionManager.handlePermissionsResult(grantResults)
         }
-    
-    
-        protected fun sendSensorData() {
-            val file = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "sensor_data.json")
-    
+
+        protected fun showTrainingTypeDialog() {
+            // Inflate the dialog layout
+            val dialogView = LayoutInflater.from(this).inflate(R.layout.training_type_dialog, null)
+
+            // Initialize views from the dialog layout
+            val spinnerTrainingType = dialogView.findViewById<Spinner>(R.id.spinnerTrainingType)
+            val btnOk = dialogView.findViewById<Button>(R.id.btnOk)
+
+            // Mapa kluczy i zasobów string
+            val trainingTypeMap = mapOf(
+                getString(R.string.activity_walking) to "Walking",
+                getString(R.string.activity_jogging) to "Jogging",
+                getString(R.string.activity_running) to "Running",
+                getString(R.string.activity_sprint) to "Sprint",
+                getString(R.string.activity_hiking) to "Hiking",
+                getString(R.string.activity_tennis) to "Tennis",
+                getString(R.string.activity_football) to "Football",
+                getString(R.string.activity_basketball) to "Basketball",
+                getString(R.string.activity_volleyball) to "Volleyball",
+                getString(R.string.activity_light_exertion) to "Light Exertion",
+                getString(R.string.activity_moderate_exertion) to "Moderate Exertion",
+                getString(R.string.activity_intense_exertion) to "Intense Exertion"
+            )
+
+            // Pobierz listę do spinnera (klucze mapy)
+            val trainingTypes = trainingTypeMap.keys.toList()
+
+            val adapter = ArrayAdapter(this, R.layout.spinner_item, trainingTypes)
+            adapter.setDropDownViewResource(R.layout.spinner_item)
+            spinnerTrainingType.setPopupBackgroundResource(android.R.color.transparent)
+            spinnerTrainingType.adapter = adapter
+
+            // Build and show the dialog
+            val alertDialog = AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create()
+            alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+            // Handle the OK button click
+            btnOk.setOnClickListener {
+                val selectedType = spinnerTrainingType.selectedItem.toString()
+                val selectedTrainingKey = trainingTypeMap[selectedType]
+
+                if (selectedTrainingKey != null) {
+                    sendSensorData(selectedTrainingKey) // Pass the selected training key
+                } else {
+                    Toast.makeText(this, "Invalid training type selected", Toast.LENGTH_SHORT).show()
+                }
+                alertDialog.dismiss()
+            }
+
+            alertDialog.show()
+        }
+
+
+
+        private fun sendSensorData(workoutType: String) {
+            // Sprawdzamy, czy workoutType jest przekazany
+            if (workoutType.isEmpty()) {
+                Log.e("sendSensorData", "Nie podano typu treningu!")
+                return
+            }
+
+            val file = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "testDane.json")
+
             if (file.exists()) {
+                // Przygotowanie treści żądania
                 val jsonBody = RequestBody.create("application/json".toMediaTypeOrNull(), file.readText())
-    
-                val apiClient = ApiClient(this) // Tworzymy instancję klienta API
-                val apiService = apiClient.getApiService8000()
-    
-                // Sprawdzenie `session-id` przed wysłaniem danych
-                val sessionId = sharedPref.getString("session_id", null)
+
+                // Pobieranie session-id
+                val sessionId = getSessionID()
                 Log.d("sendSensorData", "session-id before request: $sessionId")
-    
-                val call = apiService.sendSensorData(jsonBody)
-                call.enqueue(object : retrofit2.Callback<ResponseBody> {
+
+                // Wykonanie żądania z workoutType jako parametrem
+                val call = apiService.sendSensorData(workoutType, jsonBody)
+
+                call.enqueue(object : Callback<ResponseBody> {
                     override fun onResponse(call: Call<ResponseBody>, response: retrofit2.Response<ResponseBody>) {
                         if (response.isSuccessful) {
-                            Log.d("test","Dane zostały pomyślnie wysłane!")
-                            Log.d("test","Kod odpowiedzi: ${response.code()}")
-                            Log.d("test","Treść odpowiedzi: ${response.body()?.string()}")
-                            Log.d("test","Nagłówki odpowiedzi: ${response.headers()}")
-                            Log.d("test","Nagłówki wysłane: ${call.request().headers}")
+                            Log.d("sendSensorData", "Dane zostały pomyślnie wysłane!")
+                            Log.d("sendSensorData", "Kod odpowiedzi: ${response.code()}")
+                            Log.d("sendSensorData", "Treść odpowiedzi: ${response.body()?.string()}")
+                            Log.d("sendSensorData", "Nagłówki odpowiedzi: ${response.headers()}")
                         } else {
-                            Log.d("test","Błąd podczas wysyłania danych. Kod odpowiedzi: ${response.code()}")
-                            Log.d("test","Treść błędu: ${response.errorBody()?.string()}")
-                            Log.d("test","Nagłówki wysłane: ${call.request().headers}")
+                            Log.e("sendSensorData", "Błąd podczas wysyłania danych. Kod odpowiedzi: ${response.code()}")
+                            Log.e("sendSensorData", "Treść błędu: ${response.errorBody()?.string()}")
                         }
                     }
-    
+
                     override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                        Log.d("test","Błąd połączenia: ${t.message}")
+                        Log.e("sendSensorData", "Błąd połączenia: ${t.message}")
                     }
                 })
-    
             } else {
-                Log.d("test","Plik JSON nie został znaleziony!")
+                Log.e("sendSensorData", "Plik JSON nie został znaleziony!")
             }
         }
-    
-    
-        @SuppressLint("MissingInflatedId")
-        fun getCurrentWifiCredentials(context: Context, callback: (String, String) -> Unit) {
-            val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            val wifiInfo = wifiManager.connectionInfo
-            var ssid = wifiInfo.ssid.removeSurrounding("\"")
-    
-            // Sprawdź, czy SSID jest pobrane; jeśli nie, pozostaw puste i poproś użytkownika o wprowadzenie
-            if (ssid.isEmpty() || ssid == "<unknown ssid>") {
-                ssid = "" // Ustawiamy SSID na pusty, aby wymusić wprowadzenie przez użytkownika
-            }
-    
-            // Wyświetl dialog z prośbą o wprowadzenie SSID i hasła
-            val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_wifi_credentials, null)
-            val ssidInput = dialogView.findViewById<EditText>(R.id.ssidInput)
-            val passwordInput = dialogView.findViewById<EditText>(R.id.passwordInput)
-    
-            // Ustaw domyślną wartość SSID, jeśli jest dostępna
-            ssidInput.setText(ssid)
-    
-            AlertDialog.Builder(context).apply {
-                setTitle("Podaj dane do WiFi")
-                setView(dialogView)
-                setPositiveButton("OK") { _, _ ->
-                    val enteredSsid = ssidInput.text.toString().trim()
-                    val password = passwordInput.text.toString()
-    
-                    if (enteredSsid.isNotEmpty() && password.isNotEmpty()) {
-                        callback(enteredSsid, password)
-                    } else {
-                        Toast.makeText(context, "SSID i hasło nie mogą być puste.", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                setNegativeButton("Anuluj", null)
-                create()
-            }.show()
-        }
-    
-        @SuppressLint("MissingPermission")
-        fun sendWifiCredentials() {
-            getCurrentWifiCredentials(this) { ssid, password ->  // Bez destrukturyzacji
-                val ssidCharacteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130003"))
-                val passwordCharacteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(UUID.fromString("e2e3f5a4-8c4f-11eb-8dcd-0242ac130004"))
-    
-                ssidCharacteristic?.let {
-                    it.value = ssid.toByteArray(Charsets.UTF_8)
-                    bluetoothGatt?.writeCharacteristic(it)
-                    Log.d("BLE", "SSID sent: $ssid")
-                }
-                Handler(Looper.getMainLooper()).postDelayed({
-                    passwordCharacteristic?.let {
-                        it.value = password.toByteArray(Charsets.UTF_8)
-                        bluetoothGatt?.writeCharacteristic(it)
-                        Log.d("BLE", "Password sent: $password")
-                    }
-                }, 100)
-            }
-        }
-    
-    //    protected fun sendHealthData(gender: String, age: Int, weight: Float, height: Float, bmr: Float, tdee: Float) {
-    //        // Pobierz userId z SharedPreferences
-    //        val userId = getUserID() ?: run {
-    //            Log.e("sendHealthData", "Brak userId w SharedPreferences!")
-    //            return
-    //        }
-    //
-    //        // Tworzymy instancję ApiClient
-    //        val apiClient = ApiClient(this)
-    //        val apiService = apiClient.getApiService8000()
-    //
-    //        // Tworzymy obiekt z danymi do wysłania
-    //        val healthDataRequest = HealthDataRequest(
-    //            userId = userId,
-    //            gender = gender,
-    //            age = age,
-    //            weight = weight,
-    //            height = height,
-    //            bmr = bmr,
-    //            tdee = tdee
-    //        )
-    //
-    //        // Wysyłamy dane do endpointu
-    //        val call = apiService.sendHealthData(healthDataRequest)
-    //        call.enqueue(object : retrofit2.Callback<ResponseBody> {
-    //            override fun onResponse(call: Call<ResponseBody>, response: retrofit2.Response<ResponseBody>) {
-    //                if (response.isSuccessful) {
-    //                    Log.d("sendHealthData", "Dane zostały pomyślnie wysłane!")
-    //                    Log.d("sendHealthData", "Kod odpowiedzi: ${response.code()}")
-    //                    Log.d("sendHealthData", "Treść odpowiedzi: ${response.body()?.string()}")
-    //                } else {
-    //                    Log.e("sendHealthData", "Błąd podczas wysyłania danych. Kod odpowiedzi: ${response.code()}")
-    //                    Log.e("sendHealthData", "Treść błędu: ${response.errorBody()?.string()}")
-    //                }
-    //            }
-    //
-    //            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-    //                Log.e("sendHealthData", "Błąd połączenia: ${t.message}")
-    //            }
-    //        })
-    //    }
-    
-        @SuppressLint("MissingPermission")
-        private fun sendPrivateKeyToBand() {
-            val privateKey = getPrivateKey() ?: run {
-                Log.e("BLE", "Private key is null or not available.")
-                return
-            }
-    
-            // Pobierz serwis
-            val service = bluetoothGatt?.getService(serviceUUID)
-            if (service == null) {
-                Log.e("BLE", "Service not found for UUID: $serviceUUID")
-            }
-    
-            // Pobierz charakterystykę klucza prywatnego
-            val privateKeyCharacteristic = service?.getCharacteristic(privateKeyUUID)
-            if (privateKeyCharacteristic == null) {
-                Log.e("BLE", "Characteristic for private key not found for UUID: $privateKeyUUID")
-            }
-    
-            // Sprawdź uprawnienia Bluetooth
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                Log.e("BLE", "Permission BLUETOOTH_CONNECT is not granted.")
-                return
-            }
-    
-            // Ustaw wartość jako tekst UTF-8
-            privateKeyCharacteristic?.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-            privateKeyCharacteristic?.setValue(privateKey)  // Ustaw wartość bezpośrednio jako String
-    
-            // Próbuj zapisać wartość charakterystyki
-            val success = bluetoothGatt?.writeCharacteristic(privateKeyCharacteristic) == true
-            if (success) {
-                Log.d("BLE", "Private key sent successfully to band as UTF-8 text.")
-                provisioningComplete = true
-            } else {
-                Log.e("BLE", "Failed to send private key to band.")
-            }
-        }
-    
-    
-    
-    
-    
     }
-    
-    
-    
-    data class HealthDataRequest(
-        val userId: String,
-        val gender: String,
-        val age: Int,
-        val weight: Float,
-        val height: Float,
-        val bmr: Float,
-        val tdee: Float
-    )

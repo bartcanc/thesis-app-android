@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="@drawable/rounded_corner_background"
+    android:padding="16dp">
+
+    <!-- Nagłówek -->
+    <TextView
+        android:id="@+id/tvHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/reset_code_header"
+        android:fontFamily="@font/robotomono_bold"
+        android:textSize="24sp"
+        android:textColor="#456DB0"
+        android:gravity="center" />
+
+    <!-- Kod resetu -->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="71dp"
+        android:background="@drawable/rounded_edit_text"
+        android:layout_marginBottom="16dp"
+        android:padding="8dp"
+        android:layout_gravity="center"
+        android:clipToPadding="false"
+        android:elevation="5dp">
+
+
+        <TextView
+            android:id="@+id/tvResetCode"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="1234-5678"
+            android:paddingHorizontal="20dp"
+            android:fontFamily="@font/robotomono_bold"
+            android:textSize="36sp"
+            android:textColor="#456DB0" />
+    </FrameLayout>
+
+    <!-- Komunikat -->
+    <TextView
+        android:id="@+id/tvCustomMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/reset_code_message"
+        android:fontFamily="@font/robotomono_medium"
+        android:textSize="20sp"
+        android:textColor="#456DB0"
+        android:gravity="center"
+        android:lineSpacingExtra="4dp" />
+
+    <!-- Przycisk OK -->
+    <Button
+        android:id="@+id/btnOk"
+        android:layout_width="159dp"
+        android:layout_height="44dp"
+        android:text="OK"
+        android:fontFamily="@font/robotomono_bold"
+        android:textSize="20sp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/rounded_gradient_button"
+        android:gravity="center"
+        android:layout_gravity="center" />
+</LinearLayout>

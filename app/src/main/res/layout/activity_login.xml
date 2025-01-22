@@ -1,134 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/gradient_background">
-
-    <!-- ImageView z grafiką "Running Man", nieograniczony przez padding -->
-    <ImageView
-        android:id="@+id/imgRunningMan"
+    android:background="@drawable/gradient_background"
+    >
+    <TextView
+        android:id="@+id/tvErrorMessage"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/running_man"
-        />
-
-    <!-- Układ reszty komponentów -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp">
-    <LinearLayout
-        android:id="@+id/containerLogin"
-        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/rounded_corner_background"
+        android:background="@color/design_default_color_error"
+        android:textColor="@android:color/white"
+        android:padding="8dp"
+        android:gravity="center"
+        android:visibility="gone" />
+
+
+    <!-- Running Man Image -->
+
+    <ImageView
+        android:id="@+id/running_man"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/running_man"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="28dp"
+        android:gravity="center"
         android:orientation="vertical"
-        android:padding="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        tools:ignore="MissingConstraints">
 
-        <!-- Nagłówek -->
-        <TextView
-            android:id="@+id/tvLoginTitle"
+        <!-- Prostokąt z cieniem -->
+        <FrameLayout
+            android:layout_width="321dp"
+            android:layout_height="436dp"
+            android:layout_gravity="center"
+            android:background="@drawable/white_box_with_shadow"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <!-- Nagłówek -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:fontFamily="@font/robotomono_bold"
+                    android:gravity="center"
+                    android:text="@string/login"
+                    android:textColor="#456DB0"
+                    android:textSize="28sp" />
+
+                <!-- Pole użytkownika -->
+                <EditText
+                    android:id="@+id/etLoginUsername"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/rounded_edit_text"
+                    android:fontFamily="@font/robotomono_regular"
+                    android:hint="@string/username"
+                    android:inputType="text"
+                    android:padding="16dp"
+                    android:textSize="16sp"
+                    android:importantForAutofill="no"
+                    />
+
+                <!-- Pole hasła -->
+                <EditText
+                    android:id="@+id/etLoginPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/rounded_edit_text"
+                    android:fontFamily="@font/robotomono_regular"
+                    android:hint="@string/password"
+                    android:inputType="textPassword"
+                    android:padding="16dp"
+                    android:textSize="16sp" />
+
+                <!-- Przełącznik Zapamiętaj Mnie -->
+                <Switch
+                    android:id="@+id/switchRememberMe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/robotomono_regular"
+                    android:text="@string/remember_me"
+                    android:textColor="#456DB0"
+                    android:textSize="15sp"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+                <!-- Przycisk Logowania -->
+                <Button
+                    android:id="@+id/btnLogin"
+                    android:layout_width="171dp"
+                    android:layout_height="46dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/rounded_gradient_button"
+                    android:fontFamily="@font/robotomono_bold"
+                    android:text="@string/login"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp" />
+
+                <!-- Przycisk Rejestracji -->
+                <Button
+                    android:id="@+id/btnRegister"
+                    android:layout_width="171dp"
+                    android:layout_height="46dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/rounded_gradient_button"
+                    android:fontFamily="@font/robotomono_bold"
+                    android:text="@string/don_t_have_an_account_register"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- Przycisk Zmiany Języka -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp"
-            android:text="@string/login"
-            android:textColor="#2C2C2C"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <!-- Pole username -->
-        <EditText
-            android:id="@+id/etLoginUsername"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/edit_text_background"
-            android:hint="@string/username"
-            android:padding="12dp"
-            android:textColor="#858585"
-            android:textColorHint="#858585"
-            android:textSize="16sp" />
-
-        <!-- Pole password -->
-
-        <EditText
-            android:id="@+id/etLoginPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/edit_text_background"
-            android:hint="@string/password"
-            android:inputType="textPassword"
-            android:padding="12dp"
-            android:textColor="#858585"
-            android:textColorHint="#858585"
-            android:textSize="16sp" />
-
-        <!-- Switch remember me -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="@string/remember_me"
-                android:textColor="#2C2C2C"
-                android:textSize="14sp" />
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="8dp"
+                android:src="@drawable/ic_globe" />
 
-            <Switch
-                android:id="@+id/switchRememberMe"
+            <TextView
+                android:id="@+id/btnChangeLanguage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:ignore="UseSwitchCompatOrMaterialXml" />
+                android:fontFamily="@font/robotomono_bold"
+                android:text="@string/change_language"
+                android:textColor="@android:color/white"
+                android:textSize="17sp" />
         </LinearLayout>
-
-        <!-- Przycisk Login -->
-        <Button
-            android:id="@+id/btnLogin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/gradient_button"
-            android:text="@string/login"
-            android:textColor="#FFFFFF" />
-
-        <!-- Przycisk Register -->
-        <Button
-            android:id="@+id/btnRegister"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/gradient_button"
-            android:text="@string/register"
-            android:textColor="#FFFFFF" />
     </LinearLayout>
-
-    <!-- Przycisk zmiany języka -->
-    <Button
-        android:id="@+id/btnChangeLanguage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:background="@null"
-        android:drawableStart="@drawable/ic_language_icon"
-        android:drawablePadding="8dp"
-        android:text="@string/change_language"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
-    </FrameLayout>

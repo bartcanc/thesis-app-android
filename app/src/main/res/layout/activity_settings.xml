@@ -1,229 +1,358 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white">
 
-    <!-- Tło z kołami zębatymi -->
+    <!-- Warstwa tła -->
     <ImageView
-        android:id="@+id/imgSettingsBackground"
+        android:id="@+id/background_gears"
+        android:layout_width="565dp"
+        android:layout_height="586dp"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="160dp"
+        android:alpha="0.37"
+        android:src="@drawable/ic_gears"
+        android:scaleType="fitCenter" />
+
+    <!-- Główna zawartość -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/gears_background"
-        android:alpha="0.2" />
-
-    <!-- Przycisk powrotu -->
-
-    <!-- Nagłówek -->
-
-    <!-- Lista ustawień -->
-
-    <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="28dp"
-        android:background="@null"
-        android:contentDescription="Back"
-        android:src="@drawable/ic_arrow_left"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tvSettingsHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:text="Settings"
-        android:textColor="#446fb1"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/settingsContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/tvSettingsHeader"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp"
-        android:padding="16dp">
+        android:gravity="center_horizontal"
+        android:paddingTop="100dp">
 
-        <!-- Pojedyncze opcje ustawień -->
+        <!-- Nagłówek "Settings" -->
+        <TextView
+            android:id="@+id/tvSettingsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bottom_nav_settings"
+            android:textSize="40sp"
+            android:fontFamily="@font/robotomono_bold"
+            android:textColor="#456DB0"
+            android:layout_marginTop="40dp" />
+
+        <!-- Kontener przycisków -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:background="@drawable/rounded_option_background"
-            android:layout_marginBottom="12dp">
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="40dp">
 
-            <TextView
-                android:id="@+id/tvChangeUserData"
-                android:layout_width="0dp"
+            <!-- Przycisk: Change user data -->
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Change user data"
-                android:textSize="16sp"
-                android:textColor="#333333" />
+                android:orientation="vertical"
+                android:layout_marginBottom="27dp"
+                android:layout_marginHorizontal="40dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_arrow_right"
-                android:contentDescription="Next" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/btnChangeUserData"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:text="Change user data"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/robotomono_bold"
+                    android:textColor="#456DB0"
+                    android:gravity="start|center_vertical"
+                    android:drawableEnd="@drawable/ic_single_right_blue"
+                    android:drawablePadding="10dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:background="@drawable/rounded_option_background"
-            android:layout_marginBottom="12dp">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#456DB0" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvChangeProfilePicture"
-                android:layout_width="0dp"
+            <!-- Przycisk: Change profile picture -->
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Change profile picture"
-                android:textSize="16sp"
-                android:textColor="#333333" />
+                android:orientation="vertical"
+                android:layout_marginBottom="27dp"
+                android:layout_marginHorizontal="40dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_arrow_right"
-                android:contentDescription="Next" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/btnChangeProfilePicture"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:text="Change profile picture"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/robotomono_bold"
+                    android:textColor="#456DB0"
+                    android:gravity="start|center_vertical"
+                    android:drawableEnd="@drawable/ic_single_right_blue"
+                    android:drawablePadding="10dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:background="@drawable/rounded_option_background"
-            android:layout_marginBottom="12dp">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#456DB0" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvChangePassword"
-                android:layout_width="0dp"
+            <!-- Przycisk: Change password -->
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Change password"
-                android:textSize="16sp"
-                android:textColor="#333333" />
+                android:orientation="vertical"
+                android:layout_marginBottom="27dp"
+                android:layout_marginHorizontal="40dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_arrow_right"
-                android:contentDescription="Next" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/btnChangePassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:text="Change password"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/robotomono_bold"
+                    android:textColor="#456DB0"
+                    android:gravity="start|center_vertical"
+                    android:drawableEnd="@drawable/ic_single_right_blue"
+                    android:drawablePadding="10dp" />
 
-        <!-- Kolejne opcje ustawień -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:background="@drawable/rounded_option_background"
-            android:layout_marginBottom="12dp">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#456DB0" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvChangeLanguage"
-                android:layout_width="0dp"
+            <!-- Przycisk: Change language -->
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Change language"
-                android:textSize="16sp"
-                android:textColor="#333333" />
+                android:orientation="vertical"
+                android:layout_marginBottom="27dp"
+                android:layout_marginHorizontal="40dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_arrow_right"
-                android:contentDescription="Next" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/btnChangeLanguage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:text="Change language"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/robotomono_bold"
+                    android:textColor="#456DB0"
+                    android:gravity="start|center_vertical"
+                    android:drawableEnd="@drawable/ic_single_right_blue"
+                    android:drawablePadding="10dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:background="@drawable/rounded_option_background"
-            android:layout_marginBottom="12dp">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#456DB0" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvChangeTheme"
-                android:layout_width="0dp"
+            <!-- Przycisk: Change theme -->
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Change theme"
-                android:textSize="16sp"
-                android:textColor="#333333" />
+                android:orientation="vertical"
+                android:layout_marginBottom="27dp"
+                android:layout_marginHorizontal="40dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_arrow_right"
-                android:contentDescription="Next" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/btnChangeTheme"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:text="Change theme"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/robotomono_bold"
+                    android:textColor="#456DB0"
+                    android:gravity="start|center_vertical"
+                    android:drawableEnd="@drawable/ic_single_right_blue"
+                    android:drawablePadding="10dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:background="@drawable/rounded_option_background"
-            android:layout_marginBottom="12dp">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#456DB0" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvAppInformation"
-                android:layout_width="0dp"
+            <!-- Przycisk: App information -->
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="App information"
-                android:textSize="16sp"
-                android:textColor="#333333" />
+                android:orientation="vertical"
+                android:layout_marginBottom="27dp"
+                android:layout_marginHorizontal="40dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_arrow_right"
-                android:contentDescription="Next" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/btnAppInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:text="App information"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/robotomono_bold"
+                    android:textColor="#456DB0"
+                    android:gravity="start|center_vertical"
+                    android:drawableEnd="@drawable/ic_single_right_blue"
+                    android:drawablePadding="10dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:background="@drawable/rounded_option_background">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#456DB0" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvContactUs"
-                android:layout_width="0dp"
+            <!-- Przycisk: Contact us -->
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Contact us"
-                android:textSize="16sp"
-                android:textColor="#333333" />
+                android:orientation="vertical"
+                android:layout_marginBottom="27dp"
+                android:layout_marginHorizontal="40dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_arrow_right"
-                android:contentDescription="Next" />
+                <TextView
+                    android:id="@+id/btnContactUs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:text="Contact us"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/robotomono_bold"
+                    android:textColor="#456DB0"
+                    android:gravity="start|center_vertical"
+                    android:drawableEnd="@drawable/ic_single_right_blue"
+                    android:drawablePadding="10dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#456DB0" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Custom Bottom Navigation Bar -->
+        <LinearLayout
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/gradient_background"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <!-- Home Tab -->
+            <LinearLayout
+                android:id="@+id/btnHome"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_home"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bottom_nav_home"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_marginTop="10dp" />
+            </LinearLayout>
+
+            <!-- Band Tab -->
+            <LinearLayout
+                android:id="@+id/btnBand"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_watch"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bottom_nav_band"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_marginTop="10dp" />
+            </LinearLayout>
+
+            <!-- Profile Tab -->
+            <LinearLayout
+                android:id="@+id/btnProfile"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_profile"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bottom_nav_profile"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_marginTop="10dp" />
+            </LinearLayout>
+
+            <!-- Settings Tab -->
+            <LinearLayout
+                android:id="@+id/btnSettings"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_settings"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bottom_nav_settings"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_marginTop="10dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</FrameLayout>

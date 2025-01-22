@@ -2,12 +2,12 @@ package com.example.thesisapp
 
 import ApiClient
 import PasswordResetRequest
-import PasswordResetResponse
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import okhttp3.ResponseBody
@@ -22,15 +22,12 @@ class PasswordResetActivity: BaseActivity() {
     private lateinit var resetCode: EditText
     private lateinit var newPassword: EditText
     private lateinit var btnResetPassword: Button
-    //private lateinit var btnChangeLanguage: Button
+    private lateinit var btnReturn: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_password_reset)
 
-        //checkSessionValidity()
-
-        val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
         val selectedLanguage = sharedPref.getString("selected_language", "pl")
 
         val locale = Locale(selectedLanguage ?: "pl")
@@ -43,23 +40,15 @@ class PasswordResetActivity: BaseActivity() {
         resetCode = findViewById(R.id.etResetPasswordCode)
         newPassword = findViewById(R.id.etNewPassword)
         btnResetPassword = findViewById(R.id.btnResetPassword)
-        //btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
+        btnReturn = findViewById(R.id.btnBack)
 
         btnResetPassword.setOnClickListener {
-            if (!NetworkUtils.isNetworkAvailable(this)) {
-                startActivity(Intent(this, NoConnectionActivity::class.java))
-                finish()
-            } else {
-                performReset(username, resetCode, newPassword)
-            }
+            performReset(username, resetCode, newPassword)
         }
 
-//        btnChangeLanguage.setOnClickListener {
-//            val intent = Intent(this, LanguageSelectionActivity::class.java)
-//            intent.putExtra("previous_activity", "MainActivity")
-//            startActivity(intent)
-//        }
-
+        btnReturn.setOnClickListener {
+            finish()
+        }
     }
 
     private fun performReset(username: String, passwordResetCode: EditText, password: EditText) {
@@ -79,16 +68,16 @@ class PasswordResetActivity: BaseActivity() {
                         putString("password", password.text.toString())
                         putString("passResetCode", passCode)
                     }
-                    Toast.makeText(this@PasswordResetActivity, "Password reset successful! 🎉", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@PasswordResetActivity, "Password reset successful!", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this@PasswordResetActivity, SettingsActivity::class.java))
                     finish()
                 } else {
-                    Toast.makeText(this@PasswordResetActivity, "Password reset failed 😔: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@PasswordResetActivity, "Password reset failed: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                Toast.makeText(this@PasswordResetActivity, "Error: ${t.message} 😢", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@PasswordResetActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }

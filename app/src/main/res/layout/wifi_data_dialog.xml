@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="@drawable/rounded_corner_background">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Nagłówek -->
+    <TextView
+        android:id="@+id/tvWifiDialogTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/wifi_data_header"
+        android:textSize="24sp"
+        android:fontFamily="@font/robotomono_bold"
+        android:textColor="#456DB0"
+        android:textAlignment="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp"
+        android:layout_gravity="center"/>
+
+    <!-- Pole SSID -->
+    <EditText
+        android:id="@+id/etWifiSSID"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="SSID"
+        android:fontFamily="@font/robotomono_regular"
+        android:padding="12dp"
+        android:background="@drawable/rounded_edit_text"
+        app:layout_constraintTop_toBottomOf="@id/tvWifiDialogTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="center"/>
+
+    <!-- Pole Hasło WiFi -->
+    <EditText
+        android:id="@+id/etWifiPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/wifi_password"
+        android:fontFamily="@font/robotomono_regular"
+        android:padding="12dp"
+        android:background="@drawable/rounded_edit_text"
+        android:inputType="textPassword"
+        app:layout_constraintTop_toBottomOf="@id/etWifiSSID"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="center"/>
+
+    <!-- Przycisk Wyślij -->
+    <Button
+        android:id="@+id/btnSendWifiData"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="@string/wifi_send"
+        android:background="@drawable/rounded_gradient_button"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/robotomono_bold"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/etWifiPassword"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center"/>
+
+    <!-- Przycisk Anuluj -->
+    <Button
+        android:id="@+id/btnCancelWifiData"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="@string/alert_cancel"
+        android:background="@drawable/rounded_gradient_button"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/robotomono_bold"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/btnSendWifiData"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center"/>
+</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

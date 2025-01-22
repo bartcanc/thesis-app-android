@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name" translatable="false">ThesisApp</string>
+    <string name="app_name" translatable="false">D3K Official App</string>
     <string name="password">Hasło</string>
     <string name="remember_me">Zapamiętaj mnie?</string>
     <string name="login">Login</string>
-    <string name="don_t_have_an_account_register">Nie masz konta? Zarejestruj się!</string>
+    <string name="don_t_have_an_account_register">Rejestracja</string>
     <string name="username">Nazwa użytkownika</string>
     <string name="logged_in_successfully">Zalogowano pomyślnie!</string>
     <string name="logout">Wyloguj się</string>
@@ -33,4 +33,56 @@
     <string name="send_wifi">Wyślij WiFi</string>
     <string name="sync_time">Synchronizacja czasu</string>
     <string name="band_info">Informacje o urządzeniu</string>
+    <string name="reset_code_header">Oto twój kod resetu hasła</string>
+    <string name="reset_code_message">Twój kod resetu został wygenerowany.</string>
+    <string name="enter_your_data">Wprowadź swoje dane</string>
+    <string name="confirm_data">Potwierdź dane</string>
+    <string name="gender_placeholder">Płeć</string>
+    <string name="age_placeholder">Wiek</string>
+    <string name="weight_placeholder">Waga</string>
+    <string name="height_placeholder">Wzrost</string>
+    <string name="bottom_nav_home">STRONA GŁÓWNA</string>
+    <string name="bottom_nav_band">OPASKA</string>
+    <string name="bottom_nav_profile">PROFIL</string>
+    <string name="bottom_nav_settings">USTAWIENIA</string>
+    <string name="send_data">Wyślij dane na serwer</string>
+    <string name="wifi_data_header">Wysyłanie danych WiFi</string>
+    <string name="wifi_password">Hasło WiFi</string>
+    <string name="wifi_send">Wyślij</string>
+    <string name="alert_cancel">Anuluj</string>
+    <string name="edit_your_data">Edytuj swoje dane</string>
+    <string name="reset_password_button">Reset</string>
+    <string name="repeat_password_hint">Powtórz nowe hasło</string>
+    <string name="new_password_hint">Nowe hasło</string>
+    <string name="reset_code_hint">Kod zmiany hasła</string>
+    <string name="reset_password_header">Zmień hasło</string>
+    <string name="change_theme_header">Zmiana motywu</string>
+    <string name="sea_breeze_theme">Morska bryza</string>
+    <string name="post_modern_theme">Post-modern</string>
+    <string name="app_version">wersja: 1.0</string>
+    <string name="app_creators">Twórcy:\nMarcel Radtke\nBartosz Rakowski</string>
+    <string name="contact_us">Skontaktuj się z nami</string>
+    <string name="contact_description">W razie doświadczenia jakichkolwiek problemów czy błędów związanych z działaniem naszej aplikacji, skontaktuj się z nami za pomocą maila (kliknij na adres poniżej)</string>
+    <string name="bmi_status_underweight">Niedowaga</string>
+    <string name="bmi_status_normal">Normalna waga</string>
+    <string name="bmi_status_overweight">Nadwaga</string>
+    <string name="bmi_status_obesity">Otyłość</string>
+    <string name="activity_walking">Spacer</string>
+    <string name="activity_jogging">Jogging</string>
+    <string name="activity_running">Bieg</string>
+    <string name="activity_sprint">Sprint</string>
+    <string name="activity_hiking">Piesza wycieczka</string>
+    <string name="activity_tennis">Tenis</string>
+    <string name="activity_football">Piłka nożna</string>
+    <string name="activity_basketball">Koszykówka</string>
+    <string name="activity_volleyball">Siatkówka</string>
+    <string name="activity_light_exertion">Lekki wysiłek</string>
+    <string name="activity_moderate_exertion">Średni wysiłek</string>
+    <string name="activity_intense_exertion">Intensywny wysiłek</string>
+    <string name="workout_type_format">Workout Type: %s</string>
+    <string name="duration_format">Duration: %d sec</string>
+    <string name="distance_format">Distance: %.2f km</string>
+    <string name="calories_format">Calories: %.2f kcal</string>
+    <string name="date_format">Date: %s</string>
+
 </resources>

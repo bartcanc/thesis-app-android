@@ -2,7 +2,7 @@
     <string name="password">Contraseña</string>
     <string name="remember_me">¿Recordarme?</string>
     <string name="login">Iniciar sesión</string>
-    <string name="don_t_have_an_account_register">¿No tienes una cuenta? ¡Regístrate!</string>
+    <string name="don_t_have_an_account_register">Regístrate</string>
     <string name="username">Nombre de usuario</string>
     <string name="logged_in_successfully">¡Inicio de sesión exitoso!</string>
     <string name="logout">Cerrar sesión</string>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="RoundedMaterialButton" parent="Widget.MaterialComponents.Button">
+        <item name="textAllCaps">false</item>
+        <item name="cornerRadius">100dp</item>
+        <item name="android:textColor">#456DB0</item>
+    </style>
+
+    <style name="GradientButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/rounded_gradient_button</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:fontFamily">@font/robotomono_bold</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:elevation">5dp</item>
+    </style>
+</resources>

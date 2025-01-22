@@ -2,7 +2,7 @@
     <string name="password">Passwort</string>
     <string name="remember_me">Mich erinnern?</string>
     <string name="login">Anmelden</string>
-    <string name="don_t_have_an_account_register">Du hast kein Konto? Registriere dich!</string>
+    <string name="don_t_have_an_account_register">Registriere</string>
     <string name="username">Benutzername</string>
     <string name="logged_in_successfully">Erfolgreich eingeloggt!</string>
     <string name="logout">Abmelden</string>

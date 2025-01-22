@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Gradientowe tło -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@drawable/gradient_background"
+        android:gravity="center">
+
+        <!-- Wyblakłe tło RunningMan -->
+        <ImageView
+            android:id="@+id/imgRunningMan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/running_man"
+            android:scaleType="fitCenter" />
+    </LinearLayout>
+
+    <!-- Zawartość -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <!-- Tekst: Zmień zdjęcie profilowe -->
+        <TextView
+            android:id="@+id/tvChangeProfileHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change your\nprofile picture"
+            android:textColor="@android:color/white"
+            android:textSize="32sp"
+            android:fontFamily="@font/robotomono_bold"
+            android:gravity="center"
+            android:shadowRadius="10"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="100dp" />
+
+        <!-- Okrąg z obrazkiem -->
+        <FrameLayout
+            android:id="@+id/flProfilePicture"
+            android:layout_width="225dp"
+            android:layout_height="225dp"
+            app:layout_constraintTop_toBottomOf="@id/tvChangeProfileHeader"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="50dp">
+
+            <!-- Biały okrąg -->
+            <View
+                android:layout_width="225dp"
+                android:layout_height="225dp"
+                android:background="@drawable/circle_shape"
+                android:elevation="5dp" />
+
+            <!-- Obrazek w środku -->
+            <ImageView
+                android:id="@+id/imgProfilePicture"
+                android:layout_width="197dp"
+                android:layout_height="197dp"
+                android:layout_gravity="center"
+                android:src="@drawable/profile_icon"
+                android:scaleType="centerCrop"
+                android:background="@drawable/circle_shape"
+                android:clipToOutline="true"
+                android:layout_margin="14dp"
+                android:outlineProvider="background"
+                android:elevation="5dp" />
+        </FrameLayout>
+
+        <!-- Przycisk: Prześlij nowe zdjęcie -->
+        <Button
+            android:id="@+id/btnUploadPicture"
+            android:layout_width="273dp"
+            android:layout_height="58dp"
+            android:text="Upload new picture"
+            android:textSize="20sp"
+            android:textColor="#456DB0"
+            android:background="@drawable/rounded_button"
+            android:fontFamily="@font/robotomono_bold"
+            app:layout_constraintTop_toBottomOf="@id/flProfilePicture"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="30dp"
+            android:elevation="5dp" />
+
+        <!-- Przyciski nawigacyjne -->
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_back_arrow"
+            android:background="@null"
+            android:layout_margin="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

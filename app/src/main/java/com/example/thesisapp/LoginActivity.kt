@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
@@ -16,6 +17,7 @@ import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.textview.MaterialTextView
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -31,17 +33,16 @@ class LoginActivity : BaseActivity() {
     private lateinit var etPassword: EditText
     private lateinit var btnLogin: Button
     private lateinit var btnRegister: Button
-    private lateinit var btnChangeLanguage: Button
+    private lateinit var btnChangeLanguage: MaterialTextView
     private lateinit var switchRememberMe: Switch
+    private lateinit var tvErrorMessage: TextView
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        //checkSessionValidity()
-
-        sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
+        webSocketHelper = WebSocketHelper(this, "","")
         val selectedLanguage = sharedPref.getString("selected_language", "pl")
 
         val locale = Locale(selectedLanguage ?: "pl")
@@ -57,21 +58,18 @@ class LoginActivity : BaseActivity() {
         btnChangeLanguage = findViewById(R.id.btnChangeLanguage)
         switchRememberMe = findViewById(R.id.switchRememberMe)
 
+        tvErrorMessage = findViewById(R.id.tvErrorMessage)
+
         loadLoginData()
 
         btnLogin.setOnClickListener {
-            if (!NetworkUtils.isNetworkAvailable(this)) {
-                startActivity(Intent(this, NoConnectionActivity::class.java))
-                finish()
-            } else {
-                val username = etUsername.text.toString()
-                val password = etPassword.text.toString()
+            val username = etUsername.text.toString()
+            val password = etPassword.text.toString()
 
-                if (username.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                } else {
-                    performLogin(username, password)
-                }
+            if (username.isEmpty() || password.isEmpty()) {
+                showMessage("Please fill in all fields")
+            } else {
+                performLogin(username, password)
             }
         }
 
@@ -85,7 +83,24 @@ class LoginActivity : BaseActivity() {
             startActivity(intent)
         }
 
+        switchRememberMe.setOnCheckedChangeListener { _, isChecked ->
+            with(sharedPref.edit()) {
+                putBoolean("remember_me", isChecked)
+                apply()
+            }
+        }
+
+
     }
+
+    private fun showMessage(message: String) {
+        tvErrorMessage.text = message
+        tvErrorMessage.visibility = View.VISIBLE
+        tvErrorMessage.postDelayed({
+            tvErrorMessage.visibility = View.GONE
+        }, 3000)
+    }
+
 
     private fun performLogin(username: String, password: String) {
         val loginRequest = LoginRequest(username, password)
@@ -124,6 +139,7 @@ class LoginActivity : BaseActivity() {
                     } else {
                         Log.e("performLogin", "session-id not found in response headers!")
                     }
+                    showMessage("User logged in successfully")
 
                   // Sprawdzenie, czy użytkownik istnieje w bazie danych dopiero po zapisaniu userId i session-id
             checkUserExistsInDatabase(
@@ -138,19 +154,20 @@ class LoginActivity : BaseActivity() {
                 }
             )
                 } else {
-                    Toast.makeText(this@LoginActivity, "Login failed 😔: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
+                    showMessage("Login failed!")
+                    Toast.makeText(this@LoginActivity, "Login failed : ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                Toast.makeText(this@LoginActivity, "Error: ${t.message} 😢", Toast.LENGTH_SHORT).show()
+                showMessage("Error: ${t.message}")
             }
         })
     }
 
 
 
-    private fun saveLoginData(username: String, password: String) {
+    fun saveLoginData(username: String, password: String) {
         with(sharedPref.edit()) {
             putString("username", username)
             putString("password", password)
@@ -168,12 +185,10 @@ class LoginActivity : BaseActivity() {
         }
     }
 
-    // Funkcja do sprawdzania istnienia użytkownika w bazie danych
     private fun checkUserExistsInDatabase(userId: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
         val apiClient = ApiClient(this)
         val apiService = apiClient.getApiService8000()
 
-        // Pobierz session-id z SharedPreferences
         val sessionId = sharedPref.getString("session_id", null)
 
         if (sessionId.isNullOrEmpty()) {
@@ -182,17 +197,16 @@ class LoginActivity : BaseActivity() {
             return
         }
 
-        // Wywołanie API z nagłówkiem session-id i parametrem userId
         apiService.getUserHealthById(userId, sessionId).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 when (response.code()) {
                     200 -> {
-                        // Kod 200: użytkownik istnieje
+                        // kod 200: użytkownik istnieje
                         Log.d("checkUserExistsInDatabase", "User exists in database.")
                         onSuccess()
                     }
                     else -> {
-                        // Inne kody: użytkownik nie istnieje
+                        // inne kody: użytkownik nie istnieje
                         Log.d("checkUserExistsInDatabase", "User does not exist in database. Response code: ${response.code()}")
                         onFailure()
                     }

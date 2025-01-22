@@ -35,20 +35,30 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".BandActivity" />
+        <activity android:name=".ProfileActivity" />
         <activity android:name=".SettingsActivity" />
-        <activity
-            android:name=".NoConnectionActivity"
-            android:exported="true"></activity>
+        <activity android:name=".NoConnectionActivity" android:exported="true" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".PasswordResetActivity" />
         <activity android:name=".CodeActivity" />
         <activity android:name=".HealthDataActivity" />
+        <activity android:name=".EditHealthDataActivity" />
+        <activity android:name=".ChangePFPActivity" />
+        <activity android:name=".ChangeThemeActivity" />
+        <activity android:name=".AppInformationActivity" />
+        <activity android:name=".ContactUsActivity" />
+        <activity android:name=".TrainingListActivity" />
+        <activity android:name=".BMICaloriesActivity" />
+        <activity android:name=".BMICalculatorActivity" />
+        <activity android:name=".CalorieCalculatorActivity" />
+        <activity android:name=".SingleTrainingActivity" />
+        <activity android:name=".GraphActivity" />
     </application>
 
 </manifest>
