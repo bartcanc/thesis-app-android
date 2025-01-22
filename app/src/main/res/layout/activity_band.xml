@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <!-- Ikona Smartbanda -->
+    <ImageView
+        android:id="@+id/ic_smartband"
+        android:layout_width="215dp"
+        android:layout_height="208dp"
+        android:layout_marginTop="24dp"
+        android:src="@drawable/ic_smartband"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Nagłówek: Nazwa urządzenia -->
+    <TextView
+        android:id="@+id/tvDeviceName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Smartband D3K"
+        android:textSize="34sp"
+        android:fontFamily="@font/robotomono_bold"
+        android:textColor="#446fb1"
+        app:layout_constraintTop_toBottomOf="@id/ic_smartband"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Status połączenia -->
+    <TextView
+        android:id="@+id/tvConnectionStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Status:"
+        android:fontFamily="@font/robotomono_bold"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@id/tvDeviceName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tvConnectionState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CONNECTED"
+        android:textSize="18sp"
+        android:textColor="#00FF00"
+        android:fontFamily="@font/robotomono_bold"
+        app:layout_constraintTop_toBottomOf="@id/tvConnectionStatus"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="4dp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Custom Bottom Navigation Bar -->
+        <LinearLayout
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/gradient_background"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <!-- Home Tab -->
+            <LinearLayout
+                android:id="@+id/nav_home"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_home"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bottom_nav_home"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_marginTop="10dp" />
+            </LinearLayout>
+
+            <!-- Band Tab -->
+            <LinearLayout
+                android:id="@+id/nav_band"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_watch"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bottom_nav_band"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_marginTop="10dp" />
+            </LinearLayout>
+
+            <!-- Profile Tab -->
+            <LinearLayout
+                android:id="@+id/nav_profile"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_profile"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bottom_nav_profile"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_marginTop="10dp" />
+            </LinearLayout>
+
+            <!-- Settings Tab -->
+            <LinearLayout
+                android:id="@+id/nav_settings"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_settings"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bottom_nav_settings"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_marginTop="10dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <!-- Przyciski akcji -->
+    <LinearLayout
+        android:id="@+id/actionButtonsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:gravity="center_horizontal"
+        app:layout_constraintTop_toBottomOf="@id/tvConnectionState"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Connect -->
+        <Button
+            android:id="@+id/btnConnect"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/connect"
+            android:fontFamily="@font/robotomono_bold"
+            android:background="@drawable/rounded_gradient_button"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Disconnect -->
+        <Button
+            android:id="@+id/btnDisconnect"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/disconnect"
+            android:background="@drawable/rounded_gradient_button"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Receive Data -->
+        <Button
+            android:id="@+id/btnReadData"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/receive_data"
+            android:background="@drawable/rounded_gradient_button"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Receive Data -->
+        <Button
+            android:id="@+id/btnSendData"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/send_data"
+            android:background="@drawable/rounded_gradient_button"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Send WiFi -->
+        <Button
+            android:id="@+id/btnSendWifiData"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/send_wifi"
+            android:background="@drawable/rounded_gradient_button"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Sync Time -->
+        <Button
+            android:id="@+id/btnSyncTime"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/sync_time"
+            android:background="@drawable/rounded_gradient_button"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Band Info -->
+        <Button
+            android:id="@+id/btnBandInfo"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/band_info"
+            android:background="@drawable/rounded_gradient_button"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp" />
+    </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
