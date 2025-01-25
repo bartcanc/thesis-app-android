@@ -291,7 +291,8 @@
                 val uuid = characteristicsUUIDs[currentCharacteristicIndex]
                 val characteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(uuid)
     
-                if (characteristic != null && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+                if (characteristic != null && ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
                     bluetoothGatt?.readCharacteristic(characteristic)
                 } else {
                     Log.w("BLE", "Brak uprawnień lub charakterystyka $uuid nieznaleziona!")
@@ -693,8 +694,6 @@
             dialog.show()
         }
 
-
-
         private fun getAllDataFromDatabase(): List<ByteArray> {
             return dbHelper.getAllRawData()
         }
@@ -711,6 +710,13 @@
             }
         }
 
+        fun convertUnixToISO8601(timestamp: Long): String {
+            val date = Date(timestamp * 1000)
+            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+            sdf.timeZone = TimeZone.getTimeZone("UTC")
+            return sdf.format(date)
+        }
+
         private fun deleteAllDatabaseData() {
             dbHelper.deleteAllData()
             Log.d("BaseActivity", "All data in the database has been deleted.")
@@ -725,113 +731,82 @@
                 return
             }
 
-            blobs.forEachIndexed { index, blob ->
-                try {
-                    saveAllBlobsToSingleJsonUnified()
-                } catch (e: Exception) {
-                    //Log.e("test", "Błąd podczas zapisu bloba $index do JSON: ${e.message}", e)
-                }
-            }
+            saveAllBlobsToSingleJsonUnified(blobs)
         }
 
-        private fun saveAllBlobsToSingleJsonUnified() {
-            val db = dbHelper.readableDatabase
-
+        private fun saveAllBlobsToSingleJsonUnified(blobs: List<ByteArray>) {
             val axArray = JSONArray()
             val ayArray = JSONArray()
             val azArray = JSONArray()
             val irArray = JSONArray()
             val redArray = JSONArray()
 
-            val timestamp: Long? = null
-            val cursor = db.query(
-                SensorDataDatabaseHelper.TABLE_NAME,
-                arrayOf(SensorDataDatabaseHelper.COLUMN_RAW_DATA),
-                null,
-                null,
-                null,
-                null,
-                null
-            )
+            blobs.forEach { blob ->
+                val combinedBlob = ByteArray(incompleteData.size + blob.size).apply {
+                    System.arraycopy(incompleteData, 0, this, 0, incompleteData.size)
+                    System.arraycopy(blob, 0, this, incompleteData.size, blob.size)
+                }
+                incompleteData = ByteArray(0)
 
-            if (cursor.moveToFirst()) {
-                do {
-                    val blob = cursor.getBlob(cursor.getColumnIndexOrThrow(SensorDataDatabaseHelper.COLUMN_RAW_DATA))
-
-                    // Połącz bieżący blob z pozostałościami z poprzedniego
-                    val combinedBlob = ByteArray(incompleteData.size + blob.size).apply {
-                        System.arraycopy(incompleteData, 0, this, 0, incompleteData.size)
-                        System.arraycopy(blob, 0, this, incompleteData.size, blob.size)
+                var offset = 0
+                while (offset < combinedBlob.size) {
+                    if (offset + 4 <= combinedBlob.size) {
+                        val ir = ByteBuffer.wrap(combinedBlob, offset, 4).order(ByteOrder.LITTLE_ENDIAN).int
+                        irArray.put(ir)
+                        offset += 4
+                    } else {
+                        incompleteData = combinedBlob.copyOfRange(offset, combinedBlob.size)
+                        break
                     }
-                    incompleteData = ByteArray(0) // Wyzeruj pozostałości
 
-                    var offset = 0
-                    while (offset < combinedBlob.size) {
-                        // IR (4 bajty)
-                        if (offset + 4 <= combinedBlob.size) {
-                            val ir = ByteBuffer.wrap(combinedBlob, offset, 4).order(ByteOrder.LITTLE_ENDIAN).int
-                            irArray.put(ir)
-                            offset += 4
-                        } else {
-                            incompleteData = combinedBlob.copyOfRange(offset, combinedBlob.size)
-                            break
-                        }
-
-                        // Red (4 bajty)
-                        if (offset + 4 <= combinedBlob.size) {
-                            val red = ByteBuffer.wrap(combinedBlob, offset, 4).order(ByteOrder.LITTLE_ENDIAN).int
-                            redArray.put(red)
-                            offset += 4
-                        } else {
-                            incompleteData = combinedBlob.copyOfRange(offset, combinedBlob.size)
-                            break
-                        }
-
-                        // AccX (2 bajty)
-                        if (offset + 2 <= combinedBlob.size) {
-                            val accX = ByteBuffer.wrap(combinedBlob, offset, 2).order(ByteOrder.LITTLE_ENDIAN).short
-                            axArray.put(accX.toDouble())
-                            offset += 2
-                        } else {
-                            incompleteData = combinedBlob.copyOfRange(offset, combinedBlob.size)
-                            break
-                        }
-
-                        // AccY (2 bajty)
-                        if (offset + 2 <= combinedBlob.size) {
-                            val accY = ByteBuffer.wrap(combinedBlob, offset, 2).order(ByteOrder.LITTLE_ENDIAN).short
-                            ayArray.put(accY.toDouble())
-                            offset += 2
-                        } else {
-                            incompleteData = combinedBlob.copyOfRange(offset, combinedBlob.size)
-                            break
-                        }
-
-                        // AccZ (2 bajty)
-                        if (offset + 2 <= combinedBlob.size) {
-                            val accZ = ByteBuffer.wrap(combinedBlob, offset, 2).order(ByteOrder.LITTLE_ENDIAN).short
-                            azArray.put(accZ.toDouble())
-                            offset += 2
-                        } else {
-                            incompleteData = combinedBlob.copyOfRange(offset, combinedBlob.size)
-                            break
-                        }
+                    if (offset + 4 <= combinedBlob.size) {
+                        val red = ByteBuffer.wrap(combinedBlob, offset, 4).order(ByteOrder.LITTLE_ENDIAN).int
+                        redArray.put(red)
+                        offset += 4
+                    } else {
+                        incompleteData = combinedBlob.copyOfRange(offset, combinedBlob.size)
+                        break
                     }
-                } while (cursor.moveToNext())
+
+                    if (offset + 2 <= combinedBlob.size) {
+                        val accX = ByteBuffer.wrap(combinedBlob, offset, 2).order(ByteOrder.LITTLE_ENDIAN).short
+                        axArray.put(accX.toDouble())
+                        offset += 2
+                    } else {
+                        incompleteData = combinedBlob.copyOfRange(offset, combinedBlob.size)
+                        break
+                    }
+
+                    if (offset + 2 <= combinedBlob.size) {
+                        val accY = ByteBuffer.wrap(combinedBlob, offset, 2).order(ByteOrder.LITTLE_ENDIAN).short
+                        ayArray.put(accY.toDouble())
+                        offset += 2
+                    } else {
+                        incompleteData = combinedBlob.copyOfRange(offset, combinedBlob.size)
+                        break
+                    }
+
+                    if (offset + 2 <= combinedBlob.size) {
+                        val accZ = ByteBuffer.wrap(combinedBlob, offset, 2).order(ByteOrder.LITTLE_ENDIAN).short
+                        azArray.put(accZ.toDouble())
+                        offset += 2
+                    } else {
+                        incompleteData = combinedBlob.copyOfRange(offset, combinedBlob.size)
+                        break
+                    }
+                }
             }
-            cursor.close()
 
-            // Stwórz obiekt JSON
             val jsonData = JSONObject().apply {
-                put("timestamp", timestamp)
                 put("ax", axArray)
                 put("ay", ayArray)
                 put("az", azArray)
                 put("ir", irArray)
                 put("red", redArray)
+                put("recordedAt", convertUnixToISO8601(unixTimestamp))
+                put("userId", userId)
             }
 
-            // Zapisz JSON do pliku
             val outputDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS) ?: return
             val outputFile = File(outputDir, "sensor_data.json")
 
@@ -844,6 +819,7 @@
                 Log.e("saveAllBlobsToSingleJsonUnified", "Błąd podczas zapisywania pliku JSON", e)
             }
         }
+
 
         private fun resetFlags() {
             currentByteCount = 0
@@ -858,6 +834,7 @@
             sendUnixTime()
             dataBuffer.clear()
             unsubscribeFromCharacteristic()
+            //howManyFiles = howManyFiles?.minus(1)
         }
 
         override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -928,7 +905,7 @@
                 return
             }
 
-            val file = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "testDane.json")
+            val file = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "sensor_data.json")
 
             if (file.exists()) {
                 // Przygotowanie treści żądania

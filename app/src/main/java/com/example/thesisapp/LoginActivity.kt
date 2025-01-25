@@ -4,23 +4,16 @@ import ApiClient
 import LoginRequest
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textview.MaterialTextView
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.Call
@@ -104,7 +97,6 @@ class LoginActivity : BaseActivity() {
 
     private fun performLogin(username: String, password: String) {
         val loginRequest = LoginRequest(username, password)
-        val apiClient = ApiClient(this)
         val apiService = apiClient.getApiService8000()
 
         apiService.login(loginRequest).enqueue(object : Callback<ResponseBody> {
