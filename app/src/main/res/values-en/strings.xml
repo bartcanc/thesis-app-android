@@ -33,4 +33,5 @@
     <string name="activity_medium">Medium (4-5 trainings/week)</string>
     <string name="activity_high">High (6-7 trainings/week)</string>
     <string name="activity_v_high">Very high (8+ trainings/week)</string>
+    <string name="gender_placeholder">Sex</string>
 </resources>
