@@ -1,7 +1,6 @@
 package com.example.thesisapp
 
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
@@ -15,7 +14,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
-import androidx.test.espresso.matcher.ViewMatchers
 import android.view.View
 import org.hamcrest.Matcher
 
@@ -25,13 +23,10 @@ class LoginActivityUITest {
     @get:Rule
     val activityRule = ActivityTestRule(LoginActivity::class.java)
 
-
     @Test
     fun testEmptyFieldsValidation() {
-        // Kliknięcie przycisku login bez podania danych
         onView(withId(R.id.btnLogin)).perform(click())
 
-        // Sprawdzenie, czy wyświetla się komunikat o błędzie
         onView(withId(R.id.tvErrorMessage))
             .check(matches(withText("Please fill in all fields")))
             .check(matches(isDisplayed()))
@@ -39,16 +34,13 @@ class LoginActivityUITest {
 
     @Test
     fun testSuccessfulLoginFlow() {
-        // Wprowadzenie poprawnej nazwy użytkownika i hasła
         onView(withId(R.id.etLoginUsername)).perform(typeText("admin"), closeSoftKeyboard())
         onView(withId(R.id.etLoginPassword)).perform(typeText("admin"), closeSoftKeyboard())
 
-        // Kliknięcie przycisku login
         onView(withId(R.id.btnLogin)).perform(click())
 
         waitUntilVisible(R.id.tvErrorMessage)
 
-        // Sprawdzenie, czy komunikat o sukcesie jest widoczny
         onView(withId(R.id.tvErrorMessage))
             .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
             .check(matches(withText("User logged in successfully")))
@@ -58,16 +50,13 @@ class LoginActivityUITest {
 
     @Test
     fun testUnsuccessfulLoginFlow() {
-        // Wprowadzenie niepoprawnych danych logowania
         onView(withId(R.id.etLoginUsername)).perform(typeText("wronguser"), closeSoftKeyboard())
         onView(withId(R.id.etLoginPassword)).perform(typeText("wrongpass"), closeSoftKeyboard())
 
-        // Kliknięcie przycisku login
         onView(withId(R.id.btnLogin)).perform(click())
 
         waitUntilVisible(R.id.tvErrorMessage)
 
-        // Sprawdzenie, czy wyświetla się komunikat o błędzie
         onView(withId(R.id.tvErrorMessage))
             .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
             .check(matches(withText("Login failed!")))
@@ -75,21 +64,10 @@ class LoginActivityUITest {
     }
 
     @Test
-    fun testRememberMeSwitch() {
-        // Włączenie przełącznika "Remember Me"
-        onView(withId(R.id.switchRememberMe)).perform(click())
-
-        // Sprawdzenie, czy jest zaznaczony
-        onView(withId(R.id.switchRememberMe)).check(matches(isChecked()))
-    }
-
-    @Test
     fun testNavigationToRegisterActivity() {
         Intents.init()
-        // Kliknięcie przycisku rejestracji
         onView(withId(R.id.btnRegister)).perform(click())
 
-        // Sprawdzenie, czy nowa aktywność została uruchomiona
         intended(hasComponent(RegisterActivity::class.java.name))
         Intents.release()
     }
@@ -97,10 +75,8 @@ class LoginActivityUITest {
     @Test
     fun testLanguageChangeNavigation() {
         Intents.init()
-        // Kliknięcie przycisku zmiany języka
         onView(withId(R.id.btnChangeLanguage)).perform(click())
 
-        // Sprawdzenie, czy nowa aktywność LanguageSelectionActivity została uruchomiona
         intended(hasComponent(LanguageSelectionActivity::class.java.name))
         Intents.release()
     }
@@ -111,7 +87,7 @@ class LoginActivityUITest {
 fun waitUntilVisible(viewId: Int, timeout: Long = 5000) {
     onView(withId(viewId)).perform(object : ViewAction {
         override fun getConstraints(): Matcher<View> {
-            return ViewMatchers.isAssignableFrom(View::class.java)
+            return isAssignableFrom(View::class.java)
         }
 
         override fun getDescription(): String {

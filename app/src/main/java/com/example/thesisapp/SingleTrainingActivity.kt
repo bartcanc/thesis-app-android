@@ -77,7 +77,7 @@ class SingleTrainingActivity : AppCompatActivity() {
             trainingDate = it.getStringExtra("DATE") ?: "Unknown Date"
             timeValue = formatDuration(it.getIntExtra("DURATION", 0))
             caloriesValue = "${it.getDoubleExtra("CALORIES_BURNED", 0.0).toInt()} kcal"
-            distanceValue = "${it.getDoubleExtra("DISTANCE", 0.0)} km"
+            distanceValue = "${(it.getDoubleExtra("DISTANCE", 0.0)/1000)} m"
             stepsValue = it.getIntExtra("AVG_STEPS", 0).toString()
             bpmValue = "${it.getDoubleExtra("AVG_HEARTRATE", 0.0).toInt()} BPM"
 

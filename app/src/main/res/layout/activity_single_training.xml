@@ -287,7 +287,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="5.78 km"
-                                    android:textSize="30sp"
+                                    android:textSize="24sp"
                                     android:textColor="#456DB0"
                                     android:textStyle="bold"
                                     android:layout_margin="16dp"
