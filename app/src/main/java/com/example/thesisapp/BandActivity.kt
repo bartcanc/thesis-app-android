@@ -14,12 +14,9 @@ import java.util.Locale
 
 class BandActivity : BaseActivity() {
     private lateinit var tvMessage: TextView
-    private lateinit var btnLogout: Button
-    private lateinit var btnPasswordReset: Button
     private lateinit var btnConnect: Button
     private lateinit var btnReadData: Button
     private lateinit var btnSyncTime: Button
-    private lateinit var btnSaveData: Button
     private lateinit var btnSendData: Button
     private lateinit var btnSendWifiData: Button
     private lateinit var btnDisconnect: Button
@@ -123,4 +120,20 @@ class BandActivity : BaseActivity() {
         }
 
     }
+
+    override fun onResume() {
+        super.onResume()
+        val tvConnectionState: TextView = findViewById(R.id.tvConnectionState)
+
+        runOnUiThread {
+            if (bluetoothGatt != null) {
+                tvConnectionState.text = "CONNECTED"
+                tvConnectionState.setTextColor(resources.getColor(R.color.green_500, null))
+            } else {
+                tvConnectionState.text = "DISCONNECTED"
+                tvConnectionState.setTextColor(resources.getColor(R.color.red_500, null))
+            }
+        }
+    }
+
 }

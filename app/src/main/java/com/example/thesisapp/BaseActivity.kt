@@ -666,6 +666,7 @@
 
         protected fun showBandInfoDialog() {
             // Inflatuj widok
+            startSequentialRead()
             val dialogView = layoutInflater.inflate(R.layout.band_info_dialog, null)
 
             // Tworzenie dialogu i ustawianie widoku
@@ -834,7 +835,6 @@
             sendUnixTime()
             dataBuffer.clear()
             unsubscribeFromCharacteristic()
-            //howManyFiles = howManyFiles?.minus(1)
         }
 
         override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
