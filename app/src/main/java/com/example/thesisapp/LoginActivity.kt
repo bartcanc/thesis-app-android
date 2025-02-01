@@ -124,6 +124,7 @@ class LoginActivity : BaseActivity() {
 
                     if (sessionId != null) {
                         with(sharedPref.edit()) {
+                            putString("username", username)
                             putString("session_id", sessionId)
                             apply()
                         }

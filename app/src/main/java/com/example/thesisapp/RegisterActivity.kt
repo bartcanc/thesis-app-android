@@ -119,34 +119,30 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun showPasscodeDialog(passCode: String) {
-        // Inflate the custom dialog layout
         val dialogView = layoutInflater.inflate(R.layout.dialog_reset_code, null)
 
-        // Find and set the views in the dialog layout
         val tvResetCode = dialogView.findViewById<TextView>(R.id.tvResetCode)
         val tvCustomMessage = dialogView.findViewById<TextView>(R.id.tvCustomMessage)
         val btnOk = dialogView.findViewById<Button>(R.id.btnOk)
 
-        // Set the reset code and message dynamically
         tvResetCode.text = passCode
         tvCustomMessage.text = getString(R.string.reset_code_message)
 
-        // Create and configure the AlertDialog
         val alertDialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
 
-        // Set the background to be transparent
         alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        // Handle the OK button click
         btnOk.setOnClickListener {
             alertDialog.dismiss()
+        }
+
+        alertDialog.setOnDismissListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
 
-        // Show the dialog
         alertDialog.show()
     }
 

@@ -84,5 +84,6 @@
     <string name="distance_format">Distance: %.2f km</string>
     <string name="calories_format">Calories: %.2f kcal</string>
     <string name="date_format">Date: %s</string>
+    <string name="select_activity">Wybierz aktywność</string>
 
 </resources>

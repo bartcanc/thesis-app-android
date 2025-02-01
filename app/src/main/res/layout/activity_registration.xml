@@ -69,6 +69,7 @@
                 android:background="@drawable/rounded_edit_text"
                 android:fontFamily="@font/robotomono_regular"
                 android:hint="Enter Username"
+                android:textColor="@color/black"
                 android:inputType="text"
                 android:padding="16dp"
                 android:textSize="16sp" />
@@ -82,6 +83,7 @@
                 android:background="@drawable/rounded_edit_text"
                 android:fontFamily="@font/robotomono_regular"
                 android:hint="Enter Password"
+                android:textColor="@color/black"
                 android:inputType="textPassword"
                 android:padding="16dp"
                 android:textSize="16sp" />
@@ -95,6 +97,7 @@
                 android:background="@drawable/rounded_edit_text"
                 android:fontFamily="@font/robotomono_regular"
                 android:hint="Confirm Password"
+                android:textColor="@color/black"
                 android:inputType="textPassword"
                 android:padding="16dp"
                 android:textSize="16sp" />

@@ -4,12 +4,7 @@ import ApiClient
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Spinner
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
@@ -26,14 +21,12 @@ class EditHealthDataActivity : BaseActivity() {
     private lateinit var heightInput: EditText
     private lateinit var btnSubmit: Button
     private lateinit var tvHeader: TextView
-
     private lateinit var spActivityLevel: Spinner
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_health_data)
 
-        // Inicjalizacja widoków
         genderInput = findViewById(R.id.etGender)
         ageInput = findViewById(R.id.etAge)
         weightInput = findViewById(R.id.etWeight)
@@ -42,24 +35,15 @@ class EditHealthDataActivity : BaseActivity() {
         tvHeader = findViewById(R.id.tvHeader)
         spActivityLevel = findViewById(R.id.spActivityLevel)
 
-        // Pobierz nazwę poprzedniej aktywności
         val previousActivity = intent.getStringExtra("previous_activity")
-
-        // Ustaw nagłówek i logikę nawigacji na podstawie poprzedniej aktywności
-        if (previousActivity == "LoginActivity") {
-            tvHeader.text = getString(R.string.enter_your_data)
-
-        } else if (previousActivity == "SettingsActivity") {
-            tvHeader.text = getString(R.string.edit_your_data)
+        tvHeader.text = when (previousActivity) {
+            "LoginActivity" -> getString(R.string.enter_your_data)
+            "SettingsActivity" -> getString(R.string.edit_your_data)
+            else -> ""
         }
 
-        val activityLevels = resources.getStringArray(R.array.activity_levels)
-
-        val adapter = ArrayAdapter(
-            this,
-            R.layout.spinner_item,
-            activityLevels
-        )
+        val activityLevels = listOf(getString(R.string.select_activity)) + resources.getStringArray(R.array.activity_levels)
+        val adapter = ArrayAdapter(this, R.layout.spinner_item, activityLevels)
         adapter.setDropDownViewResource(R.layout.spinner_item)
         spActivityLevel.setPopupBackgroundResource(android.R.color.transparent)
         spActivityLevel.adapter = adapter
@@ -74,82 +58,63 @@ class EditHealthDataActivity : BaseActivity() {
 
     private fun handleFormSubmission(onSuccess: () -> Unit) {
         val userId = sharedPref.getString("user_id", null)
-
-        // Pobierz wartości z pól tekstowych
-        val gender = genderInput.text.toString()
-        val age = ageInput.text.toString().toIntOrNull()
-        val weight = weightInput.text.toString().toIntOrNull()
-        val height = heightInput.text.toString().toIntOrNull()
-
-        val pal = when (spActivityLevel.selectedItem.toString()) {
-            getString(R.string.activity_v_low) -> 1.3f // Very low (0-1 trainings/week)
-            getString(R.string.activity_low) -> 1.4f     // Low (2-3 trainings/week)
-            getString(R.string.activity_medium) -> 1.6f  // Medium (4-5 trainings/week)
-            getString(R.string.activity_high) -> 1.75f   // High (6-7 trainings/week)
-            else -> 2f                                   // Very high activity
-        }
-
-        if (userId != null) {
-            if (gender.isNotEmpty() && age != null && weight != null && height != null) {
-                // Tworzenie JSON-a dla ciała zapytania
-                val requestBodyJson = JSONObject().apply{
-                    put("user", JSONObject().apply {
-                        put("userId", userId)
-                        put("gender", gender)
-                        put("age", age)
-                        put("weight", weight)
-                        put("height", height)
-                        put("bmr", 0)
-                        put("tdee", 0)
-                        put("activity", pal)
-                    })
-                }
-
-                val requestBody = requestBodyJson.toString()
-                    .toRequestBody("application/json; charset=utf-8".toMediaType())
-
-                val apiClient = ApiClient(this)
-                val apiService = apiClient.getApiService8000()
-
-                // Wysyłanie zapytania PUT z `userId` jako parametrem query
-                apiService.editHealthData(userId, requestBody)
-                    .enqueue(object : Callback<ResponseBody> {
-                        override fun onResponse(
-                            call: Call<ResponseBody>,
-                            response: Response<ResponseBody>
-                        ) {
-                            if (response.isSuccessful) {
-                                Log.d("HealthDataActivity", "Server response: ${response.body()?.string()}")
-                                Toast.makeText(
-                                    this@EditHealthDataActivity,
-                                    "Health data sent successfully",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                onSuccess() // Wywołanie sukcesu
-                            } else {
-                                Log.e("HealthDataActivity", "Failed response: ${response.errorBody()?.string()}")
-                                Toast.makeText(
-                                    this@EditHealthDataActivity,
-                                    "Failed to send health data: ${response.message()}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-
-                        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                            Log.e("HealthDataActivity", "Error: ${t.message}")
-                            Toast.makeText(
-                                this@EditHealthDataActivity,
-                                "Error: ${t.message}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    })
-            } else {
-                Toast.makeText(this, "Please fill all fields correctly", Toast.LENGTH_SHORT).show()
-            }
-        } else {
+        if (userId == null) {
             Toast.makeText(this, "User ID not found", Toast.LENGTH_SHORT).show()
+            return
         }
+
+        val gender = genderInput.text.toString().trim()
+        val age = ageInput.text.toString().trim().toIntOrNull()
+        val weight = weightInput.text.toString().trim().toIntOrNull()
+        val height = heightInput.text.toString().trim().toIntOrNull()
+        val pal = getActivityLevel()
+
+        val userJson = JSONObject().apply {
+            put("userId", userId)
+            if (gender.isNotEmpty()) put("gender", gender)
+            age?.let { put("age", it) }
+            weight?.let { put("weight", it) }
+            height?.let { put("height", it) }
+            if (pal != null) put("activity", pal)
+        }
+
+        val requestBodyJson = JSONObject().apply {
+            put("user", userJson)
+        }
+
+        sendDataToServer(userId, requestBodyJson, onSuccess)
+    }
+
+    private fun getActivityLevel(): Float? {
+        return when (spActivityLevel.selectedItem.toString()) {
+            getString(R.string.activity_v_low) -> 1.3f
+            getString(R.string.activity_low) -> 1.4f
+            getString(R.string.activity_medium) -> 1.6f
+            getString(R.string.activity_high) -> 1.75f
+            getString(R.string.select_activity) -> null
+            else -> 2f
+        }
+    }
+
+    private fun sendDataToServer(userId: String, requestBodyJson: JSONObject, onSuccess: () -> Unit) {
+        val requestBody = requestBodyJson.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+        val apiClient = ApiClient(this)
+        apiClient.getApiService8000().editHealthData(userId, requestBody).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    Log.d("HealthDataActivity", "Server response: ${response.body()?.string()}")
+                    Toast.makeText(this@EditHealthDataActivity, "Health data sent successfully", Toast.LENGTH_SHORT).show()
+                    onSuccess()
+                } else {
+                    Log.e("HealthDataActivity", "Failed response: ${response.errorBody()?.string()}")
+                    Toast.makeText(this@EditHealthDataActivity, "Failed to send health data", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("HealthDataActivity", "Error: ${t.message}")
+                Toast.makeText(this@EditHealthDataActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }

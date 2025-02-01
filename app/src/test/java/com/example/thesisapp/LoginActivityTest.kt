@@ -15,6 +15,7 @@ import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import okhttp3.MultipartBody
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -247,6 +248,10 @@ class FakeApiClient(private val fakeApiService: FakeApiService) : ApiClient(Appl
 
 class FakeApiService : ApiService {
     var loginSuccess = false
+    override fun uploadAvatar(avatar: MultipartBody.Part, userId: RequestBody): Call<ResponseBody> {
+        TODO("Not yet implemented")
+    }
+
     override fun register(request: RegisterRequest): Call<ResponseBody> {
         TODO("Not yet implemented")
     }

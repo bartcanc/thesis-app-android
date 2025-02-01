@@ -1,10 +1,12 @@
 package com.example.thesisapp
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 
 class MainActivity: BaseActivity() {
     @SuppressLint("WrongViewCast")
@@ -17,6 +19,9 @@ class MainActivity: BaseActivity() {
         val btnSettings = findViewById<LinearLayout>(R.id.btnSettings)
         val btnMyTrainings = findViewById<LinearLayout>(R.id.llMyTrainings)
         val btnBMICalories = findViewById<LinearLayout>(R.id.llBMICalculator)
+        val btnForum = findViewById<LinearLayout>(R.id.llForum)
+        val btnBadges = findViewById<LinearLayout>(R.id.llBadges)
+
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
 
         val username = sharedPref.getString("username", "User") // Domyślna wartość to "User"
@@ -49,6 +54,14 @@ class MainActivity: BaseActivity() {
             val intent = Intent(this, ProfileActivity::class.java)
             startActivity(intent)
             finish()
+        }
+
+        btnForum.setOnClickListener {
+            Toast.makeText(this, "This feature will be added in the future.", Toast.LENGTH_SHORT).show()
+        }
+
+        btnBadges.setOnClickListener {
+            Toast.makeText(this, "This feature will be added in the future.", Toast.LENGTH_SHORT).show()
         }
     }
 }
