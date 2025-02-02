@@ -11,7 +11,7 @@
         android:id="@+id/tvDialogTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Your BMI is:"
+        android:text="@string/your_bmi_is"
         android:textSize="24sp"
         android:textStyle="bold"
         android:fontFamily="@font/robotomono_bold"

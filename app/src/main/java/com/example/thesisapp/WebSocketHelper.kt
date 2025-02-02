@@ -26,7 +26,7 @@ class WebSocketHelper(
         install(WebSockets)
     }
 
-    private val url: String = "ws://192.168.98.97:8000/socket/connect/$userId"
+    private val url: String = "ws://192.168.108.97:8000/socket/connect/$userId"
 
     private var job: Job? = null
 

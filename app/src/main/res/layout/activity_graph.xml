@@ -83,7 +83,7 @@
                     android:id="@+id/tvGraphTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Speed Graph"
+                    android:text="@string/speed_graph"
                     android:textSize="28sp"
                     android:textStyle="bold"
                     android:textColor="#456DB0"

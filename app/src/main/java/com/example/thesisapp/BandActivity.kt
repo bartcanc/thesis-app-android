@@ -127,10 +127,10 @@ class BandActivity : BaseActivity() {
 
         runOnUiThread {
             if (bluetoothGatt != null) {
-                tvConnectionState.text = "CONNECTED"
+                tvConnectionState.text = getString(R.string.connected)
                 tvConnectionState.setTextColor(resources.getColor(R.color.green_500, null))
             } else {
-                tvConnectionState.text = "DISCONNECTED"
+                tvConnectionState.text = getString(R.string.disconnected)
                 tvConnectionState.setTextColor(resources.getColor(R.color.red_500, null))
             }
         }

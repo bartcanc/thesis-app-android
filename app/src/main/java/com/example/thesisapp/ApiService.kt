@@ -4,6 +4,7 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
@@ -58,6 +59,13 @@ interface ApiService {
     @GET("health/workouts")
     fun getTrainings(@Query("userId") userId: String,
                      @Query("page") page: Int): Call<ResponseBody>
+
+    @DELETE("health/workouts")
+    fun deleteTraining(
+        @Query("userId") userId: String,
+        @Query("workoutId") workoutId: Int,
+        @Header("session-id") sessionId: String
+    ): Call<ResponseBody>
 
     @POST("auth/logout")
     fun logout(): Call<ResponseBody>

@@ -3,6 +3,7 @@ package com.example.thesisapp
 import ApiClient
 import Workout
 import WorkoutAdapter
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -60,10 +61,51 @@ class TrainingListActivity : BaseActivity() {
 
     private fun setupRecyclerView() {
         recyclerTrainings.layoutManager = LinearLayoutManager(this)
-        recyclerTrainings.adapter = WorkoutAdapter(workouts) { workout ->
-            navigateToSingleTraining(workout)
+        recyclerTrainings.adapter = WorkoutAdapter(workouts,
+            { workout -> navigateToSingleTraining(workout) },
+            { workout -> showDeleteDialog(workout) } // Obsługa długiego kliknięcia
+        )
+    }
+
+    private fun showDeleteDialog(workout: Workout) {
+        AlertDialog.Builder(this)
+            .setTitle("Usuń trening")
+            .setMessage("Czy na pewno chcesz usunąć ten trening?")
+            .setPositiveButton("Tak") { _, _ -> deleteWorkout(workout) }
+            .setNegativeButton("Nie", null)
+            .show()
+    }
+
+    private fun deleteWorkout(workout: Workout) {
+        val userId = getUserID()
+        val sessionId = getSessionID()
+
+        if (userId != null && sessionId != null) {
+            val apiClient = ApiClient(this)
+            val apiService = apiClient.getApiService8000()
+
+            apiService.deleteTraining(userId, workout.workoutId, sessionId).enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@TrainingListActivity, "Trening usunięty!", Toast.LENGTH_SHORT).show()
+                        fetchWorkouts()
+                        recreate()
+                    } else {
+                        Log.e("deleteWorkout", "Błąd: ${response.errorBody()?.string()}")
+                        Toast.makeText(this@TrainingListActivity, "Nie udało się usunąć treningu", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    Log.e("deleteWorkout", "Błąd: ${t.message}")
+                    Toast.makeText(this@TrainingListActivity, "Błąd: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+        } else {
+            Toast.makeText(this, "Brak ID użytkownika lub sesji", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     private fun fetchWorkouts() {
         val userId = getUserID()
@@ -97,8 +139,6 @@ class TrainingListActivity : BaseActivity() {
             Toast.makeText(this, "User ID or Session ID not found", Toast.LENGTH_SHORT).show()
         }
     }
-
-
 
 
     private fun parseAndDisplayWorkouts(responseData: String) {

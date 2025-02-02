@@ -16,10 +16,10 @@ data class Workout(
     val avgHeartrate: Double
 )
 
-
 class WorkoutAdapter(
-    private val workouts: List<Workout>,
-    private val onItemClick: (Workout) -> Unit
+    private val workouts: MutableList<Workout>, // Zmieniamy List na MutableList, aby móc usuwać elementy
+    private val onItemClick: (Workout) -> Unit,
+    private val onItemLongClick: (Workout) -> Unit // Dodajemy obsługę długiego kliknięcia
 ) : RecyclerView.Adapter<WorkoutAdapter.WorkoutViewHolder>() {
 
     class WorkoutViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -39,10 +39,12 @@ class WorkoutAdapter(
         holder.tvDate.text = workout.date
 
         holder.itemView.setOnClickListener { onItemClick(workout) }
+        holder.itemView.setOnLongClickListener {
+            onItemLongClick(workout)
+            true
+        }
     }
 
     override fun getItemCount(): Int = workouts.size
 }
-
-
 

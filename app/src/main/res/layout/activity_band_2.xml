@@ -48,7 +48,7 @@
         android:id="@+id/tvConnectionState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="DISCONNECTED"
+        android:text="@string/disconnected"
         android:textSize="18sp"
         android:textColor="@color/red_500"
         android:fontFamily="@font/robotomono_bold"

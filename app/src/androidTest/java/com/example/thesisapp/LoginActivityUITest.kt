@@ -34,8 +34,10 @@ class LoginActivityUITest {
 
     @Test
     fun testSuccessfulLoginFlow() {
-        onView(withId(R.id.etLoginUsername)).perform(typeText("admin"), closeSoftKeyboard())
-        onView(withId(R.id.etLoginPassword)).perform(typeText("admin"), closeSoftKeyboard())
+        onView(withId(R.id.etLoginUsername)).perform(typeText(
+            "admin"), closeSoftKeyboard())
+        onView(withId(R.id.etLoginPassword)).perform(typeText(
+            "admin"), closeSoftKeyboard())
 
         onView(withId(R.id.btnLogin)).perform(click())
 
@@ -45,7 +47,6 @@ class LoginActivityUITest {
             .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
             .check(matches(withText("User logged in successfully")))
             .check(matches(isDisplayed()))
-
     }
 
     @Test

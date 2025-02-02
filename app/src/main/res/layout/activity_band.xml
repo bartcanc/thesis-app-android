@@ -48,7 +48,7 @@
         android:id="@+id/tvConnectionState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="CONNECTED"
+        android:text="@string/connected"
         android:textSize="18sp"
         android:textColor="#00FF00"
         android:fontFamily="@font/robotomono_bold"

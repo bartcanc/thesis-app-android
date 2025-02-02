@@ -1,8 +1,12 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:scaleY="1.1"
+    android:scaleX="1.1"
+    android:layout_marginTop="40dp">
 
     <!-- FragmentContainerView do wyświetlania zawartości zakładek -->
     <FrameLayout
@@ -10,47 +14,82 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Główna zawartość -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleX="1.1"
-        android:scaleY="1.1"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="50dp"
-        >
+    <LinearLayout
+        android:id="@+id/userInfoContainer"
+        android:layout_width="343dp"
+        android:layout_height="78dp"
+        android:background="@drawable/rounded_button_background_main"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:layout_marginTop="30dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_gravity="center_horizontal">
 
         <!-- Powitanie użytkownika -->
         <TextView
             android:id="@+id/tvWelcome"
-            android:layout_width="343dp"
-            android:layout_height="78dp"
-            android:background="@drawable/rounded_button_background_main"
-            android:padding="16dp"
-            android:text="Welcome, TestUser!"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="10dp"
+            android:text="@string/welcome_testuser"
             android:textSize="18sp"
             android:textColor="@android:color/white"
-            android:gravity="center"
             android:fontFamily="@font/robotomono_bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:gravity="start|center_vertical" />
+
+        <!-- Zdjęcie profilowe po prawej -->
+        <FrameLayout
+            android:id="@+id/flProfilePicture"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="12dp">
+
+            <View
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/circle_shape"
+                android:elevation="3dp" />
+
+            <ImageView
+                android:id="@+id/imgProfilePicture"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_gravity="center"
+                android:src="@drawable/profile_icon"
+                android:scaleType="centerCrop"
+                android:background="@drawable/circle_shape"
+                android:clipToOutline="true"
+                android:outlineProvider="background"
+                android:elevation="3dp" />
+        </FrameLayout>
+    </LinearLayout>
+
+
+    <!-- Główna zawartość -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="120dp"
+        >
 
         <!-- Sekcja: Moje treningi -->
         <LinearLayout
             android:id="@+id/llMyTrainings"
             android:layout_width="343dp"
             android:layout_height="211dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="40dp"
             android:background="@drawable/rounded_button_background_main"
             android:orientation="vertical"
             android:gravity="center"
-            app:layout_constraintTop_toBottomOf="@id/tvWelcome"
+            app:layout_constraintTop_toBottomOf="@id/userInfoContainer"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:clickable="true"
             android:focusable="true"
-            >
+            tools:ignore="NotSibling">
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -77,8 +116,8 @@
                     android:id="@+id/tvMyTrainings"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="My trainings"
-                    android:textSize="28sp"
+                    android:text="@string/my_trainings"
+                    android:textSize="24sp"
                     android:textColor="@android:color/white"
                     android:fontFamily="@font/robotomono_bold"
                     android:layout_marginTop="160dp"
@@ -141,7 +180,7 @@
                             android:id="@+id/tvForum"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Forum"
+                            android:text="@string/forum"
                             android:textSize="28sp"
                             android:textColor="@android:color/white"
                             android:fontFamily="@font/robotomono_bold"
@@ -187,8 +226,8 @@
                             android:id="@+id/tvBadges"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Badges"
-                            android:textSize="26sp"
+                            android:text="@string/badges"
+                            android:textSize="24sp"
                             android:textColor="@android:color/white"
                             android:fontFamily="@font/robotomono_bold"
                             android:layout_marginTop="120dp"
@@ -234,8 +273,8 @@
                     android:id="@+id/tvBMICalculator"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="BMI &amp; KCAL Calculator"
-                    android:textSize="23sp"
+                    android:text="@string/bmi_amp_kcal_calculator"
+                    android:textSize="20sp"
                     android:textColor="@android:color/white"
                     android:fontFamily="@font/robotomono_bold"
                     android:gravity="center"
@@ -250,7 +289,9 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:scaleX="0.91"
+        android:scaleY="0.91">
 
         <!-- Custom Bottom Navigation Bar -->
         <LinearLayout

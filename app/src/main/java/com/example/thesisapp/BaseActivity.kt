@@ -687,9 +687,10 @@
             }
 
             // Ustaw wartości lub domyślne "N/A" jeśli null
-            tvBatteryLevel?.text = "Poziom baterii: ${batteryLevel ?: "N/A"}%"
-            tvFirmwareVersion?.text = "Wersja firmware: ${firmwareVersion ?: "N/A"}"
-            tvFilesToSend?.text = "Liczba plików do przesłania: ${howManyFiles ?: "N/A"}"
+            tvBatteryLevel?.text = getString(R.string.poziom_baterii, batteryLevel ?: "N/A")
+            tvFirmwareVersion?.text = getString(R.string.wersja_firmware_1_0_2, firmwareVersion ?: "N/A")
+            tvFilesToSend?.text = getString(R.string.liczba_plik_w_do_przes_ania, howManyFiles ?: "N/A")
+
 
             // Pokaż dialog
             dialog.show()
@@ -815,11 +816,25 @@
                 FileOutputStream(outputFile).use { outputStream ->
                     outputStream.write(jsonData.toString(4).toByteArray(Charsets.UTF_8))
                     Log.d("saveAllBlobsToSingleJsonUnified", "Plik JSON zapisany w: ${outputFile.absolutePath}")
+
+                    // **Pokazujemy alert po zapisaniu pliku JSON**
+                    showJsonSavedAlert()
                 }
             } catch (e: IOException) {
                 Log.e("saveAllBlobsToSingleJsonUnified", "Błąd podczas zapisywania pliku JSON", e)
             }
         }
+
+        private fun showJsonSavedAlert() {
+            runOnUiThread {
+                AlertDialog.Builder(this)
+                    .setTitle("Zapis zakończony")
+                    .setMessage("Dane zostały pomyślnie zapisane w pliku JSON.")
+                    .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+                    .show()
+            }
+        }
+
 
 
         private fun resetFlags() {

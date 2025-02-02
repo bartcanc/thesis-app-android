@@ -102,7 +102,7 @@
                             android:id="@+id/tvSpeedGraph"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Speed Graph"
+                            android:text="@string/speed_graph"
                             android:textSize="24sp"
                             android:textColor="#456DB0"
                             android:textStyle="bold"
@@ -144,7 +144,7 @@
                             android:id="@+id/tvHeartrateGraph"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Heartrate Graph"
+                            android:text="@string/heartrate_graph"
                             android:textSize="24sp"
                             android:textColor="#456DB0"
                             android:textStyle="bold"
@@ -188,7 +188,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Time:"
+                                android:text="@string/time"
                                 android:textSize="20sp"
                                 android:textColor="#456DB0"
                                 android:textStyle="bold"
@@ -237,7 +237,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Calories:"
+                                    android:text="@string/calories"
                                     android:textSize="20sp"
                                     android:textColor="#456DB0"
                                     android:textStyle="bold"
@@ -276,7 +276,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Distance:"
+                                    android:text="@string/distance"
                                     android:textSize="20sp"
                                     android:textColor="#456DB0"
                                     android:textStyle="bold"
@@ -325,7 +325,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Avg Steps:"
+                                    android:text="@string/avg_steps"
                                     android:textSize="20sp"
                                     android:textColor="#456DB0"
                                     android:textStyle="bold"
@@ -364,7 +364,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Avg BPM:"
+                                    android:text="@string/avg_bpm"
                                     android:textSize="20sp"
                                     android:textColor="#456DB0"
                                     android:textStyle="bold"

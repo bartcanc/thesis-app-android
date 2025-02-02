@@ -24,7 +24,7 @@
         android:id="@+id/tvHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Zaktualizuj swoje dane"
+        android:text="@string/update_your_health_data"
         android:fontFamily="@font/robotomono_bold"
         android:textSize="32sp"
         android:textColor="@android:color/white"
