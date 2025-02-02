@@ -13,6 +13,12 @@ import retrofit2.http.Part
 import retrofit2.http.Query
 
 interface ApiService {
+    @GET("auth/avatar")
+    fun getUserAvatar(
+        @Query("user_id") userId: String,
+        @Header("session-id") sessionId: String
+    ): Call<ResponseBody>
+
     @Multipart
     @POST("forum-write/user-avatar")
     fun uploadAvatar(

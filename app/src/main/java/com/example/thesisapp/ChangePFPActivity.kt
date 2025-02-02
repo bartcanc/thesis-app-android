@@ -4,13 +4,16 @@ import ApiClient
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -18,6 +21,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 class ChangePFPActivity : BaseActivity() {
 
@@ -37,6 +42,15 @@ class ChangePFPActivity : BaseActivity() {
         btnBack = findViewById(R.id.btnBack)
         btnUploadPicture = findViewById(R.id.btnUploadPicture)
         imgProfilePicture = findViewById(R.id.imgProfilePicture)
+
+        val sharedPref = getSharedPreferences("ThesisAppPreferences", Context.MODE_PRIVATE)
+        val userId = sharedPref.getString("user_id", "")
+        val sessionId = sharedPref.getString("session_id", "")
+
+        if (!userId.isNullOrEmpty() && !sessionId.isNullOrEmpty()) {
+            fetchUserAvatar(userId, sessionId)
+        }
+
 
         btnBack.setOnClickListener {
             finish()
@@ -92,6 +106,8 @@ class ChangePFPActivity : BaseActivity() {
         })
     }
 
+
+
     private fun uriToFile(uri: Uri): File? {
         val file = File(cacheDir, "temp_avatar.jpg")
         return try {
@@ -105,5 +121,73 @@ class ChangePFPActivity : BaseActivity() {
             e.printStackTrace()
             null
         }
+    }
+
+    private fun fetchUserAvatar(userId: String?, sessionId: String?) {
+        val apiClient = ApiClient(this)
+        val apiService = apiClient.getApiService8000()
+
+        if (userId != null && sessionId != null) {
+            apiService.getUserAvatar(userId, sessionId).enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                    Log.d("fetchUserAvatar", "Full response: ${response.raw()}")
+                    if (response.isSuccessful) {
+                        response.body()?.let { responseBody ->
+                            try {
+                                val responseData = responseBody.string()
+                                Log.d("fetchUserAvatar", "Response body: $responseData")
+                                val jsonResponse = JSONObject(responseData)
+                                var avatarUrl = jsonResponse.optString("avatar_link", "")
+
+                                if (avatarUrl.isNotEmpty()) {
+                                    if (avatarUrl.contains("localhost")) {
+                                        avatarUrl = avatarUrl.replace("localhost", "192.168.108.97")
+                                        Log.d("fetchUserAvatar", "Updated Avatar URL: $avatarUrl")
+                                    }
+                                    downloadAndDisplayImage(avatarUrl)
+                                } else {
+                                    Log.e("fetchUserAvatar", "Avatar URL is empty")
+                                }
+                            } catch (e: Exception) {
+                                Log.e("fetchUserAvatar", "Error parsing response: ${e.message}")
+                            }
+                        } ?: Log.e("fetchUserAvatar", "Empty response body")
+                    } else {
+                        Log.e("fetchUserAvatar", "Error response: ${response.errorBody()?.string()}")
+                        Toast.makeText(this@ChangePFPActivity, "Failed to fetch avatar", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    Log.e("fetchUserAvatar", "Request failed: ${t.message}")
+                    Toast.makeText(this@ChangePFPActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+    }
+
+    private fun downloadAndDisplayImage(imageUrl: String) {
+        Thread {
+            try {
+                val url = URL(imageUrl)
+                val connection = url.openConnection() as HttpURLConnection
+                connection.doInput = true
+                connection.connect()
+
+                if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                    val inputStream = connection.inputStream
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+
+                    // Wyświetlenie obrazu w UI
+                    runOnUiThread {
+                        findViewById<ImageView>(R.id.imgProfilePicture).setImageBitmap(bitmap)
+                    }
+                } else {
+                    Log.e("downloadAndDisplayImage", "Failed to download image: ${connection.responseMessage}")
+                }
+            } catch (e: Exception) {
+                Log.e("downloadAndDisplayImage", "Error downloading image: ${e.message}")
+            }
+        }.start()
     }
 }

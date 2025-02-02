@@ -3,9 +3,12 @@ package com.example.thesisapp
 import ApiClient
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.provider.ContactsContract.CommonDataKinds.Website.URL
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -14,6 +17,8 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.net.HttpURLConnection
+import java.net.URL
 
 class ProfileActivity: BaseActivity(){
     private lateinit var tvUsername: TextView
@@ -57,6 +62,7 @@ class ProfileActivity: BaseActivity(){
         tvUsername.text = username
 
         fetchUserMetrics(userId, sessionId)
+        fetchUserAvatar(userId, sessionId)
 
         btnLogout.setOnClickListener{
             performLogout(sharedPref)
@@ -83,9 +89,83 @@ class ProfileActivity: BaseActivity(){
         }
     }
 
+
+    private fun fetchUserAvatar(userId: String?, sessionId: String?) {
+        val apiClient = ApiClient(this)
+        val apiService = apiClient.getApiService8000()
+
+        if (userId != null && sessionId != null) {
+            apiService.getUserAvatar(userId, sessionId).enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                    Log.d("fetchUserAvatar", "Full response: ${response.raw()}")
+                    if (response.isSuccessful) {
+                        response.body()?.let { responseBody ->
+                            try {
+                                val responseData = responseBody.string()
+                                Log.d("fetchUserAvatar", "Response body: $responseData")
+                                val jsonResponse = JSONObject(responseData)
+                                var avatarUrl = jsonResponse.optString("avatar_link", "")
+
+                                if (avatarUrl.isNotEmpty()) {
+                                    if (avatarUrl.contains("localhost")) {
+                                        avatarUrl = avatarUrl.replace("localhost", "192.168.108.97")
+                                        Log.d("fetchUserAvatar", "Updated Avatar URL: $avatarUrl")
+                                    }
+                                    downloadAndDisplayImage(avatarUrl)
+                                } else {
+                                    Log.e("fetchUserAvatar", "Avatar URL is empty")
+                                }
+                            } catch (e: Exception) {
+                                Log.e("fetchUserAvatar", "Error parsing response: ${e.message}")
+                            }
+                        } ?: Log.e("fetchUserAvatar", "Empty response body")
+                    } else {
+                        Log.e("fetchUserAvatar", "Error response: ${response.errorBody()?.string()}")
+                        Toast.makeText(this@ProfileActivity, "Failed to fetch avatar", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    Log.e("fetchUserAvatar", "Request failed: ${t.message}")
+                    Toast.makeText(this@ProfileActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+    }
+
+
+    private fun downloadAndDisplayImage(imageUrl: String) {
+        Thread {
+            try {
+                val url = URL(imageUrl)
+                val connection = url.openConnection() as HttpURLConnection
+                connection.doInput = true
+                connection.connect()
+
+                if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                    val inputStream = connection.inputStream
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+
+                    // Wyświetlenie obrazu w UI
+                    runOnUiThread {
+                        findViewById<ImageView>(R.id.imgProfilePicture).setImageBitmap(bitmap)
+                    }
+                } else {
+                    Log.e("downloadAndDisplayImage", "Failed to download image: ${connection.responseMessage}")
+                }
+            } catch (e: Exception) {
+                Log.e("downloadAndDisplayImage", "Error downloading image: ${e.message}")
+            }
+        }.start()
+    }
+
+
+
+
+
     override fun onResume() {
         super.onResume()
-
+        fetchUserAvatar(userId, sessionId)
         tvGender.text = gender
         tvAge.text = age.toString()
         tvWeight.text = weight.toString()
