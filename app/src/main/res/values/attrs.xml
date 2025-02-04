@@ -1,0 +1,5 @@
+<resources>
+    <!-- Atrybuty kolorów do gradientu -->
+    <attr name="startColor" format="color" />
+    <attr name="endColor" format="color" />
+</resources>
