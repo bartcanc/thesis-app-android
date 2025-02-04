@@ -5,6 +5,7 @@ import LoginRequest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -13,6 +14,7 @@ import android.widget.EditText
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.textview.MaterialTextView
 import okhttp3.ResponseBody
 import org.json.JSONObject
@@ -33,9 +35,18 @@ class LoginActivity : BaseActivity() {
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        // Ukryj pasek akcji, jeśli jeszcze widoczny
+        supportActionBar?.hide()
 
-        webSocketHelper = WebSocketHelper(this, "","")
+// Layout fullscreen z zachowaniem paska systemowego w postaci nakładki
+        window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                )
+
+// Dodatkowo przezroczysty status bar:
+        window.statusBarColor = Color.TRANSPARENT
+
         val selectedLanguage = sharedPref.getString("selected_language", "pl")
 
         val locale = Locale(selectedLanguage ?: "pl")
@@ -43,6 +54,24 @@ class LoginActivity : BaseActivity() {
         val config = Configuration(resources.configuration)
         config.setLocale(locale)
         resources.updateConfiguration(config, resources.displayMetrics)
+        setContentView(R.layout.activity_login)
+
+        val rootLayout = findViewById<ConstraintLayout>(R.id.constraintLayout)
+        // lub jakikolwiek inny "główny" layout z Twojego XML-a
+
+        // Przykładowy odczyt z SharedPreferences
+        sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
+        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
+
+        // Jeżeli to jest "post modern", zmieniamy background:
+        if (selectedTheme == "post") {
+            rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
+        } else {
+            // Sea Breeze (domyślnie)
+            rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
+        }
+
+        webSocketHelper = WebSocketHelper(this, "","")
 
         etUsername = findViewById(R.id.etLoginUsername)
         etPassword = findViewById(R.id.etLoginPassword)
@@ -72,8 +101,7 @@ class LoginActivity : BaseActivity() {
 
         btnChangeLanguage.setOnClickListener {
             val intent = Intent(this, LanguageSelectionActivity::class.java)
-            intent.putExtra("previous_activity", "LoginActivity")
-            startActivity(intent)
+            startActivityForResult(intent, 1234)
         }
 
         switchRememberMe.setOnCheckedChangeListener { _, isChecked ->
@@ -82,9 +110,15 @@ class LoginActivity : BaseActivity() {
                 apply()
             }
         }
-
-
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1234 && resultCode == RESULT_OK) {
+            recreate()
+        }
+    }
+
 
     private fun showMessage(message: String) {
         tvErrorMessage.text = message
@@ -157,8 +191,6 @@ class LoginActivity : BaseActivity() {
             }
         })
     }
-
-
 
     fun saveLoginData(username: String, password: String) {
         with(sharedPref.edit()) {

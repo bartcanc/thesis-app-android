@@ -9,11 +9,12 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import io.ktor.websocket.Frame
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class SingleTrainingActivity : AppCompatActivity() {
+class SingleTrainingActivity : BaseActivity() {
 
     private lateinit var btnBack: ImageButton
     private lateinit var tvTrainingName: TextView
@@ -39,6 +40,21 @@ class SingleTrainingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_single_training)
+
+        val rootLayout = findViewById<FrameLayout>(R.id.frameLayout)
+        // lub jakikolwiek inny "główny" layout z Twojego XML-a
+
+        // Przykładowy odczyt z SharedPreferences
+        sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
+        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
+
+        // Jeżeli to jest "post modern", zmieniamy background:
+        if (selectedTheme == "post") {
+            rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
+        } else {
+            // Sea Breeze (domyślnie)
+            rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
+        }
 
         // Inicjalizacja widoków
         btnBack = findViewById(R.id.btnBack)

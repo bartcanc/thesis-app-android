@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -36,6 +37,21 @@ class ChangePFPActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_change_pfp)
+
+        val rootLayout = findViewById<LinearLayout>(R.id.frameLayout)
+        // lub jakikolwiek inny "główny" layout z Twojego XML-a
+
+        // Przykładowy odczyt z SharedPreferences
+        sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
+        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
+
+        // Jeżeli to jest "post modern", zmieniamy background:
+        if (selectedTheme == "post") {
+            rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
+        } else {
+            // Sea Breeze (domyślnie)
+            rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
+        }
 
         apiClient = ApiClient(this)
 

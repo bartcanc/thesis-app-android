@@ -10,13 +10,23 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textview.MaterialTextView
 
-class SettingsActivity : AppCompatActivity() {
-
-
+class SettingsActivity : BaseActivity() {
     @SuppressLint("WrongViewCast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+
+        val bottomNav = findViewById<LinearLayout>(R.id.bottom_navigation)
+
+        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie Sea Breeze
+
+        if (selectedTheme == "post") {
+            // Post Modern:
+            bottomNav.setBackgroundResource(R.drawable.gradient_post_modern)
+        } else {
+            // Sea Breeze (domyślnie):
+            bottomNav.setBackgroundResource(R.drawable.gradient_background)
+        }
 
         val changeUserDataOption = findViewById<TextView>(R.id.btnChangeUserData)
         val changeProfilePictureOption = findViewById<TextView>(R.id.btnChangeProfilePicture)
@@ -53,16 +63,15 @@ class SettingsActivity : AppCompatActivity() {
 
         // Obsługa opcji "Change language"
         changeLanguageOption.setOnClickListener {
-            // Przejście do aktywności zmiany języka
             val intent = Intent(this, LanguageSelectionActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, 1234)
         }
 
         // Obsługa opcji "Change theme"
         changeThemeOption.setOnClickListener {
             // Przejście do aktywności zmiany motywu
             val intent = Intent(this, ChangeThemeActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, 1234)
         }
 
         // Obsługa opcji "App information"
@@ -98,4 +107,12 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1234 && resultCode == RESULT_OK) {
+            recreate()
+        }
+    }
+
 }

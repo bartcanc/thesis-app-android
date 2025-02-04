@@ -40,6 +40,18 @@ class ProfileActivity: BaseActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile_view)
 
+        val bottomNav = findViewById<LinearLayout>(R.id.bottom_navigation)
+
+        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie Sea Breeze
+
+        if (selectedTheme == "post") {
+            // Post Modern:
+            bottomNav.setBackgroundResource(R.drawable.gradient_post_modern)
+        } else {
+            // Sea Breeze (domyślnie):
+            bottomNav.setBackgroundResource(R.drawable.gradient_background)
+        }
+
         val apiClient = ApiClient(this)
         apiService = apiClient.getApiService8000()
 

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- Gradientowe tło -->
     <LinearLayout
+        android:id="@+id/frameLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -25,7 +27,10 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipToOutline="false"
+        android:clipChildren="false">
 
         <!-- Tekst: Zmień zdjęcie profilowe -->
         <TextView
@@ -51,14 +56,18 @@
             app:layout_constraintTop_toBottomOf="@id/tvChangeProfileHeader"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="50dp">
+            android:layout_marginTop="50dp"
+            android:clipToPadding="false"
+            android:clipToOutline="false"
+            android:clipChildren="false">
 
             <!-- Biały okrąg -->
             <View
                 android:layout_width="225dp"
                 android:layout_height="225dp"
                 android:background="@drawable/circle_shape"
-                android:elevation="5dp" />
+                android:elevation="5dp"
+                />
 
             <!-- Obrazek w środku -->
             <ImageView
@@ -81,6 +90,8 @@
             android:layout_width="273dp"
             android:layout_height="58dp"
             android:text="@string/upload_new_picture"
+            style="@style/GradientButtonStyle"
+            app:backgroundTint="@null"
             android:textSize="20sp"
             android:textColor="#456DB0"
             android:background="@drawable/rounded_button"

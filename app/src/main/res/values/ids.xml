@@ -12,4 +12,5 @@
     <item name="etWifiSSID" type="id" />
     <item name="etWifiPassword" type="id" />
     <item name="btnCancelWifiData" type="id" />
+    <item name="frameLayout" type="id" />
 </resources>

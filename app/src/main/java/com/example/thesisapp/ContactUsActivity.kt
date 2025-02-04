@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageButton
 
@@ -16,6 +17,21 @@ class ContactUsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_contact_us)
+
+        val rootLayout = findViewById<FrameLayout>(R.id.frameLayout)
+        // lub jakikolwiek inny "główny" layout z Twojego XML-a
+
+        // Przykładowy odczyt z SharedPreferences
+        sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
+        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
+
+        // Jeżeli to jest "post modern", zmieniamy background:
+        if (selectedTheme == "post") {
+            rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
+        } else {
+            // Sea Breeze (domyślnie)
+            rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
+        }
 
         btnBack = findViewById(R.id.btnBack)
         emailTextView = findViewById(R.id.tvEmail)

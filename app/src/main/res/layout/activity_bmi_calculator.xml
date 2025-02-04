@@ -167,6 +167,8 @@
             android:layout_height="65dp"
             android:text="@string/calculate"
             android:layout_marginTop="36dp"
+            style="@style/GradientButtonStyle"
+            app:backgroundTint="@null"
             android:background="@drawable/rounded_gradient_button"
             android:textColor="@android:color/white"
             android:fontFamily="@font/robotomono_bold"

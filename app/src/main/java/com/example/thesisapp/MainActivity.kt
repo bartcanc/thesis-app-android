@@ -6,6 +6,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
@@ -18,12 +19,52 @@ import org.json.JSONObject
 import retrofit2.Call
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.Locale
 
 class MainActivity: BaseActivity() {
     @SuppressLint("WrongViewCast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val selectedLanguage = sharedPref.getString("selected_language", "pl")
+        val locale = Locale(selectedLanguage ?: "pl")
+        Locale.setDefault(locale)
+        val config = Configuration(resources.configuration)
+        config.setLocale(locale)
+        resources.updateConfiguration(config, resources.displayMetrics)
+
         setContentView(R.layout.activity_main)
+
+        val userInfoContainer = findViewById<LinearLayout>(R.id.userInfoContainer)
+        val llMyTrainings = findViewById<LinearLayout>(R.id.llMyTrainings)
+        val llForum = findViewById<LinearLayout>(R.id.llForum)
+        val llBadges = findViewById<LinearLayout>(R.id.llBadges)
+        val llBMICalculator = findViewById<LinearLayout>(R.id.llBMICalculator)
+
+        // Dolny pasek nawigacji:
+        val bottomNav = findViewById<LinearLayout>(R.id.bottom_navigation)
+
+        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie Sea Breeze
+
+        if (selectedTheme == "post") {
+            // Post Modern:
+            userInfoContainer.setBackgroundResource(R.drawable.rounded_button_background_post_modern)
+            llMyTrainings.setBackgroundResource(R.drawable.rounded_button_background_post_modern)
+            llForum.setBackgroundResource(R.drawable.rounded_button_background_post_modern)
+            llBadges.setBackgroundResource(R.drawable.rounded_button_background_post_modern)
+            llBMICalculator.setBackgroundResource(R.drawable.rounded_button_background_post_modern)
+
+            bottomNav.setBackgroundResource(R.drawable.gradient_post_modern)
+        } else {
+            // Sea Breeze (domyślnie):
+            userInfoContainer.setBackgroundResource(R.drawable.rounded_button_background_main)
+            llMyTrainings.setBackgroundResource(R.drawable.rounded_button_background_main)
+            llForum.setBackgroundResource(R.drawable.rounded_button_background_main)
+            llBadges.setBackgroundResource(R.drawable.rounded_button_background_main)
+            llBMICalculator.setBackgroundResource(R.drawable.rounded_button_background_main)
+
+            bottomNav.setBackgroundResource(R.drawable.gradient_background)
+        }
 
         val btnBand = findViewById<LinearLayout>(R.id.btnBand)
         val btnProfile = findViewById<LinearLayout>(R.id.btnProfile)

@@ -11,7 +11,7 @@
         android:id="@+id/ic_smartband"
         android:layout_width="215dp"
         android:layout_height="208dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="50dp"
         android:src="@drawable/ic_smartband"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -192,6 +192,8 @@
             android:fontFamily="@font/robotomono_bold"
             android:background="@drawable/rounded_gradient_button"
             android:textColor="#FFFFFF"
+            style="@style/GradientButtonStyle"
+            app:backgroundTint="@null"
             android:layout_marginBottom="12dp" />
 
         <!-- Disconnect -->
@@ -202,6 +204,8 @@
             android:text="@string/disconnect"
             android:background="@drawable/rounded_gradient_button"
             android:textColor="#FFFFFF"
+            style="@style/GradientButtonStyle"
+            app:backgroundTint="@null"
             android:layout_marginBottom="12dp" />
 
         <!-- Receive Data -->
@@ -212,6 +216,8 @@
             android:text="@string/receive_data"
             android:background="@drawable/rounded_gradient_button"
             android:textColor="#FFFFFF"
+            style="@style/GradientButtonStyle"
+            app:backgroundTint="@null"
             android:layout_marginBottom="12dp" />
 
         <!-- Receive Data -->
@@ -222,6 +228,8 @@
             android:text="@string/send_data"
             android:background="@drawable/rounded_gradient_button"
             android:textColor="#FFFFFF"
+            style="@style/GradientButtonStyle"
+            app:backgroundTint="@null"
             android:layout_marginBottom="12dp" />
 
         <!-- Send WiFi -->
@@ -232,6 +240,8 @@
             android:text="@string/send_wifi"
             android:background="@drawable/rounded_gradient_button"
             android:textColor="#FFFFFF"
+            style="@style/GradientButtonStyle"
+            app:backgroundTint="@null"
             android:layout_marginBottom="12dp" />
 
         <!-- Sync Time -->
@@ -242,6 +252,8 @@
             android:text="@string/sync_time"
             android:background="@drawable/rounded_gradient_button"
             android:textColor="#FFFFFF"
+            style="@style/GradientButtonStyle"
+            app:backgroundTint="@null"
             android:layout_marginBottom="12dp" />
 
         <!-- Band Info -->
@@ -252,6 +264,8 @@
             android:text="@string/band_info"
             android:background="@drawable/rounded_gradient_button"
             android:textColor="#FFFFFF"
+            style="@style/GradientButtonStyle"
+            app:backgroundTint="@null"
             android:layout_marginBottom="12dp" />
     </LinearLayout>
 

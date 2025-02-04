@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
@@ -33,6 +34,21 @@ class HealthDataActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_health_data)
+
+        val rootLayout = findViewById<ConstraintLayout>(R.id.constraintLayout)
+        // lub jakikolwiek inny "główny" layout z Twojego XML-a
+
+        // Przykładowy odczyt z SharedPreferences
+        sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
+        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
+
+        // Jeżeli to jest "post modern", zmieniamy background:
+        if (selectedTheme == "post") {
+            rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
+        } else {
+            // Sea Breeze (domyślnie)
+            rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
+        }
 
         // Inicjalizacja widoków
         genderInput = findViewById(R.id.etGender)

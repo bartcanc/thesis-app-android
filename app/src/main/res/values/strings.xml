@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">D3K Official App</string>
+    <string name="app_name">D3K Official App</string>
     <string name="password">Hasło</string>
     <string name="remember_me">Zapamiętaj mnie?</string>
     <string name="login">Login</string>
@@ -15,17 +15,17 @@
     <string name="wifi_settings">Ustawienia Wi-Fi</string>
     <string name="change_language">Zmień język</string>
     <string name="select_language">Wybierz język</string>
-    <string name="polish" translatable="false">Polski</string>
-    <string name="english" translatable="false">English</string>
-    <string name="german" translatable="false">Deutsch</string>
-    <string name="spanish" translatable="false">Español</string>
+    <string name="polish">Polski</string>
+    <string name="english">English</string>
+    <string name="german">Deutsch</string>
+    <string name="spanish">Español</string>
     <string name="password_repeat">Powtórz hasło</string>
     <string name="password_change">Zmiana hasła</string>
     <string name="password_reset_code">Kod resetowania hasła</string>
     <string name="new_password">Nowe hasło</string>
     <string name="reset_password">Zresetuj hasło</string>
     <string name="go_to_login">Przejdź do logowania</string>
-    <string name="placeholder" translatable="false">placeholder</string>
+    <string name="placeholder">placeholder</string>
     <string name="password_change_info">Oto twój kod zmiany hasła! Zapisz go w bezpiecznym miejscu.</string>
     <string name="connect">Połącz</string>
     <string name="disconnect">Rozłącz</string>
@@ -58,7 +58,7 @@
     <string name="reset_password_header">Zmień hasło</string>
     <string name="change_theme_header">Zmiana motywu</string>
     <string name="sea_breeze_theme">Morska bryza</string>
-    <string name="post_modern_theme">Post-modern</string>
+    <string name="post_modern_theme">Miami Vice</string>
     <string name="app_version">wersja: 1.0</string>
     <string name="app_creators">Twórcy:\nMarcel Radtke\nBartosz Rakowski</string>
     <string name="contact_us">Skontaktuj się z nami</string>
@@ -133,5 +133,10 @@
     <string name="wprowad_ssid">Wprowadź SSID</string>
     <string name="wprowad_has_o_wifi">Wprowadź hasło WiFi</string>
     <string name="wybierz_typ_treningu">Wybierz typ treningu</string>
-
+    <string name="activity_v_low">Bardzo niska (0–1 treningów tygodniowo)</string>
+    <string name="activity_low">Niska (2–3 treningi tygodniowo)</string>
+    <string name="activity_medium">Średnia (4–5 treningów tygodniowo)</string>
+    <string name="activity_high">Wysoka (6–7 treningów tygodniowo)</string>
+    <string name="activity_v_high">Bardzo wysoka (8+ treningów tygodniowo)</string>
+    <string name="trainings">Treningi</string>
 </resources>

@@ -1,6 +1,8 @@
 package com.example.thesisapp
 
+import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -12,6 +14,17 @@ import androidx.appcompat.app.AppCompatActivity
 class BMICalculatorActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Ukryj pasek akcji, jeśli jeszcze widoczny
+        supportActionBar?.hide()
+
+// Layout fullscreen z zachowaniem paska systemowego w postaci nakładki
+        window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                )
+
+// Dodatkowo przezroczysty status bar:
+        window.statusBarColor = Color.TRANSPARENT
         setContentView(R.layout.activity_bmi_calculator)
 
         val btnBack = findViewById<ImageView>(R.id.btnBack)

@@ -5,7 +5,9 @@ import RegisterRequest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -13,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageButton
+import androidx.constraintlayout.widget.ConstraintLayout
 import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.Call
@@ -30,6 +33,17 @@ class RegisterActivity : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Ukryj pasek akcji, jeśli jeszcze widoczny
+        supportActionBar?.hide()
+
+        // Layout fullscreen z zachowaniem paska systemowego w postaci nakładki
+        window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                )
+
+        // Dodatkowo przezroczysty status bar:
+        window.statusBarColor = Color.TRANSPARENT
         setContentView(R.layout.activity_registration)
 
         val sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
@@ -40,6 +54,19 @@ class RegisterActivity : AppCompatActivity() {
         val config = Configuration(resources.configuration)
         config.setLocale(locale)
         resources.updateConfiguration(config, resources.displayMetrics)
+
+        val rootLayout = findViewById<ConstraintLayout>(R.id.constraintLayout)
+        // lub jakikolwiek inny "główny" layout z Twojego XML-a
+
+        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
+
+        // Jeżeli to jest "post modern", zmieniamy background:
+        if (selectedTheme == "post") {
+            rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
+        } else {
+            // Sea Breeze (domyślnie)
+            rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
+        }
 
         etUsername = findViewById(R.id.etRegisterUsername)
         etPassword = findViewById(R.id.etRegisterPassword)

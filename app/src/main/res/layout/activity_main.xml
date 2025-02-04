@@ -21,7 +21,7 @@
         android:background="@drawable/rounded_button_background_main"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="60dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:layout_gravity="center_horizontal">
@@ -72,7 +72,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="160dp"
         >
 
         <!-- Sekcja: Moje treningi -->
@@ -114,15 +114,15 @@
 
                 <TextView
                     android:id="@+id/tvMyTrainings"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/my_trainings"
-                    android:textSize="24sp"
-                    android:textColor="@android:color/white"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginTop="165dp"
                     android:fontFamily="@font/robotomono_bold"
-                    android:layout_marginTop="160dp"
-                    android:layout_marginHorizontal="70dp"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    android:text="@string/my_trainings"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp" />
 
             </FrameLayout>
         </LinearLayout>
@@ -178,15 +178,15 @@
 
                         <TextView
                             android:id="@+id/tvForum"
-                            android:layout_width="wrap_content"
+                            android:layout_width="117dp"
                             android:layout_height="wrap_content"
-                            android:text="@string/forum"
-                            android:textSize="28sp"
-                            android:textColor="@android:color/white"
+                            android:layout_marginHorizontal="27dp"
+                            android:layout_marginTop="125dp"
                             android:fontFamily="@font/robotomono_bold"
-                            android:layout_marginTop="120dp"
-                            android:layout_marginHorizontal="39dp"
-                            android:gravity="center" />
+                            android:gravity="center"
+                            android:text="@string/forum"
+                            android:textColor="@android:color/white"
+                            android:textSize="24sp" />
                     </FrameLayout>
                 </LinearLayout>
 
@@ -224,14 +224,15 @@
 
                         <TextView
                             android:id="@+id/tvBadges"
-                            android:layout_width="wrap_content"
+                            android:layout_width="130dp"
                             android:layout_height="wrap_content"
-                            android:text="@string/badges"
-                            android:textSize="24sp"
-                            android:textColor="@android:color/white"
-                            android:fontFamily="@font/robotomono_bold"
+                            android:layout_marginHorizontal="20dp"
                             android:layout_marginTop="120dp"
-                            android:layout_marginHorizontal="32dp"/>
+                            android:fontFamily="@font/robotomono_bold"
+                            android:text="@string/badges"
+                            android:textColor="@android:color/white"
+                            android:textSize="22sp"
+                            android:gravity="center"/>
                     </FrameLayout>
 
                 </LinearLayout>

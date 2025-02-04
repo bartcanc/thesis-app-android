@@ -37,7 +37,7 @@
             android:id="@+id/tvTitleTrainings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Trainings"
+            android:text="@string/trainings"
             android:textSize="36sp"
             android:textColor="#456DB0"
             android:fontFamily="@font/robotomono_bold"
@@ -83,14 +83,18 @@
                     android:id="@+id/btnPrevious"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/previous" />
+                    android:text="@string/previous"
+                    style="@style/GradientButtonStyle"
+                    app:backgroundTint="@null"/>
 
                 <Button
                     android:id="@+id/btnNext"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/next"
-                    android:layout_marginStart="16dp" />
+                    android:layout_marginStart="16dp"
+                    style="@style/GradientButtonStyle"
+                    app:backgroundTint="@null"/>
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 

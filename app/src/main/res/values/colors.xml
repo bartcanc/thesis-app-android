@@ -6,4 +6,10 @@
 
     <color name="green_500">#4CAF50</color>
     <color name="red_500">#F44336</color>
+
+    <color name="sea_breeze_start">#c0b9dd</color>
+    <color name="sea_breeze_end">#80a1d4</color>
+
+    <color name="post_modern_start">#801125</color>
+    <color name="post_modern_end">#EC8674</color>
 </resources>

@@ -3,8 +3,10 @@ package com.example.thesisapp
 import ApiClient
 import android.os.Bundle
 import android.util.Log
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -27,6 +29,21 @@ class GraphActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_graph)
+
+        val rootLayout = findViewById<FrameLayout>(R.id.frameLayout)
+        // lub jakikolwiek inny "główny" layout z Twojego XML-a
+
+        // Przykładowy odczyt z SharedPreferences
+        sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
+        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
+
+        // Jeżeli to jest "post modern", zmieniamy background:
+        if (selectedTheme == "post") {
+            rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
+        } else {
+            // Sea Breeze (domyślnie)
+            rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
+        }
 
         btnBack = findViewById(R.id.btnBack)
         tvHeader = findViewById(R.id.tvGraphTitle)
@@ -51,8 +68,8 @@ class GraphActivity : BaseActivity() {
 
     private fun updateHeaders(trainingType: String, trainingDate: String, graphType: String) {
         tvHeader.text = when (graphType) {
-            "speed" -> "Speed Graph"
-            "heartrate" -> "Heartrate Graph"
+            "speed" -> getString(R.string.speed_graph)
+            "heartrate" -> getString(R.string.heartrate_graph)
             else -> "Unknown Graph"
         }
 

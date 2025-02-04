@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
+    android:id="@+id/frameLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -87,7 +88,7 @@
                 android:id="@+id/tvEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="d3kapp.support@gmail.com"
+                android:text="d3kapp.official@gmail.com"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:fontFamily="@font/robotomono_bold"

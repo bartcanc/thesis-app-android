@@ -93,8 +93,8 @@
                     android:id="@+id/imgCaloriesFlame"
                     android:layout_width="150dp"
                     android:layout_height="194dp"
-                    android:src="@drawable/flame_purple"
-                    android:alpha="0.5"
+                    android:src="@drawable/flame"
+                    android:alpha="0.15"
                     android:scaleType="fitCenter"
                     android:layout_gravity="center"/>
 

@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -30,7 +31,23 @@ class BandActivity : BaseActivity() {
     @SuppressLint("MissingInflatedId", "MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_band_2)
+
+        val bottomNav = findViewById<LinearLayout>(R.id.bottom_navigation)
+        val iconSmartBand = findViewById<ImageView>(R.id.ic_smartband)
+
+        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie Sea Breeze
+
+        if (selectedTheme == "post") {
+            // Post Modern:
+            bottomNav.setBackgroundResource(R.drawable.gradient_post_modern)
+            iconSmartBand.setImageResource(R.drawable.ic_smartband_post_modern)
+        } else {
+            // Sea Breeze (domyślnie):
+            bottomNav.setBackgroundResource(R.drawable.gradient_background)
+            iconSmartBand.setImageResource(R.drawable.ic_smartband)
+        }
 
         val apiClient = ApiClient(this)
         apiService = apiClient.getApiService8000()
