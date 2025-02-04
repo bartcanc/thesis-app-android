@@ -116,10 +116,13 @@
                 android:id="@+id/spActivityLevel"
                 android:layout_width="wrap_content"
                 android:layout_height="60dp"
-                android:background="@drawable/rounded_spinner_background"
                 android:padding="8dp"
                 android:dropDownWidth="match_parent"
-                android:spinnerMode="dropdown"
+                android:spinnerMode="dialog"
+                android:foregroundGravity="center"
+                android:background="@drawable/rounded_spinner_background"
+                android:theme="@style/CustomSpinnerDialogTheme"
+                android:backgroundTint="@null"
                 android:layout_gravity="center"
                 android:layout_marginTop="16dp"/>
 

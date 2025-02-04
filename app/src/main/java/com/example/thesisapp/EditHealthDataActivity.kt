@@ -49,7 +49,9 @@ class EditHealthDataActivity : BaseActivity() {
         heightInput = findViewById(R.id.etHeight)
         btnSubmit = findViewById(R.id.btnConfirmData)
         tvHeader = findViewById(R.id.tvHeader)
+
         spActivityLevel = findViewById(R.id.spActivityLevel)
+        spActivityLevel.context.setTheme(R.style.CustomSpinnerDialogTheme)
 
         val previousActivity = intent.getStringExtra("previous_activity")
         tvHeader.text = when (previousActivity) {

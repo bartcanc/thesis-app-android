@@ -59,6 +59,7 @@ class HealthDataActivity : BaseActivity() {
         tvHeader = findViewById(R.id.tvHeader)
 
         spActivityLevel = findViewById(R.id.spActivityLevel)
+        spActivityLevel.context.setTheme(R.style.CustomSpinnerDialogTheme)
 
         // Pobierz nazwę poprzedniej aktywności
         val previousActivity = intent.getStringExtra("previous_activity")
@@ -88,6 +89,12 @@ class HealthDataActivity : BaseActivity() {
                 finish()
             }
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        startActivity(Intent(this@HealthDataActivity, LoginActivity::class.java))
+        finish()
     }
 
     private fun handleFormSubmission(onSuccess: () -> Unit) {

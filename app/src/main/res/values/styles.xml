@@ -14,4 +14,21 @@
         <item name="android:gravity">center</item>
         <item name="android:elevation">5dp</item>
     </style>
+    <style name="CustomSpinnerDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <!-- Ustawiamy, aby dialog (Spinner) korzystał z naszego stylu alertDialogTheme -->
+        <item name="android:alertDialogTheme">@style/CustomAlertDialogStyle</item>
+    </style>
+
+    <style name="CustomAlertDialogStyle" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <!-- Tutaj możesz ustawić kolor, gradient lub drawable jako tło okna dialogowego -->
+        <item name="android:windowBackground">@drawable/rounded_button</item>
+
+        <!-- Jeśli chcesz zmienić kolor samego „obszaru” w dialogu (np. tła listy) -->
+        <item name="android:colorBackgroundFloating">@drawable/rounded_button</item>
+
+        <!-- Przykładowe atrybuty do dostosowania wyglądu tekstu w dialogu: -->
+        <!-- <item name="android:textColorPrimary">@android:color/white</item> -->
+        <!-- <item name="android:textColorSecondary">@android:color/darker_gray</item> -->
+    </style>
+
 </resources>

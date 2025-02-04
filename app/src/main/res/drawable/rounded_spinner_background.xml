@@ -1,5 +1,4 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#456DB0" /> <!-- Kolor tła -->
-    <corners android:radius="50dp" /> <!-- Zaokrąglone rogi -->
-    />
+    <solid android:color="#66000000" /> <!-- 66 to 40% przezroczystości -->
+    <corners android:radius="30dp" />
 </shape>
