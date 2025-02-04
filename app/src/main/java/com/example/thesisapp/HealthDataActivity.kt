@@ -36,21 +36,16 @@ class HealthDataActivity : BaseActivity() {
         setContentView(R.layout.activity_health_data)
 
         val rootLayout = findViewById<ConstraintLayout>(R.id.constraintLayout)
-        // lub jakikolwiek inny "główny" layout z Twojego XML-a
 
-        // Przykładowy odczyt z SharedPreferences
         sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
-        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
+        val selectedTheme = sharedPref.getString("theme", "sea")
 
-        // Jeżeli to jest "post modern", zmieniamy background:
         if (selectedTheme == "post") {
             rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
         } else {
-            // Sea Breeze (domyślnie)
             rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
         }
 
-        // Inicjalizacja widoków
         genderInput = findViewById(R.id.etGender)
         ageInput = findViewById(R.id.etAge)
         weightInput = findViewById(R.id.etWeight)
@@ -61,10 +56,8 @@ class HealthDataActivity : BaseActivity() {
         spActivityLevel = findViewById(R.id.spActivityLevel)
         spActivityLevel.context.setTheme(R.style.CustomSpinnerDialogTheme)
 
-        // Pobierz nazwę poprzedniej aktywności
         val previousActivity = intent.getStringExtra("previous_activity")
 
-        // Ustaw nagłówek i logikę nawigacji na podstawie poprzedniej aktywności
         if (previousActivity == "LoginActivity") {
             tvHeader.text = getString(R.string.enter_your_data)
 
@@ -100,7 +93,6 @@ class HealthDataActivity : BaseActivity() {
     private fun handleFormSubmission(onSuccess: () -> Unit) {
         val userId = sharedPref.getString("user_id", null)
 
-        // Pobierz wartości z pól tekstowych
         val gender = genderInput.text.toString()
         val age = ageInput.text.toString().toIntOrNull()
         val weight = weightInput.text.toString().toIntOrNull()
@@ -116,7 +108,6 @@ class HealthDataActivity : BaseActivity() {
 
         if (userId != null) {
             if (gender.isNotEmpty() && age != null && weight != null && height != null) {
-                // Tworzenie JSON-a dla ciała zapytania
                 val requestBodyJson = JSONObject().apply{
                         put("userId", userId)
                         put("gender", gender)
@@ -134,7 +125,6 @@ class HealthDataActivity : BaseActivity() {
                 val apiClient = ApiClient(this)
                 val apiService = apiClient.getApiService8000()
 
-                // Wysyłanie zapytania PUT z `userId` jako parametrem query
                 apiService.sendHealthData(userId, requestBody)
                     .enqueue(object : Callback<ResponseBody> {
                         override fun onResponse(
@@ -175,6 +165,4 @@ class HealthDataActivity : BaseActivity() {
             Toast.makeText(this, "User ID not found", Toast.LENGTH_SHORT).show()
         }
     }
-
-
 }

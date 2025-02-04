@@ -40,11 +40,9 @@ class BandActivity : BaseActivity() {
         val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie Sea Breeze
 
         if (selectedTheme == "post") {
-            // Post Modern:
             bottomNav.setBackgroundResource(R.drawable.gradient_post_modern)
             iconSmartBand.setImageResource(R.drawable.ic_smartband_post_modern)
         } else {
-            // Sea Breeze (domyślnie):
             bottomNav.setBackgroundResource(R.drawable.gradient_background)
             iconSmartBand.setImageResource(R.drawable.ic_smartband)
         }
@@ -61,7 +59,6 @@ class BandActivity : BaseActivity() {
         config.setLocale(locale)
         resources.updateConfiguration(config, resources.displayMetrics)
 
-        //tvMessage = findViewById(R.id.tvMessage)
         btnConnect = findViewById(R.id.btnConnect)
         btnDisconnect = findViewById(R.id.btnDisconnect)
         btnReadData = findViewById(R.id.btnReadData)
@@ -74,7 +71,6 @@ class BandActivity : BaseActivity() {
         btnProfile = findViewById(R.id.btnProfile)
         btnSettings = findViewById(R.id.btnSettings)
 
-        // Po kliknięciu otwieramy ustawienia Bluetooth
         btnConnect.setOnClickListener {
             openBluetoothSettings()
         }
@@ -89,7 +85,6 @@ class BandActivity : BaseActivity() {
             sendUnixTime()
         }
 
-        // Rozpoczynamy odczytywanie danych po kliknięciu
         btnReadData.setOnClickListener {
             if (bluetoothGatt != null) {
                 Log.d("BLE", "Attempting to subscribe to characteristic.")

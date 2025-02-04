@@ -35,16 +35,13 @@ class LoginActivity : BaseActivity() {
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Ukryj pasek akcji, jeśli jeszcze widoczny
         supportActionBar?.hide()
 
-// Layout fullscreen z zachowaniem paska systemowego w postaci nakładki
         window.decorView.systemUiVisibility = (
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 )
 
-// Dodatkowo przezroczysty status bar:
         window.statusBarColor = Color.TRANSPARENT
 
         val selectedLanguage = sharedPref.getString("selected_language", "pl")
@@ -57,17 +54,13 @@ class LoginActivity : BaseActivity() {
         setContentView(R.layout.activity_login)
 
         val rootLayout = findViewById<ConstraintLayout>(R.id.constraintLayout)
-        // lub jakikolwiek inny "główny" layout z Twojego XML-a
 
-        // Przykładowy odczyt z SharedPreferences
         sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
-        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
+        val selectedTheme = sharedPref.getString("theme", "sea")
 
-        // Jeżeli to jest "post modern", zmieniamy background:
         if (selectedTheme == "post") {
             rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
         } else {
-            // Sea Breeze (domyślnie)
             rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
         }
 
@@ -145,7 +138,7 @@ class LoginActivity : BaseActivity() {
 
                     response.body()?.let { body ->
                         val jsonResponse = JSONObject(body.string())
-                        val userId = jsonResponse.optString("user_id", "")  // Pobieramy `user_id` z JSON
+                        val userId = jsonResponse.optString("user_id", "")
                         if (userId.isNotEmpty()) {
                             Log.d("USERID", "USTAWIONO USERID")
                             setUserID(userId)
@@ -154,7 +147,7 @@ class LoginActivity : BaseActivity() {
 
                     // Pobranie `session-id` z nagłówków odpowiedzi
                     val sessionId = response.headers()["session_id"]
-                    Log.d("performLogin", "session-id from response header: $sessionId")  // Logujemy `session-id` z odpowiedzi
+                    Log.d("performLogin", "session-id from response header: $sessionId")
 
                     if (sessionId != null) {
                         with(sharedPref.edit()) {
@@ -168,7 +161,6 @@ class LoginActivity : BaseActivity() {
                     }
                     showMessage("User logged in successfully")
 
-                  // Sprawdzenie, czy użytkownik istnieje w bazie danych dopiero po zapisaniu userId i session-id
             checkUserExistsInDatabase(
                 getUserID()!!,
                 onSuccess = {

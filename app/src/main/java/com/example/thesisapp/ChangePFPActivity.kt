@@ -39,17 +39,13 @@ class ChangePFPActivity : BaseActivity() {
         setContentView(R.layout.activity_change_pfp)
 
         val rootLayout = findViewById<LinearLayout>(R.id.frameLayout)
-        // lub jakikolwiek inny "główny" layout z Twojego XML-a
 
-        // Przykładowy odczyt z SharedPreferences
         sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
-        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
+        val selectedTheme = sharedPref.getString("theme", "sea")
 
-        // Jeżeli to jest "post modern", zmieniamy background:
         if (selectedTheme == "post") {
             rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
         } else {
-            // Sea Breeze (domyślnie)
             rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
         }
 
@@ -194,7 +190,6 @@ class ChangePFPActivity : BaseActivity() {
                     val inputStream = connection.inputStream
                     val bitmap = BitmapFactory.decodeStream(inputStream)
 
-                    // Wyświetlenie obrazu w UI
                     runOnUiThread {
                         findViewById<ImageView>(R.id.imgProfilePicture).setImageBitmap(bitmap)
                     }

@@ -28,31 +28,23 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Ukryj pasek akcji, jeśli jeszcze widoczny
         supportActionBar?.hide()
 
-// Layout fullscreen z zachowaniem paska systemowego w postaci nakładki
         window.decorView.systemUiVisibility = (
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 )
 
-// Dodatkowo przezroczysty status bar:
         window.statusBarColor = Color.TRANSPARENT
         setContentView(R.layout.activity_splash)
 
         val rootLayout = findViewById<ConstraintLayout>(R.id.constraintLayout)
-        // lub jakikolwiek inny "główny" layout z Twojego XML-a
 
-        // Przykładowy odczyt z SharedPreferences
         sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
-        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
-
-        // Jeżeli to jest "post modern", zmieniamy background:
+        val selectedTheme = sharedPref.getString("theme", "sea")
         if (selectedTheme == "post") {
             rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
         } else {
-            // Sea Breeze (domyślnie)
             rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
         }
 

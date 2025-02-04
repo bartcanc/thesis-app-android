@@ -63,7 +63,7 @@ class TrainingListActivity : BaseActivity() {
         recyclerTrainings.layoutManager = LinearLayoutManager(this)
         recyclerTrainings.adapter = WorkoutAdapter(workouts,
             { workout -> navigateToSingleTraining(workout) },
-            { workout -> showDeleteDialog(workout) } // Obsługa długiego kliknięcia
+            { workout -> showDeleteDialog(workout) }
         )
     }
 
@@ -115,7 +115,6 @@ class TrainingListActivity : BaseActivity() {
             val apiClient = ApiClient(this)
             val apiService = apiClient.getApiService8000()
 
-            // Dodaj parametry stronicowania: `page` i `limit`
             apiService.getTrainings(userId, currentPage).enqueue(object : Callback<ResponseBody> {
                 override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                     if (response.isSuccessful) {

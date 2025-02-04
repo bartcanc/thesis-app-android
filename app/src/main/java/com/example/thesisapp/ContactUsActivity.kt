@@ -19,17 +19,13 @@ class ContactUsActivity : BaseActivity() {
         setContentView(R.layout.activity_contact_us)
 
         val rootLayout = findViewById<FrameLayout>(R.id.frameLayout)
-        // lub jakikolwiek inny "główny" layout z Twojego XML-a
 
-        // Przykładowy odczyt z SharedPreferences
         sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
-        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
+        val selectedTheme = sharedPref.getString("theme", "sea")
 
-        // Jeżeli to jest "post modern", zmieniamy background:
         if (selectedTheme == "post") {
             rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
         } else {
-            // Sea Breeze (domyślnie)
             rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
         }
 

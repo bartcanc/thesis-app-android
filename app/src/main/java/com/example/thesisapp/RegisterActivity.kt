@@ -33,16 +33,13 @@ class RegisterActivity : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Ukryj pasek akcji, jeśli jeszcze widoczny
         supportActionBar?.hide()
 
-        // Layout fullscreen z zachowaniem paska systemowego w postaci nakładki
         window.decorView.systemUiVisibility = (
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 )
 
-        // Dodatkowo przezroczysty status bar:
         window.statusBarColor = Color.TRANSPARENT
         setContentView(R.layout.activity_registration)
 
@@ -56,15 +53,12 @@ class RegisterActivity : AppCompatActivity() {
         resources.updateConfiguration(config, resources.displayMetrics)
 
         val rootLayout = findViewById<ConstraintLayout>(R.id.constraintLayout)
-        // lub jakikolwiek inny "główny" layout z Twojego XML-a
 
-        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
+        val selectedTheme = sharedPref.getString("theme", "sea")
 
-        // Jeżeli to jest "post modern", zmieniamy background:
         if (selectedTheme == "post") {
             rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
         } else {
-            // Sea Breeze (domyślnie)
             rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
         }
 
@@ -113,7 +107,7 @@ class RegisterActivity : AppCompatActivity() {
                             val passCode = jsonResponse.optString("password_reset_code", "null")
 
                             if (userId.isNotEmpty()) {
-                                showPasscodeDialog(passCode)    //wyswietlenie okna z kodem reset
+                                showPasscodeDialog(passCode)
                             } else {
                                 Toast.makeText(
                                     this@RegisterActivity,

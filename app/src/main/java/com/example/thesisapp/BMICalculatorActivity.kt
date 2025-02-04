@@ -14,16 +14,13 @@ import androidx.appcompat.app.AppCompatActivity
 class BMICalculatorActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Ukryj pasek akcji, jeśli jeszcze widoczny
         supportActionBar?.hide()
 
-// Layout fullscreen z zachowaniem paska systemowego w postaci nakładki
         window.decorView.systemUiVisibility = (
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 )
 
-// Dodatkowo przezroczysty status bar:
         window.statusBarColor = Color.TRANSPARENT
         setContentView(R.layout.activity_bmi_calculator)
 
@@ -66,20 +63,17 @@ class BMICalculatorActivity : AppCompatActivity() {
         val tvBMIValue = dialogView.findViewById<TextView>(R.id.tvResultValue)
         val btnCloseDialog = dialogView.findViewById<Button>(R.id.btnCloseDialog)
 
-        // Ustaw wyniki BMI
         tvBMIValue.text = String.format("%.2f", bmi)
 
-        // Pobierz opis BMI
         val description = getBMIDescription(bmi, age)
         tvBMIDescription.text = description
 
-        // Ustawienie koloru tekstu na podstawie zasobów string
         val textColor = when (description) {
-            getString(R.string.bmi_status_underweight) -> android.graphics.Color.BLUE
-            getString(R.string.bmi_status_normal) -> android.graphics.Color.GREEN
-            getString(R.string.bmi_status_overweight) -> android.graphics.Color.YELLOW
-            getString(R.string.bmi_status_obesity) -> android.graphics.Color.RED
-            else -> android.graphics.Color.BLACK // Defaultowy kolor
+            getString(R.string.bmi_status_underweight) -> Color.BLUE
+            getString(R.string.bmi_status_normal) -> Color.GREEN
+            getString(R.string.bmi_status_overweight) -> Color.YELLOW
+            getString(R.string.bmi_status_obesity) -> Color.RED
+            else -> Color.BLACK
         }
         tvBMIDescription.setTextColor(textColor)
 

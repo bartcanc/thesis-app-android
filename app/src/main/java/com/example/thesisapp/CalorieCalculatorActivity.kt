@@ -21,16 +21,13 @@ import android.widget.Toast
 class CalorieCalculatorActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Ukryj pasek akcji, jeśli jeszcze widoczny
         supportActionBar?.hide()
 
-// Layout fullscreen z zachowaniem paska systemowego w postaci nakładki
         window.decorView.systemUiVisibility = (
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 )
 
-// Dodatkowo przezroczysty status bar:
         window.statusBarColor = Color.TRANSPARENT
         setContentView(R.layout.activity_calorie_calculator)
 
@@ -111,32 +108,26 @@ class CalorieCalculatorActivity : AppCompatActivity() {
     }
 
     private fun showCalorieAlert(calories: Double) {
-        // Inflate the alert dialog layout
         val dialogView = LayoutInflater.from(this).inflate(R.layout.calorie_result_dialog, null)
 
-        // Build the alert dialog
         val alertDialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
         alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        // Find and set the values for the TextViews in the dialog
         val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
         val tvResultValue = dialogView.findViewById<TextView>(R.id.tvResultValue)
         val tvAdditionalInfo = dialogView.findViewById<TextView>(R.id.tvAdditionalInfo)
         val btnCloseDialog = dialogView.findViewById<Button>(R.id.btnCloseDialog)
 
-        // Set text for dialog elements
         tvDialogTitle.text = "Your Calorie\nincome is:"
         tvResultValue.text = calories.toInt().toString()
         tvAdditionalInfo.text = "kcal"
 
-        // Close the dialog when the button is clicked
         btnCloseDialog.setOnClickListener {
             alertDialog.dismiss()
         }
 
-        // Show the dialog
         alertDialog.show()
     }
 }

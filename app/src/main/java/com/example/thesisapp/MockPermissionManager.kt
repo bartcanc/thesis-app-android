@@ -13,12 +13,10 @@ class MockPermissionManager(activity: Activity) : PermissionManager(activity) {
 
 
     override fun allPermissionsGranted(): Boolean {
-        // Zawsze zwracaj true, że wszystkie uprawnienia są przyznane
         return true
     }
 
     fun simulatePermissionResult(granted: Boolean) {
-        // Opcjonalnie możesz dodać symulację wyniku żądania uprawnień
         if (granted) {
             Log.d("MockPermissionManager", "Simulated: Permissions granted.")
         } else {

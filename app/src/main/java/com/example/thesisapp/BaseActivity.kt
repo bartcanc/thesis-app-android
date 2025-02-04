@@ -172,16 +172,13 @@
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
 
-            // Ukryj pasek akcji, jeśli jeszcze widoczny
             supportActionBar?.hide()
 
-// Layout fullscreen z zachowaniem paska systemowego w postaci nakładki
             window.decorView.systemUiVisibility = (
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                             or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     )
 
-// Dodatkowo przezroczysty status bar:
             window.statusBarColor = Color.TRANSPARENT
             sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
 
@@ -471,16 +468,7 @@
                         Log.d("TIME", "Odczyt danych zakończony o czasie: $endTime ms")
                         Log.d("TIME", "Czas trwania odczytu danych: $duration ms")
                         processAllBlobsData()
-                        // Walidacja liczby odebranych danych
-                        if (totalReceivedBytes == fileSize - 4) {
-                            Log.d("BLE", "Odebrana ilość danych zgadza się z oczekiwanym rozmiarem pliku.")
-                            resetFlags()
-                            return
-                        } else {
-                            Log.e("BLE", "Odebrana ilość danych ($totalReceivedBytes bajtów) NIE zgadza się z oczekiwanym rozmiarem pliku ($fileSize bajtów).")
-                            resetFlags()
-                            return
-                        }
+                        resetFlags()
                     }
 
                     if (receivedData.isNotEmpty()) {
@@ -559,20 +547,16 @@
 
         @SuppressLint("MissingPermission")
         protected fun sendMessageOK() {
-            // Pobranie charakterystyki `confirmationUUID` z usługi `serviceUUID`
             val characteristic = bluetoothGatt?.getService(serviceUUID)?.getCharacteristic(confirmationUUID)
 
-            // Sprawdzenie, czy charakterystyka istnieje i mamy wymagane uprawnienia
             if (characteristic != null && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 == PackageManager.PERMISSION_GRANTED) {
                 if (characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE == 0) {
                     Log.e("BLE", "Characteristic $confirmationUUID is not writable.")
                     return
                 }
-                // Przekształcenie wartości "OK" na tablicę bajtów i przypisanie jej do charakterystyki
                 characteristic.value = "OK".toByteArray(Charsets.UTF_8)
 
-                // Próba zapisu charakterystyki, sprawdzenie czy zapis się powiódł
                 if (bluetoothGatt?.writeCharacteristic(characteristic) == true) {
                     Log.d("BLE", "Wiadomość 'OK' została pomyślnie wysłana na characteristicUUID: $confirmationUUID")
                 } else {
@@ -590,29 +574,24 @@
                 return
             }
 
-            // Pobierz serwis
             val service = bluetoothGatt?.getService(serviceUUID)
             if (service == null) {
                 Log.e("BLE", "Service not found for UUID: $serviceUUID")
             }
 
-            // Pobierz charakterystykę klucza prywatnego
             val privateKeyCharacteristic = service?.getCharacteristic(privateKeyUUID)
             if (privateKeyCharacteristic == null) {
                 Log.e("BLE", "Characteristic for private key not found for UUID: $privateKeyUUID")
             }
 
-            // Sprawdź uprawnienia Bluetooth
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 Log.e("BLE", "Permission BLUETOOTH_CONNECT is not granted.")
                 return
             }
 
-            // Ustaw wartość jako tekst UTF-8
             privateKeyCharacteristic?.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
             privateKeyCharacteristic?.setValue(privateKey)  // Ustaw wartość bezpośrednio jako String
 
-            // Próbuj zapisać wartość charakterystyki
             val success = bluetoothGatt?.writeCharacteristic(privateKeyCharacteristic) == true
             if (success) {
                 Log.d("BLE", "Private key sent successfully to band as UTF-8 text.")
@@ -623,24 +602,20 @@
         }
 
         fun getCurrentWifiCredentials(context: Context, callback: (String, String) -> Unit) {
-            // Utwórz niestandardowy dialog na podstawie `wifi_data_dialog.xml`
             val dialog = Dialog(context)
             dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
             dialog.setContentView(R.layout.wifi_data_dialog)
 
-            // Pobierz referencje do elementów w widoku dialogu
             val ssidInput = dialog.findViewById<EditText>(R.id.etWifiSSID)
             val passwordInput = dialog.findViewById<EditText>(R.id.etWifiPassword)
             val btnSend = dialog.findViewById<Button>(R.id.btnSendWifiData)
             val btnCancel = dialog.findViewById<Button>(R.id.btnCancelWifiData)
 
-            // Obsługa kliknięcia przycisku "Wyślij"
             btnSend.setOnClickListener {
                 val enteredSsid = ssidInput.text.toString()
                 val enteredPassword = passwordInput.text.toString()
 
                 if (enteredSsid.isNotEmpty() && enteredPassword.isNotEmpty()) {
-                    // Zwróć dane przez callback
                     callback(enteredSsid, enteredPassword)
                     dialog.dismiss()
                 } else {
@@ -648,12 +623,10 @@
                 }
             }
 
-            // Obsługa kliknięcia przycisku "Anuluj"
             btnCancel.setOnClickListener {
                 dialog.dismiss()
             }
 
-            // Wyświetl dialog
             dialog.show()
         }
 
@@ -679,34 +652,27 @@
         }
 
         protected fun showBandInfoDialog() {
-            // Inflatuj widok
             startSequentialRead()
             val dialogView = layoutInflater.inflate(R.layout.band_info_dialog, null)
 
-            // Tworzenie dialogu i ustawianie widoku
             val dialog = AlertDialog.Builder(this)
                 .setView(dialogView)
                 .create()
             dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-            // Pobierz referencje do widoków w dialogView
             val tvBatteryLevel = dialogView.findViewById<TextView>(R.id.tvBatteryLevel)
             val tvFirmwareVersion = dialogView.findViewById<TextView>(R.id.tvFirmwareVersion)
             val tvFilesToSend = dialogView.findViewById<TextView>(R.id.tvFilesToSend)
             val btnCloseBandInfo = dialogView.findViewById<Button>(R.id.btnCloseBandInfo)
 
-            // Obsługa przycisku Zamknij
             btnCloseBandInfo?.setOnClickListener {
                 dialog.dismiss() // Zamknięcie dialogu
             }
 
-            // Ustaw wartości lub domyślne "N/A" jeśli null
             tvBatteryLevel?.text = getString(R.string.poziom_baterii, batteryLevel ?: "N/A")
             tvFirmwareVersion?.text = getString(R.string.wersja_firmware_1_0_2, firmwareVersion ?: "N/A")
             tvFilesToSend?.text = getString(R.string.liczba_plik_w_do_przes_ania, howManyFiles ?: "N/A")
 
-
-            // Pokaż dialog
             dialog.show()
         }
 
@@ -831,7 +797,6 @@
                     outputStream.write(jsonData.toString(4).toByteArray(Charsets.UTF_8))
                     Log.d("saveAllBlobsToSingleJsonUnified", "Plik JSON zapisany w: ${outputFile.absolutePath}")
 
-                    // **Pokazujemy alert po zapisaniu pliku JSON**
                     showJsonSavedAlert()
                 }
             } catch (e: IOException) {
@@ -872,14 +837,11 @@
         }
 
         protected fun showTrainingTypeDialog() {
-            // Inflate the dialog layout
             val dialogView = LayoutInflater.from(this).inflate(R.layout.training_type_dialog, null)
 
-            // Initialize views from the dialog layout
             val spinnerTrainingType = dialogView.findViewById<Spinner>(R.id.spinnerTrainingType)
             val btnOk = dialogView.findViewById<Button>(R.id.btnOk)
 
-            // Mapa kluczy i zasobów string
             val trainingTypeMap = mapOf(
                 getString(R.string.activity_walking) to "Walking",
                 getString(R.string.activity_jogging) to "Jogging",
@@ -895,7 +857,6 @@
                 getString(R.string.activity_intense_exertion) to "Intense Exertion"
             )
 
-            // Pobierz listę do spinnera (klucze mapy)
             val trainingTypes = trainingTypeMap.keys.toList()
 
             val adapter = ArrayAdapter(this, R.layout.spinner_item, trainingTypes)
@@ -903,19 +864,17 @@
             spinnerTrainingType.setPopupBackgroundResource(android.R.color.transparent)
             spinnerTrainingType.adapter = adapter
 
-            // Build and show the dialog
             val alertDialog = AlertDialog.Builder(this)
                 .setView(dialogView)
                 .create()
             alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-            // Handle the OK button click
             btnOk.setOnClickListener {
                 val selectedType = spinnerTrainingType.selectedItem.toString()
                 val selectedTrainingKey = trainingTypeMap[selectedType]
 
                 if (selectedTrainingKey != null) {
-                    sendSensorData(selectedTrainingKey) // Pass the selected training key
+                    sendSensorData(selectedTrainingKey)
                 } else {
                     Toast.makeText(this, "Invalid training type selected", Toast.LENGTH_SHORT).show()
                 }
@@ -928,7 +887,6 @@
 
 
         private fun sendSensorData(workoutType: String) {
-            // Sprawdzamy, czy workoutType jest przekazany
             if (workoutType.isEmpty()) {
                 Log.e("sendSensorData", "Nie podano typu treningu!")
                 return
@@ -937,14 +895,11 @@
             val file = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "sensor_data.json")
 
             if (file.exists()) {
-                // Przygotowanie treści żądania
                 val jsonBody = RequestBody.create("application/json".toMediaTypeOrNull(), file.readText())
 
-                // Pobieranie session-id
                 val sessionId = getSessionID()
                 Log.d("sendSensorData", "session-id before request: $sessionId")
 
-                // Wykonanie żądania z workoutType jako parametrem
                 val call = apiService.sendSensorData(workoutType, jsonBody)
 
                 call.enqueue(object : Callback<ResponseBody> {

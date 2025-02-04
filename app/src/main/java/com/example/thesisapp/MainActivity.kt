@@ -41,13 +41,11 @@ class MainActivity: BaseActivity() {
         val llBadges = findViewById<LinearLayout>(R.id.llBadges)
         val llBMICalculator = findViewById<LinearLayout>(R.id.llBMICalculator)
 
-        // Dolny pasek nawigacji:
         val bottomNav = findViewById<LinearLayout>(R.id.bottom_navigation)
 
         val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie Sea Breeze
 
         if (selectedTheme == "post") {
-            // Post Modern:
             userInfoContainer.setBackgroundResource(R.drawable.rounded_button_background_post_modern)
             llMyTrainings.setBackgroundResource(R.drawable.rounded_button_background_post_modern)
             llForum.setBackgroundResource(R.drawable.rounded_button_background_post_modern)
@@ -56,7 +54,6 @@ class MainActivity: BaseActivity() {
 
             bottomNav.setBackgroundResource(R.drawable.gradient_post_modern)
         } else {
-            // Sea Breeze (domyślnie):
             userInfoContainer.setBackgroundResource(R.drawable.rounded_button_background_main)
             llMyTrainings.setBackgroundResource(R.drawable.rounded_button_background_main)
             llForum.setBackgroundResource(R.drawable.rounded_button_background_main)
@@ -76,7 +73,7 @@ class MainActivity: BaseActivity() {
 
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
 
-        val username = sharedPref.getString("username", "User") // Domyślna wartość to "User"
+        val username = sharedPref.getString("username", "User")
         tvWelcome.text = "${this.getString(R.string.welcome_testuser)}$username!"
 
         if(userId != null && sessionId != null) {

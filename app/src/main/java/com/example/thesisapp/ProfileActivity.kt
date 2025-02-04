@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.provider.ContactsContract.CommonDataKinds.Website.URL
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
@@ -42,13 +41,11 @@ class ProfileActivity: BaseActivity(){
 
         val bottomNav = findViewById<LinearLayout>(R.id.bottom_navigation)
 
-        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie Sea Breeze
+        val selectedTheme = sharedPref.getString("theme", "sea")
 
         if (selectedTheme == "post") {
-            // Post Modern:
             bottomNav.setBackgroundResource(R.drawable.gradient_post_modern)
         } else {
-            // Sea Breeze (domyślnie):
             bottomNav.setBackgroundResource(R.drawable.gradient_background)
         }
 
@@ -171,10 +168,6 @@ class ProfileActivity: BaseActivity(){
         }.start()
     }
 
-
-
-
-
     override fun onResume() {
         super.onResume()
         fetchUserAvatar(userId, sessionId)
@@ -190,7 +183,7 @@ class ProfileActivity: BaseActivity(){
 
 
     private fun fetchUserMetrics(userId: String?, sessionId: String?) {
-        val apiClient = ApiClient(this) // Tworzenie instancji klienta API
+        val apiClient = ApiClient(this)
         val apiService = apiClient.getApiService8000()
 
         if (userId != null && sessionId != null) {

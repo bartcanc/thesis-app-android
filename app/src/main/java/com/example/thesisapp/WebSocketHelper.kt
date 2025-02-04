@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 class WebSocketHelper(
     private val context: Context,
-    private val userId: String?,
+    userId: String?,
     private val sessionId: String?
 ) {
 
@@ -46,7 +46,7 @@ class WebSocketHelper(
                             is Frame.Text -> {
                                 val message = frame.readText()
                                 Log.d("WebSocket", "Odebrano wiadomość: $message")
-                                showAlert(message) // Wywołanie funkcji wyświetlającej alert
+                                showAlert()
                             }
                             is Frame.Binary -> {
                                 Log.d("WebSocket", "Odebrano dane binarne")
@@ -71,7 +71,7 @@ class WebSocketHelper(
         }
     }
 
-    private fun showAlert(message: String) {
+    private fun showAlert() {
         CoroutineScope(Dispatchers.Main).launch {
             if (context is Activity && !context.isFinishing && !context.isDestroyed) {
                 AlertDialog.Builder(context)

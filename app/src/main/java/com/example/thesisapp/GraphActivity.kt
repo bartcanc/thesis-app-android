@@ -6,7 +6,6 @@ import android.util.Log
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -31,17 +30,13 @@ class GraphActivity : BaseActivity() {
         setContentView(R.layout.activity_graph)
 
         val rootLayout = findViewById<FrameLayout>(R.id.frameLayout)
-        // lub jakikolwiek inny "główny" layout z Twojego XML-a
 
-        // Przykładowy odczyt z SharedPreferences
         sharedPref = getSharedPreferences("ThesisAppPreferences", MODE_PRIVATE)
-        val selectedTheme = sharedPref.getString("theme", "sea") // domyślnie "sea"
+        val selectedTheme = sharedPref.getString("theme", "sea")
 
-        // Jeżeli to jest "post modern", zmieniamy background:
         if (selectedTheme == "post") {
             rootLayout.setBackgroundResource(R.drawable.gradient_post_modern)
         } else {
-            // Sea Breeze (domyślnie)
             rootLayout.setBackgroundResource(R.drawable.gradient_sea_breeze)
         }
 
@@ -56,7 +51,6 @@ class GraphActivity : BaseActivity() {
         val trainingDate = intent.getStringExtra("TRAINING_DATE") ?: "Nieznana data"
         val graphType = intent.getStringExtra("GRAPH_TYPE") ?: "Nieznany typ wykresu"
 
-        // Aktualizacja nagłówków
         updateHeaders(trainingType, trainingDate, graphType)
 
         fetchGraphData(trainingDate, graphType)

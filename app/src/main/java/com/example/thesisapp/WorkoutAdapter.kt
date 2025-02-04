@@ -17,9 +17,9 @@ data class Workout(
 )
 
 class WorkoutAdapter(
-    private val workouts: MutableList<Workout>, // Zmieniamy List na MutableList, aby móc usuwać elementy
+    private val workouts: MutableList<Workout>,
     private val onItemClick: (Workout) -> Unit,
-    private val onItemLongClick: (Workout) -> Unit // Dodajemy obsługę długiego kliknięcia
+    private val onItemLongClick: (Workout) -> Unit
 ) : RecyclerView.Adapter<WorkoutAdapter.WorkoutViewHolder>() {
 
     class WorkoutViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
